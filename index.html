@@ -148,6 +148,19 @@ const CONFIG = {
   // ---- score ----
   pointsPerPixel:   0.05,   // distance score rate
   destroyBonus:     25,     // points per destroyed obstacle / flyer
+
+  // ---- endless mode (unlocked by beating all 7 levels) ----
+  endlessStartSpeed:  340,  // px/s at the start of a run
+  endlessMaxSpeed:    700,  // px/s cap
+  endlessSpeedRampPerSec: 3,   // px/s gained every second
+  endlessRampSeconds: 240,  // seconds until gaps/flyers reach max difficulty
+  endlessThemeLengthSec: 30,   // seconds per theme before cycling to the next
+  endlessGapMinStartSec: 1.05, endlessGapMinEndSec: 0.78,  // obstacle gap range at start vs full difficulty
+  endlessGapMaxStartSec: 2.30, endlessGapMaxEndSec: 1.50,
+  endlessMoverChanceStart: 0.25, endlessMoverChanceEnd: 0.6,
+  endlessMoverExtraStart: 50,    endlessMoverExtraEnd: 130,  // flyer approach speed ramp
+  endlessMoverMinSpacingSec: 6,
+  endlessPowerupMinSpacingSec: 9,
 };
 
 /* ================================================================
@@ -814,6 +827,8 @@ function mulberry32(seed) {
    ================================================================ */
 const HS_KEY = "dogRunner.highScore";
 const UNLOCK_KEY = "dogRunner.unlocked";
+const ENDLESS_KEY = "dogRunner.endless";
+const EBEST_KEY = "dogRunner.endlessBest";
 function loadHighScore() {
   try { return parseInt(localStorage.getItem(HS_KEY), 10) || 0; }
   catch (e) { return 0; }
@@ -831,6 +846,23 @@ function loadUnlocked() {
 }
 function saveUnlocked(v) {
   try { localStorage.setItem(UNLOCK_KEY, String(v)); } catch (e) {}
+}
+function loadEndlessUnlocked() {
+  try { return localStorage.getItem(ENDLESS_KEY) === "1"; } catch (e) { return false; }
+}
+function saveEndlessUnlocked() {
+  try { localStorage.setItem(ENDLESS_KEY, "1"); } catch (e) {}
+}
+function loadEndlessBest() {
+  try { return parseInt(localStorage.getItem(EBEST_KEY), 10) || 0; }
+  catch (e) { return 0; }
+}
+function saveEndlessBest(score) {
+  const s = Math.floor(score);
+  if (s <= game.endlessBest) return false;
+  game.endlessBest = s;
+  try { localStorage.setItem(EBEST_KEY, String(s)); } catch (e) {}
+  return true;
 }
 
 /* ================================================================
@@ -916,7 +948,8 @@ function generateLevel(levelIndex) {
       if (rand() > CONFIG.moverChance[levelIndex]) continue;
       const low = rand() < CONFIG.moverLowChance;
       const baseY = GROUND_Y - (low ? CONFIG.moverLowY : CONFIG.moverHighY);
-      flyers.push({ x: cx, baseY: baseY, curY: baseY, phase: rand() * 6.28, dead: false });
+      flyers.push({ x: cx, baseY: baseY, curY: baseY, phase: rand() * 6.28,
+        dead: false, fdef: theme.flyer });
       lastFlyerX = cx;
     }
   }
@@ -946,8 +979,12 @@ const game = {
   completeMsg: "",     // random phrase chosen when a level is finished
   unlocked: loadUnlocked(),   // highest unlocked level index (0-based)
   selectedLevel: 0,
+  endlessUnlocked: loadEndlessUnlocked(),
+  endlessBest: 0,
+  justUnlockedEndless: false,  // true on the victory screen that unlocked endless
 };
 game.selectedLevel = game.unlocked;
+game.endlessBest = loadEndlessBest();
 
 const player = {
   y: GROUND_Y,         // feet position
@@ -966,11 +1003,9 @@ const player = {
 let fireballs = [];    // screen-space projectiles {x, y, traveled}
 let particles = [];    // debris {x, y, vx, vy, life, color, size}
 
-function startLevel(index) {
-  game.level = generateLevel(index);
+function resetRunState() {
   game.cam = 0;
   game.doorT = 0;
-  game.score = game.scoreSnapshot;
   game.newHighScore = false;
   player.y = GROUND_Y; player.vy = 0;
   player.jumpBuffer = 0; player.coyote = 0; player.jumpsUsed = 0;
@@ -979,6 +1014,39 @@ function startLevel(index) {
   player.fireCooldown = 0; player.swipeTimer = 0;
   fireballs = []; particles = [];
   game.state = STATE.PLAYING;
+}
+
+function startLevel(index) {
+  game.level = generateLevel(index);
+  game.score = game.scoreSnapshot;
+  resetRunState();
+}
+
+/* Endless mode: terrain is generated on the fly (extendEndless) and the
+   theme cycles through all seven levels as the run goes on. */
+function startEndless() {
+  const seed = (Math.random() * 0xFFFFFFFF) >>> 0;
+  const lvl = {
+    index: -1, endless: true, seed: seed, rand: mulberry32(seed),
+    elapsed: 0, themeIdx: 0, theme: LEVELS[0],
+    lengthPx: Infinity,
+    obstacles: [], pickups: [], flyers: [],
+    genX: CONFIG.startClearSec * CONFIG.endlessStartSpeed,
+    lastPickupX: -Infinity, lastFlyerX: -Infinity,
+    door: { x: Infinity },
+  };
+  // guaranteed early pickup, same as the finite levels
+  lvl.pickups.push({
+    x: lvl.genX * 0.65,
+    y: GROUND_Y - CONFIG.pickupGroundHeightMin,
+    kind: POWERUP_KINDS[Math.floor(lvl.rand() * POWERUP_KINDS.length)],
+    dead: false, overObstacle: false,
+  });
+  lvl.lastPickupX = lvl.pickups[0].x;
+  game.level = lvl;
+  game.scoreSnapshot = 0;
+  game.score = 0;
+  resetRunState();
 }
 
 function finishLevel() {
@@ -990,6 +1058,11 @@ function finishLevel() {
     game.completeMsg = LEVEL_COMPLETE_PHRASES[Math.floor(Math.random() * LEVEL_COMPLETE_PHRASES.length)];
     game.state = STATE.LEVEL_COMPLETE;
   } else {
+    game.justUnlockedEndless = !game.endlessUnlocked;
+    if (!game.endlessUnlocked) {
+      game.endlessUnlocked = true;
+      saveEndlessUnlocked();
+    }
     game.state = STATE.VICTORY;
   }
 }
@@ -1002,8 +1075,16 @@ function finishLevel() {
 function pressJump() {
   if (game.state === STATE.TITLE) { game.state = STATE.HOWTO; return; }
   if (game.state === STATE.HOWTO) { game.state = STATE.LEVEL_SELECT; return; }
-  if (game.state === STATE.LEVEL_SELECT) { game.scoreSnapshot = 0; startLevel(game.selectedLevel); return; }
-  if (game.state === STATE.DEAD) { startLevel(game.level.index); return; }
+  if (game.state === STATE.LEVEL_SELECT) {
+    if (game.selectedLevel === LEVELS.length) { startEndless(); }
+    else { game.scoreSnapshot = 0; startLevel(game.selectedLevel); }
+    return;
+  }
+  if (game.state === STATE.DEAD) {
+    if (game.level.endless) startEndless();
+    else startLevel(game.level.index);
+    return;
+  }
   if (game.state === STATE.LEVEL_COMPLETE) { startLevel(game.level.index + 1); return; }
   if (game.state === STATE.VICTORY) { game.scoreSnapshot = 0; game.level = null; game.state = STATE.LEVEL_SELECT; return; }
   if (game.state === STATE.PLAYING) player.jumpBuffer = CONFIG.jumpBufferTime;
@@ -1028,7 +1109,8 @@ window.addEventListener("keydown", (e) => {
   if (game.state === STATE.LEVEL_SELECT && (e.code === "ArrowLeft" || e.code === "ArrowRight")) {
     e.preventDefault();
     const dir = e.code === "ArrowLeft" ? -1 : 1;
-    game.selectedLevel = Math.max(0, Math.min(game.unlocked, game.selectedLevel + dir));
+    const maxSel = game.endlessUnlocked ? LEVELS.length : game.unlocked;  // last slot = endless
+    game.selectedLevel = Math.max(0, Math.min(maxSel, game.selectedLevel + dir));
     return;
   }
   if (e.code === "Space" || e.code === "ArrowUp") { e.preventDefault(); pressJump(); }
@@ -1042,7 +1124,9 @@ canvas.addEventListener("pointerdown", (e) => {
     const y = (e.clientY - r.top) * (VIEW_H / r.height);
     const hit = hitChip(x, y);
     if (hit !== null) {
-      if (hit <= game.unlocked) {
+      if (hit === LEVELS.length) {
+        if (game.endlessUnlocked) { game.selectedLevel = hit; startEndless(); }
+      } else if (hit <= game.unlocked) {
         game.selectedLevel = hit;
         game.scoreSnapshot = 0;
         startLevel(hit);
@@ -1101,7 +1185,7 @@ function destroyObstacle(obs) {
 function destroyFlyer(f) {
   f.dead = true;
   game.score += CONFIG.destroyBonus;
-  const deb = game.level.theme.flyer.debris;
+  const deb = (f.fdef || game.level.theme.flyer).debris;
   spawnDebris(f.x - game.cam, f.curY, deb[0], deb[1]);
 }
 
@@ -1111,7 +1195,7 @@ function takeHit() {
     player.powerup = null;
     player.iframes = CONFIG.iframeDuration;
   } else {
-    game.newHighScore = saveHighScore(game.score);
+    game.newHighScore = game.level.endless ? saveEndlessBest(game.score) : saveHighScore(game.score);
     game.state = STATE.DEAD;
   }
 }
@@ -1141,7 +1225,23 @@ function update(dt) {
   if (game.state !== STATE.PLAYING) return;
   game.time += dt;
 
-  const speed = CONFIG.scrollSpeed[game.level.index];
+  const lvl = game.level;
+  let speed, extraSpeed;
+  if (lvl.endless) {
+    lvl.elapsed += dt;
+    const t01 = Math.min(1, lvl.elapsed / CONFIG.endlessRampSeconds);
+    speed = Math.min(CONFIG.endlessMaxSpeed,
+      CONFIG.endlessStartSpeed + CONFIG.endlessSpeedRampPerSec * lvl.elapsed);
+    extraSpeed = CONFIG.endlessMoverExtraStart +
+      (CONFIG.endlessMoverExtraEnd - CONFIG.endlessMoverExtraStart) * t01;
+    // cycle through the seven themes as the run goes on
+    const idx = Math.floor(lvl.elapsed / CONFIG.endlessThemeLengthSec) % LEVELS.length;
+    if (idx !== lvl.themeIdx) { lvl.themeIdx = idx; lvl.theme = LEVELS[idx]; }
+    extendEndless(lvl, speed, t01);
+  } else {
+    speed = CONFIG.scrollSpeed[lvl.index];
+    extraSpeed = CONFIG.moverExtraSpeed[lvl.index];
+  }
   game.cam += speed * dt;
   game.score += speed * dt * CONFIG.pointsPerPixel;
 
@@ -1219,10 +1319,9 @@ function update(dt) {
   }
 
   // -- flyers: drift toward the dog, bob, swipe-killable, collide --
-  const extra = CONFIG.moverExtraSpeed[game.level.index];
   for (const f of game.level.flyers) {
     if (f.dead) continue;
-    f.x -= extra * dt;
+    f.x -= extraSpeed * dt;
     f.curY = f.baseY + Math.sin(game.time * CONFIG.moverBobFreq + f.phase) * CONFIG.moverBobAmp;
     const sx = f.x - game.cam;
     if (sx < -60 || sx > VIEW_W + 60) continue;
@@ -1268,11 +1367,68 @@ function update(dt) {
   updateParticles(dt, speed * 0.5);
 
   // -- level end: park the camera and start the door animation --
-  if (game.cam >= game.level.lengthPx) {
-    game.cam = game.level.lengthPx;
+  if (!lvl.endless && game.cam >= lvl.lengthPx) {
+    game.cam = lvl.lengthPx;
     game.doorT = 0;
     game.state = STATE.DOOR_ANIM;
   }
+}
+
+/* ================================================================
+   Endless generation — keeps the terrain a few screens ahead of the
+   camera, mirroring the finite generator's fairness rules but with
+   difficulty interpolated by t01 (0 = fresh run, 1 = fully ramped).
+   Entities far behind the camera are dropped to keep arrays small.
+   ================================================================ */
+function extendEndless(lvl, speed, t01) {
+  const lerp = (a, b) => a + (b - a) * t01;
+  const gapMin = lerp(CONFIG.endlessGapMinStartSec, CONFIG.endlessGapMinEndSec);
+  const gapMax = lerp(CONFIG.endlessGapMaxStartSec, CONFIG.endlessGapMaxEndSec);
+  const horizon = game.cam + VIEW_W * 3;
+  while (lvl.genX < horizon) {
+    const pool = OBSTACLE_TYPES.filter((t) => lvl.theme.obstacles.includes(t.key));
+    const type = pool[Math.floor(lvl.rand() * pool.length)];
+    const gapSec = gapMin + lvl.rand() * (gapMax - gapMin);
+    const gapStart = lvl.genX, gapEnd = lvl.genX + gapSec * speed;
+    const obsX = gapEnd;
+
+    // pickup in this gap (ground) or riding the jump arc over the new obstacle
+    let placedPickup = false;
+    if (gapEnd - gapStart >= CONFIG.pickupGapMinPx) {
+      const overObs = lvl.rand() < CONFIG.pickupOverObstacleChance;
+      const cx = overObs ? obsX + type.w / 2 : (gapStart + gapEnd) / 2;
+      if (cx - lvl.lastPickupX >= CONFIG.endlessPowerupMinSpacingSec * speed &&
+          lvl.rand() <= CONFIG.powerupChance) {
+        const kind = POWERUP_KINDS[Math.floor(lvl.rand() * POWERUP_KINDS.length)];
+        const y = overObs
+          ? GROUND_Y - Math.max(CONFIG.pickupJumpHeight, type.h + 70)
+          : GROUND_Y - (CONFIG.pickupGroundHeightMin +
+              lvl.rand() * (CONFIG.pickupGroundHeightMax - CONFIG.pickupGroundHeightMin));
+        lvl.pickups.push({ x: cx, y: y, kind: kind, dead: false, overObstacle: overObs });
+        lvl.lastPickupX = cx;
+        placedPickup = true;
+      }
+    }
+    // flyer in this gap (never alongside a pickup)
+    if (!placedPickup && lvl.theme.flyer && gapSec >= CONFIG.moverGapMinSec) {
+      const cx = (gapStart + gapEnd) / 2;
+      if (cx - lvl.lastFlyerX >= CONFIG.endlessMoverMinSpacingSec * speed &&
+          lvl.rand() < lerp(CONFIG.endlessMoverChanceStart, CONFIG.endlessMoverChanceEnd)) {
+        const low = lvl.rand() < CONFIG.moverLowChance;
+        const baseY = GROUND_Y - (low ? CONFIG.moverLowY : CONFIG.moverHighY);
+        lvl.flyers.push({ x: cx, baseY: baseY, curY: baseY, phase: lvl.rand() * 6.28,
+          dead: false, fdef: lvl.theme.flyer });
+        lvl.lastFlyerX = cx;
+      }
+    }
+    lvl.obstacles.push({ x: obsX, type: type, dead: false });
+    lvl.genX = obsX + type.w;
+  }
+  // drop entities well behind the camera
+  const behind = game.cam - 250;
+  while (lvl.obstacles.length && lvl.obstacles[0].x + lvl.obstacles[0].type.w < behind) lvl.obstacles.shift();
+  while (lvl.pickups.length && lvl.pickups[0].x < behind) lvl.pickups.shift();
+  while (lvl.flyers.length && lvl.flyers[0].x < behind) lvl.flyers.shift();
 }
 
 /* ================================================================
@@ -1337,7 +1493,7 @@ function drawFlyer(f) {
   if (f.dead) return;
   const sx = Math.round(f.x - game.cam);
   if (sx < -60 || sx > VIEW_W + 60) return;
-  const fdef = game.level.theme.flyer;
+  const fdef = f.fdef || game.level.theme.flyer;
   const img = sprite(fdef.frames[Math.floor(game.time * 7 + f.phase) % 2], fdef.palette);
   ctx.drawImage(img, sx - img.width / 2, Math.round(f.curY) - img.height / 2);
 }
@@ -1525,10 +1681,14 @@ function drawHUD() {
   // score: gold label, cream digits
   hudText("SCORE", 20, 34, 20, "#ffd75e");
   hudText(String(Math.floor(game.score)).padStart(6, "0"), 96, 34, 22, "#fff6e0");
-  // level: two-tone, centered
-  const levelNum = game.level ? game.level.index + 1 : 1;
-  hudText("LEVEL", VIEW_W / 2 - 8, 34, 20, "#ffd75e", "right");
-  hudText(String(levelNum), VIEW_W / 2 + 8, 34, 22, "#fff6e0", "left");
+  // level indicator: two-tone, centered ("ENDLESS" in endless mode)
+  if (game.level && game.level.endless) {
+    hudText("ENDLESS", VIEW_W / 2, 34, 20, "#ffd75e", "center");
+  } else {
+    const levelNum = game.level ? game.level.index + 1 : 1;
+    hudText("LEVEL", VIEW_W / 2 - 8, 34, 20, "#ffd75e", "right");
+    hudText(String(levelNum), VIEW_W / 2 + 8, 34, 22, "#fff6e0", "left");
+  }
 
   // held-powerup box (top right): rounded, amber trim
   const bx = VIEW_W - 76, by = 12, bs = 56;
@@ -1664,11 +1824,14 @@ function drawHint(text, y) {
 }
 
 function drawScoreLines(y) {
+  const endless = game.level && game.level.endless;
   if (game.newHighScore) {
-    fancyText("NEW HIGH SCORE  " + Math.floor(game.score), y, 26, "#ffd75e", { shadow: true });
+    fancyText((endless ? "NEW ENDLESS BEST  " : "NEW HIGH SCORE  ") + Math.floor(game.score),
+      y, 26, "#ffd75e", { shadow: true });
   } else {
     fancyText("SCORE  " + Math.floor(game.score), y, 24, "#f3e9d2", { shadow: true });
-    fancyText("BEST  " + game.highScore, y + 34, 19, "#9fb7c9", {});
+    fancyText((endless ? "ENDLESS BEST  " : "BEST  ") + (endless ? game.endlessBest : game.highScore),
+      y + 34, 19, "#9fb7c9", {});
   }
 }
 
@@ -1690,14 +1853,46 @@ function chipRect(i) {
   const w = 126, h = 64, gap = 8;
   const total = LEVELS.length * w + (LEVELS.length - 1) * gap;
   const x0 = (VIEW_W - total) / 2;
-  return { x: x0 + i * (w + gap), y: 310, w: w, h: h };
+  return { x: x0 + i * (w + gap), y: 280, w: w, h: h };
+}
+function endlessRect() {
+  return { x: VIEW_W / 2 - 150, y: 366, w: 300, h: 44 };
 }
 function hitChip(x, y) {
   for (let i = 0; i < LEVELS.length; i++) {
     const r = chipRect(i);
     if (x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h) return i;
   }
+  const e = endlessRect();
+  if (x >= e.x && x <= e.x + e.w && y >= e.y && y <= e.y + e.h) return LEVELS.length;
   return null;
+}
+function drawEndlessButton() {
+  const r = endlessRect();
+  const unlocked = game.endlessUnlocked;
+  const sel = game.selectedLevel === LEVELS.length;
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(r.x, r.y, r.w, r.h, 12);
+  else ctx.rect(r.x, r.y, r.w, r.h);
+  ctx.fillStyle = unlocked
+    ? (sel ? "rgba(255,215,94,0.25)" : "rgba(20,16,10,0.5)")
+    : "rgba(20,16,10,0.6)";
+  ctx.fill();
+  ctx.lineWidth = sel && unlocked ? 4 : 2.5;
+  ctx.strokeStyle = unlocked
+    ? (sel ? "#ffd75e" : "rgba(255,215,94,0.6)")
+    : "rgba(130,130,130,0.5)";
+  ctx.stroke();
+  ctx.textAlign = "center";
+  ctx.font = "bold 17px monospace";
+  if (unlocked) {
+    ctx.fillStyle = "#ffd75e";
+    const best = game.endlessBest > 0 ? "   BEST " + game.endlessBest : "";
+    ctx.fillText("ENDLESS MODE" + best, r.x + r.w / 2, r.y + 28);
+  } else {
+    ctx.fillStyle = "#9a9a9a";
+    ctx.fillText("ENDLESS — beat all 7 levels", r.x + r.w / 2, r.y + 28);
+  }
 }
 function drawLevelChips() {
   for (let i = 0; i < LEVELS.length; i++) {
@@ -1828,9 +2023,10 @@ function render() {
     fancyText("CHOOSE A LEVEL", 200, 44, ["#ffe9a3", "#f5a623"], { outline: 8, outlineColor: "#3a2415", shadow: true });
     divider(232, "rgba(245,166,35,0.55)");
     drawLevelChips();
+    drawEndlessButton();
     if (game.highScore > 0)
-      fancyText("HI SCORE  " + String(game.highScore).padStart(6, "0"), 430, 19, "#9fb7c9", {});
-    drawHint(isTouch ? "Tap a level to start" : "Arrows to choose, SPACE to start", 470);
+      fancyText("HI SCORE  " + String(game.highScore).padStart(6, "0"), 442, 19, "#9fb7c9", {});
+    drawHint(isTouch ? "Tap a level to start" : "Arrows to choose, SPACE to start", 478);
   } else if (game.state === STATE.DEAD) {
     overlayBackdrop();
     fancyText("OUCH!", 220, 64, ["#ff9078", "#c22525"], { outline: 10, outlineColor: "#3d0d0d", shadow: true });
@@ -1850,7 +2046,9 @@ function render() {
     fancyText("TREATIE CHAMPION!", 96, 54, ["#ffe9a3", "#f5a623"], { outline: 9, outlineColor: "#3a2415", shadow: true });
     fancyText("The Bean Queen is pleased!", 148, 24, "#f3e9d2", { italic: true, shadow: true });
     drawScoreLines(202);
-    drawHint(go + "return to level select", 282);
+    if (game.justUnlockedEndless)
+      fancyText("ENDLESS MODE UNLOCKED!", 252, 22, "#ffd75e", { shadow: true });
+    drawHint(go + "return to level select", 286);
     // pixel Lue enjoying her treatie in front of the photo
     const dogX = VIEW_W / 2 - 150, dogFeet = VIEW_H - 12;
     ctx.drawImage(sprite("bone"), dogX + 70, dogFeet - 18);

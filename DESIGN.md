@@ -16,6 +16,8 @@ Per-level obstacles and flyers (flying obstacle appears from level 2 on):
 
 Breakable obstacles are drawn with a white outline so they're identifiable at a glance.
 
+**Endless mode** (unlocked permanently by beating all 7 levels; own localStorage flag): terrain generates on the fly a few screens ahead of the camera using the same fairness rules, difficulty ramps over time (speed 340→700 px/s, tightening gaps, more/faster flyers — all in the CONFIG `endless*` group), and the theme cycles through all seven levels every 30 s (each segment uses its theme's obstacles and flyer). No door — the run ends only on death. Keeps a separate persisted best score (`ENDLESS BEST`) so it doesn't swamp the campaign high score. Launched from a dedicated button under the level-select cards; retry after death restarts the endless run.
+
 ## Hard Constraints
 
 - **One file**: `index.html`. Vanilla HTML/CSS/JS with canvas. No frameworks, no build step, no external files or dependencies.
