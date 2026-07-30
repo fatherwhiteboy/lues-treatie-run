@@ -1,0 +1,1884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Lue's Treatie Run!</title>
+<style>
+  html, body {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    background: #000;
+    overflow: hidden;
+    touch-action: none;
+    overscroll-behavior: none;
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #stage {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #game {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    touch-action: none;
+    background: #000;
+  }
+  /* Persistent action button — shown on touch devices only */
+  #actionBtn {
+    display: none;
+    position: fixed;
+    right: max(20px, env(safe-area-inset-right));
+    bottom: max(20px, env(safe-area-inset-bottom));
+    width: 88px; height: 88px;
+    border-radius: 50%;
+    border: 3px solid rgba(255,255,255,0.7);
+    background: rgba(255,140,0,0.35);
+    color: rgba(255,255,255,0.9);
+    font: bold 15px monospace;
+    z-index: 10;
+    touch-action: none;
+    outline: none;
+  }
+  #actionBtn:active { background: rgba(255,140,0,0.65); }
+  @media (pointer: coarse) {
+    #actionBtn { display: block; }
+  }
+  /* Rotate-device overlay — touch devices in portrait */
+  #rotate {
+    display: none;
+    position: fixed; inset: 0;
+    background: #111;
+    color: #eee;
+    font: bold 22px monospace;
+    z-index: 20;
+    text-align: center;
+    align-items: center; justify-content: center;
+    flex-direction: column;
+  }
+  #rotate .icon { font-size: 56px; margin-bottom: 16px; }
+  @media (orientation: portrait) and (pointer: coarse) {
+    #rotate { display: flex; }
+  }
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="game" width="960" height="540"></canvas></div>
+<button id="actionBtn">ACT</button>
+<div id="rotate"><div class="icon">&#8634;</div><div>Rotate your device<br>to landscape</div></div>
+
+<script>
+"use strict";
+
+/* ================================================================
+   CONFIG — every gameplay-feel number lives here. Hand-tune freely.
+   Per-level values are arrays indexed by level: [level1, level2, level3].
+   ================================================================ */
+const CONFIG = {
+  // ---- physics ----
+  gravity:          2600,   // px/s^2 downward
+  jumpVelocity:     950,    // px/s, initial upward speed of a jump
+  doubleJumpVelocity: 850,  // px/s, upward speed of the mid-air second jump
+  maxFallSpeed:     1800,   // px/s, terminal velocity
+  jumpBufferTime:   0.12,   // s — press jump this early before landing and it still fires
+  coyoteTime:       0.08,   // s — grace period to jump after leaving the ground
+
+  // ---- player ----
+  playerScreenX:    140,    // px, fixed horizontal position of the dog on screen
+  hitboxShrink:     0.22,   // fraction trimmed from EACH side of the sprite box (forgiveness)
+  runFrameTime:     0.09,   // s per run-cycle frame
+
+  // ---- damage ----
+  iframeDuration:   1.2,    // s of invincibility after losing a powerup to a hit
+
+  // ---- powerup actions ----
+  fireballSpeed:    640,    // px/s, screen-relative forward speed
+  fireballCooldown: 0.45,   // s between shots
+  fireballRange:    520,    // px a fireball travels before fizzling
+  clawRange:        70,     // px reach of the swipe in front of the dog
+  clawSwingDuration: 0.25,  // s the swipe is active (also its cooldown)
+
+  // ---- powerup pickups ----
+  powerupChance:    0.4,    // odds a wide-enough obstacle gap holds a pickup
+  powerupMinSpacingSec: [12, 11, 10, 9, 8, 7, 7], // per-level min seconds of travel between pickups
+  firstPickupBySec: 8,      // guarantee a pickup within this many seconds of level start
+  pickupGroundHeightMin: 50, // px above ground — low enough to collect while running
+  pickupGroundHeightMax: 70,
+  pickupOverObstacleChance: 0.3, // odds a pickup floats above an obstacle instead (jump over it to grab)
+  pickupJumpHeight: 205,     // px above ground for over-obstacle pickups — riding the jump arc
+                             // (apex feet height = jumpVelocity^2 / 2*gravity ~ 174; the dog's
+                             //  body center rides ~48px above her feet, so ~205 meets a full jump)
+  pickupOverGrabReach: 48,   // vertical half-size of the grab zone for over-obstacle pickups
+                             // (generous so any jump that clears the obstacle collects it)
+  pickupGapMinPx:   260,    // gap must be at least this wide to hold a pickup
+
+  // ---- movers (per-theme flyers; level 1 is static-only) ----
+  moverChance:      [0, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55],  // odds an eligible gap holds a flyer
+  moverGapMinSec:   1.5,             // gap must be at least this wide (seconds of travel)
+  moverMinSpacingSec: [99, 8, 7.5, 7, 6.5, 6, 5],   // min seconds of travel between flyers
+  moverExtraSpeed:  [0, 60, 70, 80, 90, 95, 100],   // px/s the flyer flies toward the dog (on top of scroll)
+  moverBobAmp:      22,              // vertical bob amplitude, px
+  moverBobFreq:     3.2,             // bob speed, rad/s
+  moverLowY:        80,              // low flyer: center px above ground (jump over it)
+  moverHighY:       125,             // high flyer: run under it, don't jump into it
+  moverLowChance:   0.6,             // odds a flyer is the low kind
+
+  // ---- door / level exit animation ----
+  doorApproachTime: 0.5,    // s trotting up to the door
+  doorSitTime:      0.35,   // s sitting down in front of it
+  doorPickTime:     0.9,    // s jiggling the claw in the lock
+  doorClickTime:    0.3,    // s the unlock "click" sparkle flashes
+  doorOpenTime:     0.5,    // s door swings open
+  doorWalkTime:     1.0,    // s walking through
+  doorFadeTime:     0.5,    // s fade out
+  doorJiggleRate:   7,      // paw jiggles per second while picking the lock
+
+  // ---- per-level: speed & length ----
+  scrollSpeed:      [320, 345, 370, 395, 420, 450, 480],   // px/s
+  levelLengthSec:   [45, 47, 48, 50, 52, 54, 55],          // level length in seconds of travel
+
+  // ---- per-level: obstacle placement (gaps in seconds of travel) ----
+  obstacleGapMinSec: [1.05, 1.00, 0.97, 0.94, 0.91, 0.88, 0.85],
+  obstacleGapMaxSec: [2.30, 2.20, 2.10, 2.00, 1.90, 1.80, 1.70],
+  startClearSec:    2.5,    // obstacle-free runway at level start
+  endClearSec:      2.0,    // obstacle-free runway before the level end
+
+  // ---- score ----
+  pointsPerPixel:   0.05,   // distance score rate
+  destroyBonus:     25,     // points per destroyed obstacle / flyer
+};
+
+/* ================================================================
+   PALETTES & SPRITES — code-drawn pixel art, human-editable.
+   Each sprite: rows of characters; each char indexes into a palette
+   ('.' = transparent). `scale` = on-screen pixels per art pixel.
+   `outline` (optional) bakes a 1-art-pixel rim of that color around
+   every non-transparent pixel.
+   The dog below is a crude 16x16 PLACEHOLDER — the real 32x32
+   sprite from photos replaces these arrays in Phase 4 (data-only swap).
+   Dog sprites are baked once per palette in DOG_PALETTES, so the
+   held powerup is shown as a palette swap.
+   ================================================================ */
+const PALETTES = {
+  dogNormal: { o: "#3a2415", b: "#8a5a2b", w: "#e8dcc8", k: "#1b1410" },
+  dogFire:   { o: "#5a1a10", b: "#c0492a", w: "#ffd9a0", k: "#241008" },
+  dogDouble: { o: "#14335a", b: "#3f7fc4", w: "#dff2ff", k: "#0c1a2a" },
+  dogClaw:   { o: "#3a2445", b: "#8a5fb0", w: "#efe0ff", k: "#1b1024" },
+  pickupFire:   { y: "#ffd541", o: "#ff8a1e" },
+  pickupDouble: { c: "#5ad7ff" },
+  pickupClaw:   { p: "#c9a0ef" },
+  // flyer palettes — every palette starting with "bird" is baked for the
+  // bird sprites (k = body, o = beak, w = eye)
+  birdParakeet:  { k: "#59b840", o: "#f5a623", w: "#20242e" },
+  birdBlackbird: { k: "#23252e", o: "#f5c623", w: "#e8e8e8" },
+  birdSeagull:   { k: "#e2e6ec", o: "#f5a623", w: "#20242e" },
+  birdEagle:     { k: "#6e4a2a", o: "#e8c53f", w: "#f0ead8" },
+  birdPigeon:    { k: "#9099ac", o: "#5c5c66", w: "#20242e" },
+  drink:         { g: "#cdeef8", y: "#ffd75e", s: "#e05a7a" },
+  bone:          { w: "#f0ead8" },
+};
+
+// Palette used for the dog per held powerup (null = no powerup).
+const DOG_PALETTES = {
+  none:   "dogNormal",
+  fire:   "dogFire",
+  double: "dogDouble",
+  claw:   "dogClaw",
+};
+
+const SPRITES = {
+  dogRun0: { palette: "dogNormal", scale: 6, rows: [
+    "................",
+    "................",
+    "..........oo....",
+    ".........obbo...",
+    ".........bbbbo..",
+    ".........bkbbo..",
+    "oo.......bbbb...",
+    ".oo..bbbbbbww...",
+    "..bbbbbbbbbwk...",
+    "..bbbbbbbbbb....",
+    "..bbbbbbbbbb....",
+    "..bbbbbbbbb.....",
+    "...bb....bb.....",
+    "...bb....bb.....",
+    "...oo....oo.....",
+    "................",
+  ]},
+  dogRun1: { palette: "dogNormal", scale: 6, rows: [
+    "................",
+    "................",
+    "..........oo....",
+    ".........obbo...",
+    ".........bbbbo..",
+    ".........bkbbo..",
+    "oo.......bbbb...",
+    ".oo..bbbbbbww...",
+    "..bbbbbbbbbwk...",
+    "..bbbbbbbbbb....",
+    "..bbbbbbbbbb....",
+    "..bbbbbbbbb.....",
+    "..bb......bb....",
+    ".bb........bb...",
+    ".oo........oo...",
+    "................",
+  ]},
+  dogJump: { palette: "dogNormal", scale: 6, rows: [
+    "................",
+    "................",
+    "..........oo....",
+    ".........obbo...",
+    ".........bbbbo..",
+    ".........bkbbo..",
+    "oo.......bbbb...",
+    ".oo..bbbbbbww...",
+    "..bbbbbbbbbwk...",
+    "..bbbbbbbbbb....",
+    "..bbbbbbbbbb....",
+    "..bbbbbbbbb.....",
+    "...bbb...bbb....",
+    "....oo....oo....",
+    "................",
+    "................",
+  ]},
+  dogSwipe: { palette: "dogNormal", scale: 6, rows: [
+    "................",
+    "................",
+    "..........oo....",
+    ".........obbo...",
+    ".........bbbbo..",
+    ".........bkbbo..",
+    "oo.......bbbbbb.",
+    ".oo..bbbbbbwwbb.",
+    "..bbbbbbbbbwk...",
+    "..bbbbbbbbbb....",
+    "..bbbbbbbbbb....",
+    "..bbbbbbbbb.....",
+    "...bb....bb.....",
+    "...bb....bb.....",
+    "...oo....oo.....",
+    "................",
+  ]},
+  dogSit: { palette: "dogNormal", scale: 6, rows: [
+    "................",
+    "................",
+    "..........oo....",
+    ".........obbo...",
+    ".........bbbbo..",
+    ".........bkbbo..",
+    "..........bbb...",
+    "......bbbbbww...",
+    "....bbbbbbbwk...",
+    "...bbbbbbbbb....",
+    "..bbbbbbbbbb....",
+    "..bbbbbbbbb.....",
+    "..bbbbbb.bb.....",
+    "o.bbbb...bb.....",
+    "oo.oo....oo.....",
+    "................",
+  ]},
+  dogPick0: { palette: "dogNormal", scale: 6, rows: [
+    "................",
+    "................",
+    "..........oo....",
+    ".........obbo...",
+    ".........bbbbo..",
+    ".........bkbbo..",
+    "..........bbb...",
+    "......bbbbbwwbb.",
+    "....bbbbbbbwkbk.",
+    "...bbbbbbbbb....",
+    "..bbbbbbbbbb....",
+    "..bbbbbbbbb.....",
+    "..bbbbbb.bb.....",
+    "o.bbbb...bb.....",
+    "oo.oo....oo.....",
+    "................",
+  ]},
+  dogPick1: { palette: "dogNormal", scale: 6, rows: [
+    "................",
+    "................",
+    "..........oo....",
+    ".........obbo...",
+    ".........bbbbo..",
+    ".........bkbbo..",
+    "..........bbb...",
+    "......bbbbbww...",
+    "....bbbbbbbwkbb.",
+    "...bbbbbbbbb..k.",
+    "..bbbbbbbbbb....",
+    "..bbbbbbbbb.....",
+    "..bbbbbb.bb.....",
+    "o.bbbb...bb.....",
+    "oo.oo....oo.....",
+    "................",
+  ]},
+  dogEat0: { palette: "dogNormal", scale: 6, rows: [
+    "................",
+    "................",
+    "................",
+    "................",
+    "................",
+    "..........oo....",
+    ".........obbo...",
+    ".......bbbbbbo..",
+    "....bbbbbbkbbo..",
+    "...bbbbbbbbww...",
+    "..bbbbbbbbbwk...",
+    "..bbbbbbbbb.....",
+    "..bbbbbb.bb.....",
+    "o.bbbb...bb.....",
+    "oo.oo....oo.....",
+    "................",
+  ]},
+  dogEat1: { palette: "dogNormal", scale: 6, rows: [
+    "................",
+    "................",
+    "................",
+    "................",
+    "................",
+    "................",
+    "..........oo....",
+    ".........obbo...",
+    ".......bbbbbbo..",
+    "....bbbbbbkbbo..",
+    "...bbbbbbbbww...",
+    "..bbbbbbbbbwk...",
+    "..bbbbbb.bb.....",
+    "o.bbbb...bb.....",
+    "oo.oo....oo.....",
+    "................",
+  ]},
+  bone: { palette: "bone", scale: 4, outline: "#000", rows: [
+    "ww........ww",
+    "wwwwwwwwwwww",
+    "wwwwwwwwwwww",
+    "ww........ww",
+  ]},
+  puFire: { palette: "pickupFire", scale: 4, outline: "#000", rows: [
+    "............",
+    ".....o......",
+    ".....oo.....",
+    "....ooo.....",
+    "....yoo.....",
+    "...yyooo....",
+    "..yyyyoo....",
+    ".oyyyyyoo...",
+    ".oyyyyyyo...",
+    "..oyyyyo....",
+    "...oooo.....",
+    "............",
+  ]},
+  puDouble: { palette: "pickupDouble", scale: 4, outline: "#000", rows: [
+    "............",
+    ".....cc.....",
+    "....cccc....",
+    "...cc..cc...",
+    "..cc....cc..",
+    "............",
+    ".....cc.....",
+    "....cccc....",
+    "...cc..cc...",
+    "..cc....cc..",
+    "............",
+    "............",
+  ]},
+  puClaw: { palette: "pickupClaw", scale: 4, outline: "#000", rows: [
+    "............",
+    "............",
+    "..p..p..p...",
+    "..p..p..p...",
+    "............",
+    "...ppppp....",
+    "..ppppppp...",
+    "..ppppppp...",
+    "...ppppp....",
+    "............",
+    "............",
+    "............",
+  ]},
+  fireball: { palette: "pickupFire", scale: 5, rows: [
+    "..oo....",
+    ".oyyo...",
+    "oyyyyo..",
+    "oyyyyoo.",
+    ".oyyoo..",
+    "..oo....",
+  ]},
+  bird0: { palette: "birdBlackbird", scale: 4, outline: "#000", rows: [
+    ".k......k.",
+    ".kk....kk.",
+    "..kkkkkk..",
+    "okwkkkkkk.",
+    "..kkkkk...",
+    "..........",
+  ]},
+  bird1: { palette: "birdBlackbird", scale: 4, outline: "#000", rows: [
+    "..........",
+    "..kkkkkk..",
+    "okwkkkkkk.",
+    "..kkkkk...",
+    ".kk....kk.",
+    "..k....k..",
+  ]},
+  drink0: { palette: "drink", scale: 4, outline: "#000", rows: [
+    "......s...",
+    ".....s....",
+    ".gggggggg.",
+    ".gyyyyyyg.",
+    "..gyyyyg..",
+    "...gyyg...",
+    "....gg....",
+    "....gg....",
+    "...gggg...",
+    "..........",
+  ]},
+  drink1: { palette: "drink", scale: 4, outline: "#000", rows: [
+    "...s...y..",
+    "....s.....",
+    ".gggggggg.",
+    ".gyyyyyyg.",
+    "..gyyyyg..",
+    "...gyyg...",
+    "....gg....",
+    "....gg....",
+    "...gggg...",
+    "..........",
+  ]},
+};
+
+/* ================================================================
+   Level-complete messages — one is picked at random each time a level
+   is finished (any level, every time). Hand-edit freely.
+   ================================================================ */
+const LEVEL_COMPLETE_PHRASES = [
+  "Good Job Radagast!",
+  "Ol' Treatie Lue at it again!",
+  "That's Rue! :D",
+  "The Bean has arrived!",
+  "Who's a treatie girl?!",
+];
+
+/* ================================================================
+   Display constants (needed by LEVELS layer definitions below).
+   ================================================================ */
+const VIEW_W = 960, VIEW_H = 540, GROUND_Y = 460;
+
+/* ================================================================
+   LEVELS — visual theme data. All tuning numbers live in CONFIG;
+   here it's colors, parallax layers, and which obstacles appear.
+   Layers scroll at `factor` x camera speed and are painted once by
+   LAYER_PAINTERS[paint] into a 480px repeating tile.
+   ================================================================ */
+const LEVELS = [
+  { name: "Backyard", short: "Backyard",
+    sky: ["#7ec8f0", "#cdeef8"], ground: "#7cb95a", groundLine: "#588c3e",
+    obstacles: ["tennisBalls", "zombie", "sunflower"],
+    flyer: null,   // level 1 is static-only
+    layers: [
+      { paint: "hills",  color: "#a9d488", height: 110, y: GROUND_Y - 110, factor: 0.15 },
+      { paint: "fence",  color: "#9a7346", accent: "#7d5a33", height: 74, y: GROUND_Y - 74, factor: 0.4 },
+      { paint: "bushes", color: "#5f9e46", height: 46, y: GROUND_Y - 46, factor: 0.7 },
+    ] },
+  { name: "Inside a House", short: "House",
+    sky: ["#d8c9a8", "#efe4cc"], ground: "#a3702f", groundLine: "#6e4a1d",
+    obstacles: ["turkeyLeg", "pancakes", "milkGlass"],
+    flyer: { frames: ["bird0", "bird1"], palette: "birdParakeet", debris: ["#59b840", "#2f6b24"] },
+    layers: [
+      { paint: "wallpaper", color: "#cfc0a0", accent: "#a8946e", frame: "#6e4a2a", art: "#b8cfe0", height: 220, y: GROUND_Y - 220, factor: 0.12 },
+      { paint: "fence", color: "#b08850", accent: "#8a6538", height: 58, y: GROUND_Y - 58, factor: 0.4 },
+    ] },
+  { name: "Park", short: "Park",
+    sky: ["#8fd4e8", "#f2f6d8"], ground: "#6fae62", groundLine: "#4c8446",
+    obstacles: ["fountain", "swingset", "hedgeBreak"],
+    flyer: { frames: ["bird0", "bird1"], palette: "birdBlackbird", debris: ["#23252e", "#4a4d5c"] },
+    layers: [
+      { paint: "treeline", color: "#7fb96e", height: 120, y: GROUND_Y - 120, factor: 0.15 },
+      { paint: "trees",    color: "#4e8a3a", accent: "#6e4a2a", height: 130, y: GROUND_Y - 130, factor: 0.45 },
+      { paint: "bushes",   color: "#3f7031", height: 40, y: GROUND_Y - 40, factor: 0.7 },
+    ] },
+  { name: "Beach", short: "Beach",
+    sky: ["#7ec8f0", "#ffeec2"], ground: "#e6cf96", groundLine: "#c9ad6a",
+    obstacles: ["watermelon", "crab", "shark", "sandcastle"],
+    flyer: { frames: ["bird0", "bird1"], palette: "birdSeagull", debris: ["#e2e6ec", "#9aa2b0"] },
+    layers: [
+      { paint: "waves",  color: "#3f8fc4", accent: "#dff2ff", height: 90, y: GROUND_Y - 90, factor: 0.08 },
+      { paint: "hills",  color: "#e8d6a4", height: 70, y: GROUND_Y - 70, factor: 0.3 },
+      { paint: "bushes", color: "#b3a565", height: 36, y: GROUND_Y - 36, factor: 0.6 },
+    ] },
+  { name: "On a Mountain", short: "Mountain",
+    sky: ["#9fc4e8", "#e8f2fa"], ground: "#7d8577", groundLine: "#5a635a",
+    obstacles: ["rattlesnake", "goat", "cactus"],
+    flyer: { frames: ["bird0", "bird1"], palette: "birdEagle", debris: ["#6e4a2a", "#3f2a16"] },
+    layers: [
+      { paint: "peaks",    color: "#8fa3b8", accent: "#f0f4f8", height: 220, y: GROUND_Y - 220, factor: 0.08 },
+      { paint: "peaks",    color: "#6b7f8f", accent: "#e8eef4", height: 140, y: GROUND_Y - 140, factor: 0.25 },
+      { paint: "treeline", color: "#3f6031", height: 70, y: GROUND_Y - 70, factor: 0.55 },
+    ] },
+  { name: "In a Casino", short: "Casino",
+    sky: ["#2a1030", "#4a1f4e"], ground: "#8f2f4f", groundLine: "#6a1f38",
+    obstacles: ["slotMachine", "clawMachine", "chipPile"],
+    flyer: { frames: ["drink0", "drink1"], palette: "drink", debris: ["#cdeef8", "#ffd75e"] },
+    layers: [
+      { paint: "stars",     color: "#ffd75e", height: 140, y: 0, factor: 0.03 },
+      { paint: "wallpaper", color: "#5e1f4a", accent: "#8a2f6a", frame: "#ffd75e", art: "#2a1030", height: 220, y: GROUND_Y - 220, factor: 0.12 },
+      { paint: "fence",     color: "#7a2f5e", accent: "#5e1f4a", height: 56, y: GROUND_Y - 56, factor: 0.4 },
+    ] },
+  { name: "Night City", short: "Night City",
+    sky: ["#0e1030", "#454a80"], ground: "#3d3f4a", groundLine: "#2b2d36",
+    obstacles: ["starla", "alligator", "trex"],
+    flyer: { frames: ["bird0", "bird1"], palette: "birdPigeon", debris: ["#9099ac", "#5c5c66"] },
+    layers: [
+      { paint: "stars",   color: "#ffffff", height: 300, y: 0, factor: 0.04 },
+      { paint: "skyline", color: "#20223a", accent: "#ffd75e", height: 240, y: GROUND_Y - 240, factor: 0.15 },
+      { paint: "skyline", color: "#141626", accent: "#9fb7c9", height: 150, y: GROUND_Y - 150, factor: 0.4 },
+    ] },
+];
+
+/* Obstacle types (placeholder blocks until the Phase 4 art pass).
+   destructible: true  => fireball / claw can destroy it
+   destructible: false => solid; jumping is the only way past */
+const OBSTACLE_TYPES = [
+  // Backyard
+  { key: "tennisBalls", w: 64, h: 34, color: "#c8e04a", edge: "#8fa832", destructible: false },
+  { key: "zombie",      w: 40, h: 74, color: "#8aa86a", edge: "#5c744a", destructible: true },
+  { key: "sunflower",   w: 34, h: 84, color: "#f0c93a", edge: "#a8862a", destructible: false },
+  // Inside a house
+  { key: "turkeyLeg",   w: 48, h: 34, color: "#b07038", edge: "#7a4a22", destructible: false },
+  { key: "pancakes",    w: 52, h: 80, color: "#e0aa5e", edge: "#9a713a", destructible: false },
+  { key: "milkGlass",   w: 38, h: 52, color: "#f0f2f5", edge: "#b8c2cc", destructible: true },
+  // Park
+  { key: "fountain",    w: 90, h: 64, color: "#9fb7c9", edge: "#6a8194", destructible: false },
+  { key: "swingset",    w: 96, h: 70, color: "#c25046", edge: "#7e332c", destructible: false },
+  { key: "hedgeBreak",  w: 70, h: 40, color: "#4e8a3a", edge: "#35602a", destructible: true },
+  // Beach
+  { key: "watermelon",  w: 48, h: 30, color: "#e05a6a", edge: "#3f7031", destructible: false },
+  { key: "crab",        w: 46, h: 28, color: "#e0563a", edge: "#983524", destructible: false },
+  { key: "shark",       w: 52, h: 78, color: "#6a8194", edge: "#42556a", destructible: false },
+  { key: "sandcastle",  w: 56, h: 48, color: "#e0c990", edge: "#b09a5e", destructible: true },
+  // Mountain
+  { key: "rattlesnake", w: 66, h: 26, color: "#b09a5e", edge: "#7a6a3e", destructible: false },
+  { key: "goat",        w: 58, h: 52, color: "#d8d3c8", edge: "#8f8a7d", destructible: false },
+  { key: "cactus",      w: 44, h: 66, color: "#4e9a50", edge: "#e878b0", destructible: true },
+  // Casino
+  { key: "slotMachine", w: 46, h: 84, color: "#c23a8a", edge: "#7a2458", destructible: false },
+  { key: "clawMachine", w: 48, h: 86, color: "#4aa8d8", edge: "#2a6a92", destructible: false },
+  { key: "chipPile",    w: 50, h: 34, color: "#d84a4a", edge: "#8f2f2f", destructible: true },
+  // Night City
+  { key: "starla",      w: 60, h: 52, color: "#8a7a6a", edge: "#5a4e42", destructible: false },
+  { key: "alligator",   w: 92, h: 30, color: "#5c7a3a", edge: "#3a5224", destructible: false },
+  { key: "trex",        w: 52, h: 88, color: "#6a9a4a", edge: "#446630", destructible: true },
+];
+
+const POWERUP_KINDS = ["fire", "double", "claw"];
+const PICKUP_SPRITES = { fire: "puFire", double: "puDouble", claw: "puClaw" };
+/* Door size + exit-animation geometry: where the door parks on screen,
+   how far the dog trots to sit in front of it (paw tip meets the knob),
+   the knob position (hinge side, reachable by a sitting dog), and how
+   far she walks to pass through. */
+const DOOR = { w: 62, h: 116, screenX: 320, dogStopDx: 103, walkDx: 108, knobX: 11, knobYf: 0.52 };
+
+/* ================================================================
+   Parallax layer painters — each fills a 480px-wide repeating tile.
+   Elements that could cross a tile edge are drawn at x-480/x/x+480
+   so the tile wraps seamlessly.
+   ================================================================ */
+const LAYER_PAINTERS = {
+  stars(c, w, h, def, rand) {
+    c.fillStyle = def.color;
+    for (let i = 0; i < 90; i++) {
+      const s = rand() < 0.15 ? 3 : 2;
+      c.globalAlpha = 0.35 + rand() * 0.65;
+      c.fillRect(Math.floor(rand() * (w - 4)), Math.floor(rand() * h * 0.92), s, s);
+    }
+    c.globalAlpha = 1;
+  },
+  hills(c, w, h, def, rand) {
+    c.fillStyle = def.color;
+    for (let i = 0; i < 7; i++) {
+      const x = (i / 7) * w + rand() * 40, r = 70 + rand() * 80;
+      for (const ox of [-w, 0, w]) {
+        c.beginPath(); c.arc(x + ox, h + r * 0.55, r, Math.PI, 0); c.fill();
+      }
+    }
+  },
+  fence(c, w, h, def, rand) {
+    c.fillStyle = def.color;
+    for (let x = 0; x < w; x += 26) c.fillRect(x, 10, 18, h - 10);   // planks
+    c.fillRect(0, 16, w, 8); c.fillRect(0, h - 28, w, 8);            // rails
+    c.fillStyle = def.accent;
+    for (let x = 0; x < w; x += 26) c.fillRect(x + 7, 10, 4, h - 10);
+  },
+  bushes(c, w, h, def, rand) {
+    c.fillStyle = def.color;
+    for (let i = 0; i < 10; i++) {
+      const x = (i / 10) * w + rand() * 30, r = 18 + rand() * 22;
+      for (const ox of [-w, 0, w]) { c.beginPath(); c.arc(x + ox, h, r, Math.PI, 0); c.fill(); }
+    }
+  },
+  treeline(c, w, h, def, rand) {
+    c.fillStyle = def.color;
+    c.fillRect(0, h - 14, w, 14);
+    for (let i = 0; i < 8; i++) {
+      const x = (i / 8) * w + rand() * 34, r = 26 + rand() * 26;
+      for (const ox of [-w, 0, w]) { c.beginPath(); c.arc(x + ox, h - r * 0.9, r, 0, 7); c.fill(); }
+    }
+  },
+  trees(c, w, h, def, rand) {
+    for (let i = 0; i < 4; i++) {
+      const x = (i / 4) * w + 30 + rand() * 50, th = 40 + rand() * 26, r = 30 + rand() * 14;
+      for (const ox of [-w, 0, w]) {
+        c.fillStyle = def.accent;
+        c.fillRect(x + ox - 6, h - th, 12, th);
+        c.fillStyle = def.color;
+        c.beginPath(); c.arc(x + ox, h - th - r * 0.5, r, 0, 7); c.fill();
+      }
+    }
+  },
+  wallpaper(c, w, h, def, rand) {   // indoor wall: stripes, picture frames, baseboard
+    c.fillStyle = def.color;
+    c.fillRect(0, 0, w, h);
+    c.fillStyle = def.accent;
+    c.globalAlpha = 0.25;
+    for (let x = 0; x < w; x += 40) c.fillRect(x, 0, 12, h);
+    c.globalAlpha = 1;
+    for (let i = 0; i < 4; i++) {
+      const x = i * (w / 4) + 20 + rand() * 30, y = 20 + rand() * 26;
+      const fw = 34 + rand() * 18, fh = 26 + rand() * 14;
+      c.fillStyle = def.frame;
+      c.fillRect(x, y, fw, fh);
+      c.fillStyle = def.art;
+      c.fillRect(x + 4, y + 4, fw - 8, fh - 8);
+    }
+    c.fillStyle = def.accent;
+    c.fillRect(0, h - 12, w, 12);
+  },
+  waves(c, w, h, def, rand) {       // sea: fill + horizon line + foam dashes
+    c.fillStyle = def.color;
+    c.fillRect(0, 0, w, h);
+    c.fillStyle = def.accent;
+    c.fillRect(0, 0, w, 3);
+    for (let i = 0; i < 14; i++) {
+      const x = (i / 14) * w + rand() * 20, y = 10 + rand() * (h - 18);
+      const len = 14 + rand() * 12;
+      for (const ox of [-w, 0, w]) c.fillRect(x + ox, y, len, 3);
+    }
+  },
+  peaks(c, w, h, def, rand) {       // triangle mountains with snow caps
+    for (let i = 0; i < 5; i++) {
+      const x = (i / 5) * w + rand() * 40, half = 70 + rand() * 50;
+      const ph = h * (0.55 + rand() * 0.45);
+      for (const ox of [-w, 0, w]) {
+        c.fillStyle = def.color;
+        c.beginPath();
+        c.moveTo(x + ox - half, h);
+        c.lineTo(x + ox, h - ph);
+        c.lineTo(x + ox + half, h);
+        c.closePath();
+        c.fill();
+        if (def.accent) {
+          c.fillStyle = def.accent;
+          c.beginPath();
+          c.moveTo(x + ox - half * 0.22, h - ph + ph * 0.22);
+          c.lineTo(x + ox, h - ph);
+          c.lineTo(x + ox + half * 0.22, h - ph + ph * 0.22);
+          c.closePath();
+          c.fill();
+        }
+      }
+    }
+  },
+  skyline(c, w, h, def, rand) {
+    let x = 0;
+    while (x < w) {
+      let bw = 46 + rand() * 60;
+      if (x + bw > w - 8) bw = w - x;
+      const bh = h * (0.35 + rand() * 0.6);
+      c.fillStyle = def.color;
+      c.fillRect(x, h - bh, bw, bh);
+      c.fillStyle = def.accent;   // lit windows
+      for (let wy = h - bh + 8; wy < h - 10; wy += 14)
+        for (let wx = x + 6; wx < x + bw - 8; wx += 12)
+          if (rand() < 0.28) c.fillRect(wx, wy, 5, 7);
+      x += bw + 4;
+    }
+  },
+};
+
+function getThemeTiles(theme) {
+  if (!theme._tiles) {
+    theme._tiles = theme.layers.map((def, i) => {
+      const cv = document.createElement("canvas");
+      cv.width = 480; cv.height = def.height;
+      LAYER_PAINTERS[def.paint](cv.getContext("2d"), 480, def.height, def,
+        mulberry32(9000 + i * 131 + theme.name.length * 7));
+      return { cv, def };
+    });
+  }
+  return theme._tiles;
+}
+
+/* ================================================================
+   Sprite renderer — bakes each (pixel array x palette) into an
+   offscreen canvas once at load. Dog sprites bake one variant per
+   powerup palette. Drawn 1:1 afterwards (crisp pixels).
+   ================================================================ */
+const bakedSprites = {};   // bakedSprites[spriteName][paletteName] = canvas
+function bakeVariant(def, paletteName) {
+  const pal = PALETTES[paletteName];
+  const h = def.rows.length, w = def.rows[0].length, s = def.scale;
+  const cv = document.createElement("canvas");
+  cv.width = w * s; cv.height = h * s;
+  const c = cv.getContext("2d");
+  const filled = (x, y) => x >= 0 && x < w && y >= 0 && y < h && !!pal[def.rows[y][x]];
+  // optional outline pass: rim every empty cell that touches a filled one
+  if (def.outline) {
+    c.fillStyle = def.outline;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        if (filled(x, y)) continue;
+        let touch = false;
+        for (let dy = -1; dy <= 1 && !touch; dy++)
+          for (let dx = -1; dx <= 1 && !touch; dx++)
+            if ((dx || dy) && filled(x + dx, y + dy)) touch = true;
+        if (touch) c.fillRect(x * s, y * s, s, s);
+      }
+    }
+  }
+  for (let y = 0; y < h; y++) {
+    const row = def.rows[y];
+    for (let x = 0; x < w; x++) {
+      const col = pal[row[x]];
+      if (!col) continue;
+      c.fillStyle = col;
+      c.fillRect(x * s, y * s, s, s);
+    }
+  }
+  return cv;
+}
+function bakeSprites() {
+  for (const name in SPRITES) {
+    const def = SPRITES[name];
+    bakedSprites[name] = {};
+    if (name.startsWith("dog")) {
+      for (const key in DOG_PALETTES) {
+        const palName = DOG_PALETTES[key];
+        bakedSprites[name][palName] = bakeVariant(def, palName);
+      }
+    } else if (name.startsWith("bird")) {
+      for (const palName in PALETTES) {
+        if (palName.startsWith("bird")) bakedSprites[name][palName] = bakeVariant(def, palName);
+      }
+    } else {
+      bakedSprites[name][def.palette] = bakeVariant(def, def.palette);
+    }
+  }
+}
+function sprite(name, paletteName) {
+  const variants = bakedSprites[name];
+  return variants[paletteName || SPRITES[name].palette];
+}
+
+/* ================================================================
+   Display — fixed internal 960x540, letterboxed to fit the screen.
+   ================================================================ */
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+ctx.imageSmoothingEnabled = false;
+
+function fitCanvas() {
+  const scale = Math.min(window.innerWidth / VIEW_W, window.innerHeight / VIEW_H);
+  canvas.style.width = Math.floor(VIEW_W * scale) + "px";
+  canvas.style.height = Math.floor(VIEW_H * scale) + "px";
+}
+window.addEventListener("resize", fitCanvas);
+window.addEventListener("orientationchange", fitCanvas);
+
+/* ================================================================
+   Seeded PRNG (mulberry32).
+   ================================================================ */
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/* ================================================================
+   Persistence — high score + unlocked levels (localStorage).
+   ================================================================ */
+const HS_KEY = "dogRunner.highScore";
+const UNLOCK_KEY = "dogRunner.unlocked";
+function loadHighScore() {
+  try { return parseInt(localStorage.getItem(HS_KEY), 10) || 0; }
+  catch (e) { return 0; }
+}
+function saveHighScore(score) {
+  const s = Math.floor(score);
+  if (s <= game.highScore) return false;
+  game.highScore = s;
+  try { localStorage.setItem(HS_KEY, String(s)); } catch (e) {}
+  return true;
+}
+function loadUnlocked() {
+  try { return Math.min(parseInt(localStorage.getItem(UNLOCK_KEY), 10) || 0, LEVELS.length - 1); }
+  catch (e) { return 0; }
+}
+function saveUnlocked(v) {
+  try { localStorage.setItem(UNLOCK_KEY, String(v)); } catch (e) {}
+}
+
+/* ================================================================
+   Level generation — obstacles placed along the level with gaps
+   drawn from CONFIG (in seconds of travel, so layouts stay fair as
+   scroll speed changes); then powerup pickups into wide gaps with
+   min-spacing + a guaranteed early pickup; then flyers (levels 2-3)
+   into wide gaps that don't already hold a pickup. A fresh random
+   seed is rolled per attempt, so every run gets a new layout. The
+   seed is kept on the level object for debugging.
+   ================================================================ */
+function generateLevel(levelIndex) {
+  const seed = (Math.random() * 0xFFFFFFFF) >>> 0;
+  const rand = mulberry32(seed);
+  const speed = CONFIG.scrollSpeed[levelIndex];
+  const lengthPx = CONFIG.levelLengthSec[levelIndex] * speed;
+  const theme = LEVELS[Math.min(levelIndex, LEVELS.length - 1)];
+  const typePool = OBSTACLE_TYPES.filter((t) => theme.obstacles.includes(t.key));
+
+  // -- obstacles --
+  const obstacles = [];
+  let x = CONFIG.startClearSec * speed;
+  const endX = lengthPx - CONFIG.endClearSec * speed;
+  while (x < endX) {
+    const type = typePool[Math.floor(rand() * typePool.length)];
+    obstacles.push({ x: x, type: type, dead: false });
+    const gapSec = CONFIG.obstacleGapMinSec[levelIndex] +
+      rand() * (CONFIG.obstacleGapMaxSec[levelIndex] - CONFIG.obstacleGapMinSec[levelIndex]);
+    x += type.w + gapSec * speed;
+  }
+
+  // -- powerup pickups (in gaps between obstacles) --
+  const pickups = [];
+  const usedGaps = new Set();
+  const minSpace = CONFIG.powerupMinSpacingSec[levelIndex] * speed;
+  let lastPickupX = -Infinity;
+  for (let i = 0; i < obstacles.length - 1; i++) {
+    const gapStart = obstacles[i].x + obstacles[i].type.w;
+    const gapEnd = obstacles[i + 1].x;
+    if (gapEnd - gapStart < CONFIG.pickupGapMinPx) continue;
+    // most pickups sit low in a gap (grab by running); some float above the
+    // NEXT obstacle so you have to jump over it to collect
+    const overObs = rand() < CONFIG.pickupOverObstacleChance;
+    const anchor = obstacles[i + 1];
+    const cx = overObs ? anchor.x + anchor.type.w / 2 : (gapStart + gapEnd) / 2;
+    if (cx - lastPickupX < minSpace) continue;
+    if (rand() > CONFIG.powerupChance) continue;
+    const kind = POWERUP_KINDS[Math.floor(rand() * POWERUP_KINDS.length)];
+    const y = overObs
+      ? GROUND_Y - Math.max(CONFIG.pickupJumpHeight, anchor.type.h + 70)
+      : GROUND_Y - (CONFIG.pickupGroundHeightMin +
+          rand() * (CONFIG.pickupGroundHeightMax - CONFIG.pickupGroundHeightMin));
+    pickups.push({ x: cx, y: y, kind: kind, dead: false, overObstacle: overObs });
+    usedGaps.add(i);
+    lastPickupX = cx;
+  }
+  // Guarantee: a pickup exists within the first firstPickupBySec of travel.
+  const firstBy = CONFIG.firstPickupBySec * speed;
+  if (!pickups.length || pickups[0].x > firstBy) {
+    const kind = POWERUP_KINDS[Math.floor(rand() * POWERUP_KINDS.length)];
+    const first = {
+      x: CONFIG.startClearSec * speed * 0.65,
+      y: GROUND_Y - CONFIG.pickupGroundHeightMin,
+      kind: kind, dead: false, overObstacle: false,
+    };
+    // keep min spacing: drop any pickup that now sits too close behind it
+    while (pickups.length && pickups[0].x - first.x < minSpace) pickups.shift();
+    pickups.unshift(first);
+  }
+
+  // -- flyers (moving obstacles; only themes that define one) --
+  const flyers = [];
+  if (CONFIG.moverChance[levelIndex] > 0 && theme.flyer) {
+    const minFSpace = CONFIG.moverMinSpacingSec[levelIndex] * speed;
+    let lastFlyerX = -Infinity;
+    for (let i = 0; i < obstacles.length - 1; i++) {
+      if (usedGaps.has(i)) continue;   // don't stack a flyer on a pickup gap
+      const gapStart = obstacles[i].x + obstacles[i].type.w;
+      const gapEnd = obstacles[i + 1].x;
+      if ((gapEnd - gapStart) / speed < CONFIG.moverGapMinSec) continue;
+      const cx = (gapStart + gapEnd) / 2;
+      if (cx - lastFlyerX < minFSpace) continue;
+      if (rand() > CONFIG.moverChance[levelIndex]) continue;
+      const low = rand() < CONFIG.moverLowChance;
+      const baseY = GROUND_Y - (low ? CONFIG.moverLowY : CONFIG.moverHighY);
+      flyers.push({ x: cx, baseY: baseY, curY: baseY, phase: rand() * 6.28, dead: false });
+      lastFlyerX = cx;
+    }
+  }
+
+  return {
+    index: levelIndex, lengthPx: lengthPx, seed: seed,
+    obstacles: obstacles, pickups: pickups, flyers: flyers,
+    door: { x: lengthPx + DOOR.screenX },
+    theme: theme,
+  };
+}
+
+/* ================================================================
+   Game state
+   ================================================================ */
+const STATE = { TITLE: 0, PLAYING: 1, DEAD: 2, LEVEL_COMPLETE: 3, DOOR_ANIM: 4, VICTORY: 5, HOWTO: 6, LEVEL_SELECT: 7 };
+const game = {
+  state: STATE.TITLE,
+  level: null,
+  cam: 0,              // world distance scrolled (px)
+  time: 0,             // elapsed play time (drives pickup bob / bird flap)
+  doorT: 0,            // door exit-animation clock
+  scoreSnapshot: 0,    // score carried into the current level (restored on retry)
+  score: 0,
+  highScore: loadHighScore(),
+  newHighScore: false,
+  completeMsg: "",     // random phrase chosen when a level is finished
+  unlocked: loadUnlocked(),   // highest unlocked level index (0-based)
+  selectedLevel: 0,
+};
+game.selectedLevel = game.unlocked;
+
+const player = {
+  y: GROUND_Y,         // feet position
+  vy: 0,
+  jumpBuffer: 0,
+  coyote: 0,
+  jumpsUsed: 0,
+  runFrame: 0,
+  runTimer: 0,
+  spriteSize: 96,      // 16 art px * scale 6
+  powerup: null,       // null | "fire" | "double" | "claw"
+  iframes: 0,          // s of invincibility remaining
+  fireCooldown: 0,
+  swipeTimer: 0,       // >0 while the claw swipe is active
+};
+let fireballs = [];    // screen-space projectiles {x, y, traveled}
+let particles = [];    // debris {x, y, vx, vy, life, color, size}
+
+function startLevel(index) {
+  game.level = generateLevel(index);
+  game.cam = 0;
+  game.doorT = 0;
+  game.score = game.scoreSnapshot;
+  game.newHighScore = false;
+  player.y = GROUND_Y; player.vy = 0;
+  player.jumpBuffer = 0; player.coyote = 0; player.jumpsUsed = 0;
+  player.runFrame = 0; player.runTimer = 0;
+  player.powerup = null; player.iframes = 0;
+  player.fireCooldown = 0; player.swipeTimer = 0;
+  fireballs = []; particles = [];
+  game.state = STATE.PLAYING;
+}
+
+function finishLevel() {
+  const i = game.level.index;
+  game.scoreSnapshot = game.score;
+  game.newHighScore = saveHighScore(game.score);
+  if (i + 1 < LEVELS.length) {
+    if (i + 1 > game.unlocked) { game.unlocked = i + 1; saveUnlocked(game.unlocked); }
+    game.completeMsg = LEVEL_COMPLETE_PHRASES[Math.floor(Math.random() * LEVEL_COMPLETE_PHRASES.length)];
+    game.state = STATE.LEVEL_COMPLETE;
+  } else {
+    game.state = STATE.VICTORY;
+  }
+}
+
+/* ================================================================
+   Input — unified. Desktop: Space = jump, X / F = action,
+   arrows = level select on the title. Mobile: tap anywhere = jump
+   (tap a level card to pick it), on-screen button = action.
+   ================================================================ */
+function pressJump() {
+  if (game.state === STATE.TITLE) { game.state = STATE.HOWTO; return; }
+  if (game.state === STATE.HOWTO) { game.state = STATE.LEVEL_SELECT; return; }
+  if (game.state === STATE.LEVEL_SELECT) { game.scoreSnapshot = 0; startLevel(game.selectedLevel); return; }
+  if (game.state === STATE.DEAD) { startLevel(game.level.index); return; }
+  if (game.state === STATE.LEVEL_COMPLETE) { startLevel(game.level.index + 1); return; }
+  if (game.state === STATE.VICTORY) { game.scoreSnapshot = 0; game.level = null; game.state = STATE.LEVEL_SELECT; return; }
+  if (game.state === STATE.PLAYING) player.jumpBuffer = CONFIG.jumpBufferTime;
+}
+function pressAction() {
+  if (game.state !== STATE.PLAYING) return;
+  if (player.powerup === "fire" && player.fireCooldown <= 0) {
+    player.fireCooldown = CONFIG.fireballCooldown;
+    fireballs.push({
+      x: CONFIG.playerScreenX + player.spriteSize - 10,
+      y: player.y - player.spriteSize * 0.55,
+      traveled: 0,
+    });
+  } else if (player.powerup === "claw" && player.swipeTimer <= 0) {
+    player.swipeTimer = CONFIG.clawSwingDuration;
+  }
+  // "double" has no action — its power is the mid-air second jump.
+}
+
+window.addEventListener("keydown", (e) => {
+  if (e.repeat) return;
+  if (game.state === STATE.LEVEL_SELECT && (e.code === "ArrowLeft" || e.code === "ArrowRight")) {
+    e.preventDefault();
+    const dir = e.code === "ArrowLeft" ? -1 : 1;
+    game.selectedLevel = Math.max(0, Math.min(game.unlocked, game.selectedLevel + dir));
+    return;
+  }
+  if (e.code === "Space" || e.code === "ArrowUp") { e.preventDefault(); pressJump(); }
+  else if (e.code === "KeyX" || e.code === "KeyF") { e.preventDefault(); pressAction(); }
+});
+canvas.addEventListener("pointerdown", (e) => {
+  e.preventDefault();
+  if (game.state === STATE.LEVEL_SELECT) {
+    const r = canvas.getBoundingClientRect();
+    const x = (e.clientX - r.left) * (VIEW_W / r.width);
+    const y = (e.clientY - r.top) * (VIEW_H / r.height);
+    const hit = hitChip(x, y);
+    if (hit !== null) {
+      if (hit <= game.unlocked) {
+        game.selectedLevel = hit;
+        game.scoreSnapshot = 0;
+        startLevel(hit);
+      }
+      return;   // tapping a locked card does nothing
+    }
+  }
+  pressJump();
+});
+canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+
+const actionBtn = document.getElementById("actionBtn");
+actionBtn.addEventListener("pointerdown", (e) => {
+  e.preventDefault(); e.stopPropagation();
+  pressAction();
+});
+
+/* ================================================================
+   Update — fixed timestep physics & collision
+   ================================================================ */
+function playerHitbox() {
+  const s = player.spriteSize;
+  const trim = s * CONFIG.hitboxShrink;
+  return {
+    x: CONFIG.playerScreenX + trim,
+    y: player.y - s + trim,
+    w: s - trim * 2,
+    h: s - trim * 2,
+  };
+}
+
+function overlaps(box, x, y, w, h) {
+  return box.x < x + w && box.x + box.w > x && box.y < y + h && box.y + box.h > y;
+}
+
+function spawnDebris(sx, sy, color, edge) {
+  for (let i = 0; i < 10; i++) {
+    particles.push({
+      x: sx, y: sy,
+      vx: (Math.random() - 0.3) * 300,
+      vy: -Math.random() * 320,
+      life: 0.5 + Math.random() * 0.3,
+      color: Math.random() < 0.7 ? color : edge,
+      size: 5 + Math.random() * 6,
+    });
+  }
+}
+
+function destroyObstacle(obs) {
+  obs.dead = true;
+  game.score += CONFIG.destroyBonus;
+  spawnDebris(obs.x - game.cam + obs.type.w / 2, GROUND_Y - obs.type.h / 2,
+    obs.type.color, obs.type.edge);
+}
+
+function destroyFlyer(f) {
+  f.dead = true;
+  game.score += CONFIG.destroyBonus;
+  const deb = game.level.theme.flyer.debris;
+  spawnDebris(f.x - game.cam, f.curY, deb[0], deb[1]);
+}
+
+function takeHit() {
+  if (player.iframes > 0) return;
+  if (player.powerup) {
+    player.powerup = null;
+    player.iframes = CONFIG.iframeDuration;
+  } else {
+    game.newHighScore = saveHighScore(game.score);
+    game.state = STATE.DEAD;
+  }
+}
+
+function updateParticles(dt, drift) {
+  for (const pt of particles) {
+    pt.life -= dt;
+    pt.vy += CONFIG.gravity * 0.5 * dt;
+    pt.x += (pt.vx - drift) * dt;
+    pt.y += pt.vy * dt;
+  }
+  particles = particles.filter((pt) => pt.life > 0);
+}
+
+function doorTotalTime() {
+  return doorPhases().p7;
+}
+
+function update(dt) {
+  if (game.state === STATE.DOOR_ANIM) {
+    game.time += dt;
+    game.doorT += dt;
+    updateParticles(dt, 0);
+    if (game.doorT >= doorTotalTime()) finishLevel();
+    return;
+  }
+  if (game.state !== STATE.PLAYING) return;
+  game.time += dt;
+
+  const speed = CONFIG.scrollSpeed[game.level.index];
+  game.cam += speed * dt;
+  game.score += speed * dt * CONFIG.pointsPerPixel;
+
+  // -- timers --
+  player.iframes = Math.max(0, player.iframes - dt);
+  player.fireCooldown = Math.max(0, player.fireCooldown - dt);
+  player.swipeTimer = Math.max(0, player.swipeTimer - dt);
+
+  // -- jumping: buffered input + coyote time + double jump --
+  const onGround = player.y >= GROUND_Y;
+  if (onGround) { player.coyote = CONFIG.coyoteTime; player.jumpsUsed = 0; }
+  else player.coyote -= dt;
+  player.jumpBuffer -= dt;
+  if (player.jumpBuffer > 0) {
+    if (player.coyote > 0) {
+      player.vy = -CONFIG.jumpVelocity;
+      player.jumpBuffer = 0; player.coyote = 0; player.jumpsUsed = 1;
+    } else if (player.powerup === "double" && player.jumpsUsed < 2) {
+      player.vy = -CONFIG.doubleJumpVelocity;
+      player.jumpBuffer = 0; player.jumpsUsed = 2;
+    }
+  }
+
+  // -- gravity --
+  player.vy = Math.min(player.vy + CONFIG.gravity * dt, CONFIG.maxFallSpeed);
+  player.y += player.vy * dt;
+  if (player.y >= GROUND_Y) { player.y = GROUND_Y; player.vy = 0; }
+
+  // -- run animation --
+  if (player.y >= GROUND_Y) {
+    player.runTimer += dt;
+    if (player.runTimer >= CONFIG.runFrameTime) {
+      player.runTimer -= CONFIG.runFrameTime;
+      player.runFrame = 1 - player.runFrame;
+    }
+  }
+
+  const box = playerHitbox();
+
+  // -- pickups --
+  for (const p of game.level.pickups) {
+    if (p.dead) continue;
+    const sx = p.x - game.cam;
+    if (sx > VIEW_W) break;
+    if (sx < -60) continue;
+    const grab = p.overObstacle ? CONFIG.pickupOverGrabReach : 20;
+    if (overlaps(box, sx - 20, p.y - grab, 40, grab * 2)) {
+      p.dead = true;
+      player.powerup = p.kind;   // new pickup replaces the current one
+    }
+  }
+
+  // -- claw swipe zone --
+  const swipeActive = player.swipeTimer > 0;
+  const swipeZone = swipeActive ? {
+    x: box.x + box.w, y: box.y - 40, w: CONFIG.clawRange, h: box.h + 60,
+  } : null;
+
+  // -- obstacles: swipe kills destructibles, otherwise collide --
+  for (const obs of game.level.obstacles) {
+    if (obs.dead) continue;
+    const sx = obs.x - game.cam;
+    if (sx > VIEW_W) break;               // obstacles are sorted by x
+    if (sx + obs.type.w < -20) continue;
+    const oy = GROUND_Y - obs.type.h;
+    if (swipeZone && obs.type.destructible &&
+        overlaps(swipeZone, sx, oy, obs.type.w, obs.type.h)) {
+      destroyObstacle(obs);
+      continue;
+    }
+    if (overlaps(box, sx, oy, obs.type.w, obs.type.h)) {
+      takeHit();
+      if (game.state !== STATE.PLAYING) return;
+    }
+  }
+
+  // -- flyers: drift toward the dog, bob, swipe-killable, collide --
+  const extra = CONFIG.moverExtraSpeed[game.level.index];
+  for (const f of game.level.flyers) {
+    if (f.dead) continue;
+    f.x -= extra * dt;
+    f.curY = f.baseY + Math.sin(game.time * CONFIG.moverBobFreq + f.phase) * CONFIG.moverBobAmp;
+    const sx = f.x - game.cam;
+    if (sx < -60 || sx > VIEW_W + 60) continue;
+    if (swipeZone && overlaps(swipeZone, sx - 20, f.curY - 12, 40, 24)) {
+      destroyFlyer(f);
+      continue;
+    }
+    if (overlaps(box, sx - 16, f.curY - 9, 32, 18)) {
+      takeHit();
+      if (game.state !== STATE.PLAYING) return;
+    }
+  }
+
+  // -- fireballs --
+  for (const fb of fireballs) {
+    const step = CONFIG.fireballSpeed * dt;
+    fb.x += step; fb.traveled += step;
+    if (fb.traveled > CONFIG.fireballRange || fb.x > VIEW_W + 40) { fb.dead = true; continue; }
+    for (const obs of game.level.obstacles) {
+      if (obs.dead) continue;
+      const sx = obs.x - game.cam;
+      if (sx > fb.x + 40) break;
+      const oy = GROUND_Y - obs.type.h;
+      if (fb.x + 30 > sx && fb.x < sx + obs.type.w && fb.y + 24 > oy && fb.y < GROUND_Y) {
+        if (obs.type.destructible) destroyObstacle(obs);
+        fb.dead = true;             // fizzles on anything it hits
+        break;
+      }
+    }
+    if (fb.dead) continue;
+    for (const f of game.level.flyers) {
+      if (f.dead) continue;
+      const sx = f.x - game.cam;
+      if (fb.x + 30 > sx - 20 && fb.x < sx + 20 && fb.y + 24 > f.curY - 12 && fb.y < f.curY + 12) {
+        destroyFlyer(f);
+        fb.dead = true;
+        break;
+      }
+    }
+  }
+  fireballs = fireballs.filter((fb) => !fb.dead);
+
+  updateParticles(dt, speed * 0.5);
+
+  // -- level end: park the camera and start the door animation --
+  if (game.cam >= game.level.lengthPx) {
+    game.cam = game.level.lengthPx;
+    game.doorT = 0;
+    game.state = STATE.DOOR_ANIM;
+  }
+}
+
+/* ================================================================
+   Render
+   ================================================================ */
+function getSkyGradient(theme) {
+  if (!theme._sky) {
+    const g = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
+    g.addColorStop(0, theme.sky[0]);
+    g.addColorStop(1, theme.sky[1]);
+    theme._sky = g;
+  }
+  return theme._sky;
+}
+
+function drawParallax(theme) {
+  for (const { cv, def } of getThemeTiles(theme)) {
+    const off = -((game.cam * def.factor) % 480);
+    for (let x = off; x < VIEW_W; x += 480) {
+      ctx.drawImage(cv, Math.round(x), def.y);
+    }
+  }
+}
+
+function drawObstacle(obs) {
+  if (obs.dead) return;
+  const sx = Math.round(obs.x - game.cam);
+  if (sx + obs.type.w < 0 || sx > VIEW_W) return;
+  const oy = GROUND_Y - obs.type.h;
+  if (obs.type.destructible) {
+    // white rim: breakable-obstacle identifier
+    ctx.strokeStyle = "rgba(255,255,255,0.9)";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(sx - 2.5, oy - 2.5, obs.type.w + 5, obs.type.h + 5);
+  }
+  ctx.fillStyle = obs.type.color;
+  ctx.fillRect(sx, oy, obs.type.w, obs.type.h);
+  ctx.strokeStyle = obs.type.edge;
+  ctx.lineWidth = 3;
+  ctx.strokeRect(sx + 1.5, oy + 1.5, obs.type.w - 3, obs.type.h - 3);
+  if (obs.type.destructible) {
+    // crack mark: visual cue that fireball / claw can break it
+    ctx.beginPath();
+    ctx.moveTo(sx + obs.type.w * 0.3, oy + obs.type.h * 0.25);
+    ctx.lineTo(sx + obs.type.w * 0.55, oy + obs.type.h * 0.5);
+    ctx.lineTo(sx + obs.type.w * 0.35, oy + obs.type.h * 0.78);
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+}
+
+function drawPickup(p) {
+  if (p.dead) return;
+  const sx = Math.round(p.x - game.cam);
+  if (sx < -60 || sx > VIEW_W + 60) return;
+  const bob = Math.sin(game.time * 3 + p.x * 0.01) * 6;
+  const img = sprite(PICKUP_SPRITES[p.kind]);
+  ctx.drawImage(img, sx - img.width / 2, Math.round(p.y + bob) - img.height / 2);
+}
+
+function drawFlyer(f) {
+  if (f.dead) return;
+  const sx = Math.round(f.x - game.cam);
+  if (sx < -60 || sx > VIEW_W + 60) return;
+  const fdef = game.level.theme.flyer;
+  const img = sprite(fdef.frames[Math.floor(game.time * 7 + f.phase) % 2], fdef.palette);
+  ctx.drawImage(img, sx - img.width / 2, Math.round(f.curY) - img.height / 2);
+}
+
+/* Door phase boundaries:
+   approach -> sit -> pick (jiggle) -> click -> open -> walk -> fade */
+function doorPhases() {
+  const p1 = CONFIG.doorApproachTime;
+  const p2 = p1 + CONFIG.doorSitTime;
+  const p3 = p2 + CONFIG.doorPickTime;
+  const p4 = p3 + CONFIG.doorClickTime;
+  const p5 = p4 + CONFIG.doorOpenTime;
+  const p6 = p5 + CONFIG.doorWalkTime;
+  const p7 = p6 + CONFIG.doorFadeTime;
+  return { p1, p2, p3, p4, p5, p6, p7 };
+}
+
+function doorOpenness() {
+  if (game.state !== STATE.DOOR_ANIM) return 0;
+  const ph = doorPhases();
+  if (game.doorT < ph.p4) return 0;
+  if (game.doorT >= ph.p5) return 1;
+  return (game.doorT - ph.p4) / CONFIG.doorOpenTime;
+}
+
+function drawDoor() {
+  const sx = Math.round(game.level.door.x - game.cam);
+  if (sx > VIEW_W + 80 || sx + DOOR.w < -80) return;
+  const top = GROUND_Y - DOOR.h;
+  // frame
+  ctx.fillStyle = "#4a3320";
+  ctx.fillRect(sx - 8, top - 8, DOOR.w + 16, DOOR.h + 8);
+  // dark opening behind the panel
+  ctx.fillStyle = "#17120c";
+  ctx.fillRect(sx, top, DOOR.w, DOOR.h);
+  // panel slides toward its hinge as it opens
+  const open = doorOpenness();
+  const pw = Math.max(0, DOOR.w * (1 - 0.85 * open));
+  if (pw > 4) {
+    ctx.fillStyle = "#8a5a2b";
+    ctx.fillRect(sx, top, pw, DOOR.h);
+    ctx.strokeStyle = "#5d3d1c";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(sx + 1.5, top + 1.5, pw - 3, DOOR.h - 3);
+    // knob + lock on the near side, where a sitting dog's paw reaches
+    if (open < 0.5 && pw > DOOR.knobX + 8) {
+      ctx.fillStyle = "#ffd75e";
+      ctx.beginPath();
+      ctx.arc(sx + DOOR.knobX, top + DOOR.h * DOOR.knobYf, 5, 0, 7);
+      ctx.fill();
+      ctx.fillStyle = "#3a2a16";
+      ctx.fillRect(sx + DOOR.knobX - 1, top + DOOR.h * DOOR.knobYf + 9, 3, 6);
+    }
+  }
+}
+
+/* Jagged claw-mark shapes, built once at load (local coords around the
+   swipe origin). Each mark is a tapered diagonal slash: pointed at both
+   ends, widest in the middle, with a fixed zigzag jitter on both edges
+   so it reads as a ragged scratch (stable frame to frame — no flicker). */
+const CLAW_MARKS = (() => {
+  const J = [0, 4, -3, 4.5, -2.5, 3.5, -4, 3, -3.5, 4, -3, 0];  // edge jitter pattern
+  const marks = [];
+  for (let m = 0; m < 3; m++) {
+    const sx = m * 21, sy = -46;          // top of the slash
+    const ex = sx + 20,    ey = 38;       // bottom: slants down-forward
+    const dx = ex - sx, dy = ey - sy;
+    const len = Math.hypot(dx, dy);
+    const px = -dy / len, py = dx / len;  // perpendicular to the slash
+    const N = 12, left = [], right = [];
+    for (let i = 0; i < N; i++) {
+      const t = i / (N - 1);
+      const ox = sx + dx * t, oy = sy + dy * t;
+      const taper = Math.pow(Math.sin(Math.PI * t), 0.7);
+      const w = 4.5 * taper;
+      const jl = J[(i * 2 + m * 3) % J.length] * 0.8 * taper;
+      const jr = J[(i * 2 + m * 3 + 5) % J.length] * 0.8 * taper;
+      left.push([ox + px * (w + jl), oy + py * (w + jl)]);
+      right.push([ox - px * (w + jr), oy - py * (w + jr)]);
+    }
+    marks.push(left.concat(right.reverse()));
+  }
+  return marks;
+})();
+
+/* All three marks go into ONE path so overlapping jags don't double the alpha. */
+function drawClawMarks(cx, cy, alpha) {
+  ctx.fillStyle = "rgba(185,20,25," + alpha.toFixed(3) + ")";
+  ctx.beginPath();
+  for (const poly of CLAW_MARKS) {
+    ctx.moveTo(cx + poly[0][0], cy + poly[0][1]);
+    for (let i = 1; i < poly.length; i++) ctx.lineTo(cx + poly[i][0], cy + poly[i][1]);
+    ctx.closePath();
+  }
+  ctx.fill();
+}
+
+/* Unlock "click" sparkle: an 8-ray star that blooms and fades. t in [0,1). */
+function drawSparkle(x, y, t) {
+  const r = 6 + 12 * Math.sin(Math.PI * Math.min(1, t));
+  ctx.strokeStyle = "rgba(255,240,180," + (0.95 - 0.5 * t).toFixed(3) + ")";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  for (let i = 0; i < 4; i++) {
+    const a = i * Math.PI / 4;
+    ctx.moveTo(x - Math.cos(a) * r, y - Math.sin(a) * r);
+    ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r);
+  }
+  ctx.stroke();
+}
+
+function drawPlayer() {
+  // blink while invincible
+  if (player.iframes > 0 && Math.floor(player.iframes * 12) % 2 === 0) return;
+  const palName = DOG_PALETTES[player.powerup || "none"];
+
+  if (game.state === STATE.DOOR_ANIM) {
+    const ph = doorPhases();
+    const t = game.doorT;
+    let pose = "dogSit", dx = DOOR.dogStopDx, alpha = 1;
+    if (t < ph.p1) {                       // trot up to the door
+      dx = (t / CONFIG.doorApproachTime) * DOOR.dogStopDx;
+      pose = Math.floor(t * 10) % 2 ? "dogRun1" : "dogRun0";
+    } else if (t < ph.p2) {                // sit down
+      pose = "dogSit";
+    } else if (t < ph.p3) {                // pick the lock: claw out, jiggle
+      pose = Math.floor((t - ph.p2) * CONFIG.doorJiggleRate) % 2 ? "dogPick1" : "dogPick0";
+    } else if (t < ph.p4) {                // click! hold the paw still
+      pose = "dogPick0";
+    } else if (t < ph.p5) {                // door swings open, sit back
+      pose = "dogSit";
+    } else if (t < ph.p6) {                // walk through
+      const wp = (t - ph.p5) / CONFIG.doorWalkTime;
+      dx = DOOR.dogStopDx + wp * DOOR.walkDx;
+      pose = Math.floor(t * 9) % 2 ? "dogRun1" : "dogRun0";
+      if (wp > 0.55) alpha = Math.max(0, 1 - (wp - 0.55) / 0.45);
+    } else {
+      alpha = 0;                           // already inside
+    }
+    if (alpha > 0) {
+      ctx.globalAlpha = alpha;
+      ctx.drawImage(sprite(pose, palName),
+        CONFIG.playerScreenX + Math.round(dx), Math.round(player.y) - player.spriteSize);
+      ctx.globalAlpha = 1;
+    }
+    // the unlock "click": a sparkle at the knob (distinct from the claw powerup)
+    if (t >= ph.p3 && t < ph.p4) {
+      const doorSx = Math.round(game.level.door.x - game.cam);
+      drawSparkle(doorSx + DOOR.knobX, GROUND_Y - DOOR.h + DOOR.h * DOOR.knobYf,
+        (t - ph.p3) / CONFIG.doorClickTime);
+    }
+    return;
+  }
+
+  let pose;
+  if (player.swipeTimer > 0) pose = "dogSwipe";
+  else if (player.y < GROUND_Y) pose = "dogJump";
+  else pose = player.runFrame === 0 ? "dogRun0" : "dogRun1";
+  ctx.drawImage(sprite(pose, palName), CONFIG.playerScreenX, Math.round(player.y) - player.spriteSize);
+
+  // swipe feedback: three jagged claw marks, fading out over the swing
+  if (player.swipeTimer > 0) {
+    const fade = player.swipeTimer / CONFIG.clawSwingDuration;
+    drawClawMarks(CONFIG.playerScreenX + player.spriteSize,
+      player.y - player.spriteSize * 0.5, 0.55 + 0.4 * fade);
+  }
+}
+
+/* ================================================================
+   HUD
+   ================================================================ */
+/* HUD text: dark rounded outline + colored fill, any alignment. */
+function hudText(text, x, y, size, fill, align) {
+  ctx.textAlign = align || "left";
+  ctx.font = "bold " + size + "px monospace";
+  ctx.lineJoin = "round";
+  ctx.lineWidth = Math.max(4, size * 0.22);
+  ctx.strokeStyle = "rgba(20,16,10,0.9)";
+  ctx.strokeText(text, x, y);
+  ctx.fillStyle = fill;
+  ctx.fillText(text, x, y);
+}
+
+function drawHUD() {
+  // score: gold label, cream digits
+  hudText("SCORE", 20, 34, 20, "#ffd75e");
+  hudText(String(Math.floor(game.score)).padStart(6, "0"), 96, 34, 22, "#fff6e0");
+  // level: two-tone, centered
+  const levelNum = game.level ? game.level.index + 1 : 1;
+  hudText("LEVEL", VIEW_W / 2 - 8, 34, 20, "#ffd75e", "right");
+  hudText(String(levelNum), VIEW_W / 2 + 8, 34, 22, "#fff6e0", "left");
+
+  // held-powerup box (top right): rounded, amber trim
+  const bx = VIEW_W - 76, by = 12, bs = 56;
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(bx, by, bs, bs, 10);
+  else ctx.rect(bx, by, bs, bs);
+  ctx.fillStyle = "rgba(20,16,10,0.4)";
+  ctx.fill();
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = "rgba(255,215,94,0.75)";
+  ctx.stroke();
+  const inRun = game.state === STATE.PLAYING || game.state === STATE.DEAD || game.state === STATE.DOOR_ANIM;
+  if (player.powerup && inRun) {
+    const img = sprite(PICKUP_SPRITES[player.powerup]);
+    ctx.drawImage(img, bx + (bs - img.width) / 2, by + (bs - img.height) / 2);
+  }
+}
+
+/* ================================================================
+   Overlay screens
+   ================================================================ */
+let uiT = 0;   // UI clock (seconds) — drives hint pulsing & confetti drift
+
+// fixed confetti field for celebration screens (seeded: no flicker)
+const CONFETTI = (() => {
+  const rand = mulberry32(777);
+  const colors = ["#ffd75e", "#7be08a", "#7ec8ff", "#ff9078", "#c9a0ef"];
+  const bits = [];
+  for (let i = 0; i < 40; i++) {
+    bits.push({
+      x: 60 + rand() * (VIEW_W - 120),
+      y: 50 + rand() * 260,
+      s: 4 + rand() * 5,
+      c: colors[Math.floor(rand() * colors.length)],
+      r: rand() * Math.PI,
+    });
+  }
+  return bits;
+})();
+
+/* Victory backdrop: Phase 4 sets VICTORY_PHOTO to an Image of Lue
+   enjoying a treat (inline data URI — no external files). Until then
+   a placeholder scene with a dashed photo frame is drawn. */
+let VICTORY_PHOTO = null;
+function drawVictoryBackdrop() {
+  if (VICTORY_PHOTO && VICTORY_PHOTO.complete && VICTORY_PHOTO.naturalWidth) {
+    // cover-fit the photo to the canvas
+    const iw = VICTORY_PHOTO.naturalWidth, ih = VICTORY_PHOTO.naturalHeight;
+    const s = Math.max(VIEW_W / iw, VIEW_H / ih);
+    ctx.drawImage(VICTORY_PHOTO, (VIEW_W - iw * s) / 2, (VIEW_H - ih * s) / 2, iw * s, ih * s);
+  } else {
+    const g = ctx.createLinearGradient(0, 0, 0, VIEW_H);
+    g.addColorStop(0, "#2e2246");
+    g.addColorStop(0.6, "#6e4258");
+    g.addColorStop(1, "#a06a52");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+    ctx.setLineDash([12, 10]);
+    ctx.strokeStyle = "rgba(255,255,255,0.35)";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(24, 24, VIEW_W - 48, VIEW_H - 48);
+    ctx.setLineDash([]);
+    ctx.font = "italic 18px monospace";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.fillText("( photo of Lue enjoying her treatie goes here — Phase 4 )", VIEW_W / 2, 360);
+  }
+  // scrims so the text (top) and pixel dog (bottom) read over any photo
+  const s1 = ctx.createLinearGradient(0, 0, 0, 300);
+  s1.addColorStop(0, "rgba(0,0,0,0.62)");
+  s1.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = s1;
+  ctx.fillRect(0, 0, VIEW_W, 300);
+  const s2 = ctx.createLinearGradient(0, VIEW_H - 150, 0, VIEW_H);
+  s2.addColorStop(0, "rgba(0,0,0,0)");
+  s2.addColorStop(1, "rgba(0,0,0,0.6)");
+  ctx.fillStyle = s2;
+  ctx.fillRect(0, VIEW_H - 150, VIEW_W, 150);
+}
+
+function overlayBackdrop() {
+  const g = ctx.createLinearGradient(0, 0, 0, VIEW_H);
+  g.addColorStop(0, "rgba(10,8,18,0.78)");
+  g.addColorStop(0.5, "rgba(10,8,18,0.55)");
+  g.addColorStop(1, "rgba(10,8,18,0.78)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+}
+
+/* Outlined / gradient display text. fill: color string or [top, bottom]. */
+function fancyText(text, y, size, fill, opts = {}) {
+  const x = VIEW_W / 2;
+  ctx.textAlign = "center";
+  ctx.font = (opts.italic ? "italic " : "") + "bold " + size + "px monospace";
+  if (opts.shadow) {
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    ctx.fillText(text, x + size * 0.07, y + size * 0.09);
+  }
+  if (opts.outline) {
+    ctx.lineJoin = "round";
+    ctx.lineWidth = opts.outline;
+    ctx.strokeStyle = opts.outlineColor || "#14100a";
+    ctx.strokeText(text, x, y);
+  }
+  if (Array.isArray(fill)) {
+    const g = ctx.createLinearGradient(0, y - size * 0.9, 0, y + size * 0.2);
+    g.addColorStop(0, fill[0]);
+    g.addColorStop(1, fill[1]);
+    ctx.fillStyle = g;
+  } else {
+    ctx.fillStyle = fill;
+  }
+  ctx.fillText(text, x, y);
+}
+
+function divider(y, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(VIEW_W / 2 - 160, y, 125, 3);
+  ctx.fillRect(VIEW_W / 2 + 35, y, 125, 3);
+  ctx.save();
+  ctx.translate(VIEW_W / 2, y + 1.5);
+  ctx.rotate(Math.PI / 4);
+  ctx.fillRect(-6, -6, 12, 12);
+  ctx.restore();
+}
+
+function drawHint(text, y) {
+  const a = 0.55 + 0.45 * (0.5 + 0.5 * Math.sin(uiT * 4));
+  ctx.font = "bold 22px monospace";
+  ctx.textAlign = "center";
+  ctx.fillStyle = "rgba(255,215,94," + a.toFixed(3) + ")";
+  ctx.fillText(text, VIEW_W / 2, y);
+}
+
+function drawScoreLines(y) {
+  if (game.newHighScore) {
+    fancyText("NEW HIGH SCORE  " + Math.floor(game.score), y, 26, "#ffd75e", { shadow: true });
+  } else {
+    fancyText("SCORE  " + Math.floor(game.score), y, 24, "#f3e9d2", { shadow: true });
+    fancyText("BEST  " + game.highScore, y + 34, 19, "#9fb7c9", {});
+  }
+}
+
+function drawConfetti() {
+  for (const b of CONFETTI) {
+    ctx.save();
+    ctx.translate(b.x, b.y + Math.sin(uiT * 2 + b.x) * 4);
+    ctx.rotate(b.r + uiT * 0.6);
+    ctx.globalAlpha = 0.85;
+    ctx.fillStyle = b.c;
+    ctx.fillRect(-b.s / 2, -b.s / 2, b.s, b.s);
+    ctx.restore();
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* ---- title screen level select ---- */
+function chipRect(i) {
+  const w = 126, h = 64, gap = 8;
+  const total = LEVELS.length * w + (LEVELS.length - 1) * gap;
+  const x0 = (VIEW_W - total) / 2;
+  return { x: x0 + i * (w + gap), y: 310, w: w, h: h };
+}
+function hitChip(x, y) {
+  for (let i = 0; i < LEVELS.length; i++) {
+    const r = chipRect(i);
+    if (x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h) return i;
+  }
+  return null;
+}
+function drawLevelChips() {
+  for (let i = 0; i < LEVELS.length; i++) {
+    const r = chipRect(i);
+    const unlocked = i <= game.unlocked;
+    const sel = i === game.selectedLevel;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(r.x, r.y, r.w, r.h, 12);
+    else ctx.rect(r.x, r.y, r.w, r.h);
+    ctx.fillStyle = unlocked
+      ? (sel ? "rgba(255,215,94,0.22)" : "rgba(20,16,10,0.45)")
+      : "rgba(20,16,10,0.6)";
+    ctx.fill();
+    ctx.lineWidth = sel && unlocked ? 4 : 2.5;
+    ctx.strokeStyle = unlocked
+      ? (sel ? "#ffd75e" : "rgba(255,215,94,0.45)")
+      : "rgba(130,130,130,0.5)";
+    ctx.stroke();
+    ctx.textAlign = "center";
+    if (unlocked) {
+      ctx.font = "bold 13px monospace";
+      ctx.fillStyle = "#ffd75e";
+      ctx.fillText("LEVEL " + (i + 1), r.x + r.w / 2, r.y + 24);
+      ctx.font = "bold 13px monospace";
+      ctx.fillStyle = "#f3e9d2";
+      ctx.fillText(LEVELS[i].short, r.x + r.w / 2, r.y + 46);
+    } else {
+      const cx = r.x + r.w / 2, cy = r.y + 26;
+      ctx.strokeStyle = "#8b8b8b";
+      ctx.lineWidth = 3.5;
+      ctx.beginPath(); ctx.arc(cx, cy - 4, 7, Math.PI, 0); ctx.stroke();
+      ctx.fillStyle = "#8b8b8b";
+      ctx.fillRect(cx - 10, cy - 4, 20, 15);
+      ctx.font = "bold 11px monospace";
+      ctx.fillStyle = "#9a9a9a";
+      ctx.fillText("LOCKED", r.x + r.w / 2, r.y + 50);
+    }
+  }
+}
+
+/* ================================================================
+   Render — scene + state overlays
+   ================================================================ */
+function render() {
+  const theme = game.level ? game.level.theme : LEVELS[0];
+
+  // sky, parallax, ground
+  ctx.fillStyle = getSkyGradient(theme);
+  ctx.fillRect(0, 0, VIEW_W, GROUND_Y);
+  drawParallax(theme);
+  ctx.fillStyle = theme.ground;
+  ctx.fillRect(0, GROUND_Y, VIEW_W, VIEW_H - GROUND_Y);
+  ctx.fillStyle = theme.groundLine;
+  ctx.fillRect(0, GROUND_Y, VIEW_W, 4);
+
+  if (game.level) {
+    drawDoor();
+    for (const obs of game.level.obstacles) drawObstacle(obs);
+    for (const p of game.level.pickups) drawPickup(p);
+    for (const f of game.level.flyers) drawFlyer(f);
+  }
+
+  for (const fb of fireballs) {
+    ctx.drawImage(sprite("fireball"), Math.round(fb.x), Math.round(fb.y));
+  }
+  for (const pt of particles) {
+    ctx.fillStyle = pt.color;
+    ctx.fillRect(Math.round(pt.x), Math.round(pt.y), pt.size, pt.size);
+  }
+
+  if (game.state === STATE.PLAYING || game.state === STATE.DEAD || game.state === STATE.DOOR_ANIM) {
+    drawPlayer();
+  }
+  drawHUD();
+
+  // door-animation fade to black
+  if (game.state === STATE.DOOR_ANIM) {
+    const ph = doorPhases();
+    if (game.doorT >= ph.p6) {
+      const a = Math.min(1, (game.doorT - ph.p6) / CONFIG.doorFadeTime);
+      ctx.fillStyle = "rgba(0,0,0," + a.toFixed(3) + ")";
+      ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+    }
+  }
+
+  const isTouch = window.matchMedia("(pointer: coarse)").matches;
+  const go = isTouch ? "Tap to " : "Press SPACE to ";
+  if (game.state === STATE.TITLE) {
+    // splash
+    overlayBackdrop();
+    fancyText("LUE'S TREATIE RUN!", 215, 56, ["#ffe9a3", "#f5a623"], { outline: 9, outlineColor: "#3a2415", shadow: true });
+    divider(247, "rgba(245,166,35,0.55)");
+    fancyText("starring: Lue!", 292, 26, "#f3e9d2", { italic: true, shadow: true });
+    if (game.highScore > 0)
+      fancyText("HI SCORE  " + String(game.highScore).padStart(6, "0"), 328, 19, "#9fb7c9", {});
+    drawHint(go + "continue", 392);
+  } else if (game.state === STATE.HOWTO) {
+    // how to play
+    overlayBackdrop();
+    fancyText("HOW TO PLAY", 96, 40, ["#ffe9a3", "#f5a623"], { outline: 7, outlineColor: "#3a2415", shadow: true });
+    const jumpKey = isTouch ? "TAP anywhere" : "SPACE";
+    const actKey = isTouch ? "the ACT button" : "X or F";
+    fancyText("Jump with " + jumpKey + "  .  Use your powerup with " + actKey, 146, 20, "#f3e9d2", { shadow: true });
+    const rows = [
+      { icon: "puFire",   name: "FIREBALL",    desc: "Shoot ahead and break things at range" },
+      { icon: "puDouble", name: "DOUBLE JUMP", desc: "Jump once more while in the air" },
+      { icon: "puClaw",   name: "CLAW",        desc: "Swipe to shred things up close" },
+    ];
+    for (let i = 0; i < rows.length; i++) {
+      const y = 196 + i * 62;
+      const img = sprite(rows[i].icon);
+      ctx.drawImage(img, 236, y - img.height / 2);
+      ctx.textAlign = "left";
+      ctx.font = "bold 20px monospace";
+      ctx.fillStyle = "#ffd75e";
+      ctx.fillText(rows[i].name, 296, y + 2);
+      ctx.font = "17px monospace";
+      ctx.fillStyle = "#f3e9d2";
+      ctx.fillText(rows[i].desc, 296, y + 26);
+    }
+    fancyText("A powerup is armor: get hit and you only lose it.", 402, 18, "#f3e9d2", { shadow: true });
+    fancyText("No powerup? Back to the start of the level!", 428, 18, "#f3e9d2", { shadow: true });
+    fancyText("Cracked obstacles are breakable. Reach the door!", 458, 18, "#9fb7c9", {});
+    drawHint(go + "continue", 505);
+  } else if (game.state === STATE.LEVEL_SELECT) {
+    // level select
+    overlayBackdrop();
+    fancyText("CHOOSE A LEVEL", 200, 44, ["#ffe9a3", "#f5a623"], { outline: 8, outlineColor: "#3a2415", shadow: true });
+    divider(232, "rgba(245,166,35,0.55)");
+    drawLevelChips();
+    if (game.highScore > 0)
+      fancyText("HI SCORE  " + String(game.highScore).padStart(6, "0"), 430, 19, "#9fb7c9", {});
+    drawHint(isTouch ? "Tap a level to start" : "Arrows to choose, SPACE to start", 470);
+  } else if (game.state === STATE.DEAD) {
+    overlayBackdrop();
+    fancyText("OUCH!", 220, 64, ["#ff9078", "#c22525"], { outline: 10, outlineColor: "#3d0d0d", shadow: true });
+    divider(252, "rgba(194,37,37,0.55)");
+    drawScoreLines(302);
+    drawHint(go + "retry", 390);
+  } else if (game.state === STATE.LEVEL_COMPLETE) {
+    overlayBackdrop();
+    drawConfetti();
+    fancyText(game.completeMsg, 215, 44, ["#d9ffd0", "#58c06d"], { outline: 8, outlineColor: "#123a1c", shadow: true });
+    divider(248, "rgba(88,192,109,0.55)");
+    drawScoreLines(302);
+    drawHint(go + "continue", 390);
+  } else if (game.state === STATE.VICTORY) {
+    drawVictoryBackdrop();
+    drawConfetti();
+    fancyText("TREATIE CHAMPION!", 96, 54, ["#ffe9a3", "#f5a623"], { outline: 9, outlineColor: "#3a2415", shadow: true });
+    fancyText("The Bean Queen is pleased!", 148, 24, "#f3e9d2", { italic: true, shadow: true });
+    drawScoreLines(202);
+    drawHint(go + "return to level select", 282);
+    // pixel Lue enjoying her treatie in front of the photo
+    const dogX = VIEW_W / 2 - 150, dogFeet = VIEW_H - 12;
+    ctx.drawImage(sprite("bone"), dogX + 70, dogFeet - 18);
+    const eatPose = Math.floor(uiT * 3) % 2 ? "dogEat1" : "dogEat0";
+    ctx.drawImage(sprite(eatPose, "dogNormal"), dogX, dogFeet - 96);
+  }
+}
+
+/* ================================================================
+   Main loop — rAF render + fixed-timestep update (120 Hz)
+   ================================================================ */
+const STEP = 1 / 120;
+let last = performance.now();
+let acc = 0;
+function frame(now) {
+  uiT = now / 1000;
+  let dt = (now - last) / 1000;
+  last = now;
+  if (dt > 0.25) dt = 0.25;   // clamp after tab-switch pauses
+  acc += dt;
+  while (acc >= STEP) { update(STEP); acc -= STEP; }
+  render();
+  requestAnimationFrame(frame);
+}
+
+bakeSprites();
+fitCanvas();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
