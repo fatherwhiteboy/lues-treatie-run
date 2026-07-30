@@ -102,7 +102,7 @@ const CONFIG = {
 
   // ---- powerup pickups ----
   powerupChance:    0.4,    // odds a wide-enough obstacle gap holds a pickup
-  powerupMinSpacingSec: [12, 11, 10, 9, 8, 7, 7], // per-level min seconds of travel between pickups
+  powerupMinSpacingSec: [12, 11, 10, 10, 9, 9, 8, 8, 7, 7], // per-level min seconds of travel between pickups
   firstPickupBySec: 8,      // guarantee a pickup within this many seconds of level start
   pickupGroundHeightMin: 50, // px above ground — low enough to collect while running
   pickupGroundHeightMax: 70,
@@ -115,10 +115,10 @@ const CONFIG = {
   pickupGapMinPx:   260,    // gap must be at least this wide to hold a pickup
 
   // ---- movers (per-theme flyers; level 1 is static-only) ----
-  moverChance:      [0, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55],  // odds an eligible gap holds a flyer
+  moverChance:      [0, 0.3, 0.33, 0.36, 0.4, 0.43, 0.46, 0.5, 0.53, 0.55],  // odds an eligible gap holds a flyer
   moverGapMinSec:   1.5,             // gap must be at least this wide (seconds of travel)
-  moverMinSpacingSec: [99, 8, 7.5, 7, 6.5, 6, 5],   // min seconds of travel between flyers
-  moverExtraSpeed:  [0, 60, 70, 80, 90, 95, 100],   // px/s the flyer flies toward the dog (on top of scroll)
+  moverMinSpacingSec: [99, 8, 7.5, 7.5, 7, 7, 6.5, 6, 5.5, 5],   // min seconds of travel between flyers
+  moverExtraSpeed:  [0, 60, 65, 70, 78, 85, 90, 95, 100, 105],   // px/s the flyer flies toward the dog (on top of scroll)
   moverBobAmp:      22,              // vertical bob amplitude, px
   moverBobFreq:     3.2,             // bob speed, rad/s
   moverLowY:        80,              // low flyer: center px above ground (jump over it)
@@ -136,12 +136,12 @@ const CONFIG = {
   doorJiggleRate:   7,      // paw jiggles per second while picking the lock
 
   // ---- per-level: speed & length ----
-  scrollSpeed:      [320, 345, 370, 395, 420, 450, 480],   // px/s
-  levelLengthSec:   [45, 47, 48, 50, 52, 54, 55],          // level length in seconds of travel
+  scrollSpeed:      [320, 340, 360, 380, 400, 420, 440, 455, 470, 480],   // px/s
+  levelLengthSec:   [45, 46, 47, 48, 49, 50, 52, 53, 54, 55],             // level length in seconds of travel
 
   // ---- per-level: obstacle placement (gaps in seconds of travel) ----
-  obstacleGapMinSec: [1.05, 1.00, 0.97, 0.94, 0.91, 0.88, 0.85],
-  obstacleGapMaxSec: [2.30, 2.20, 2.10, 2.00, 1.90, 1.80, 1.70],
+  obstacleGapMinSec: [1.05, 1.01, 0.99, 0.97, 0.95, 0.93, 0.91, 0.89, 0.87, 0.85],
+  obstacleGapMaxSec: [2.30, 2.24, 2.17, 2.10, 2.03, 1.97, 1.90, 1.83, 1.77, 1.70],
   startClearSec:    2.5,    // obstacle-free runway at level start
   endClearSec:      2.0,    // obstacle-free runway before the level end
 
@@ -191,6 +191,9 @@ const PALETTES = {
   birdPigeon:    { k: "#9099ac", o: "#5c5c66", w: "#20242e" },
   drink:         { g: "#cdeef8", y: "#ffd75e", s: "#e05a7a" },
   bone:          { w: "#f0ead8" },
+  snake:         { k: "#7ba05a", o: "#d83030", w: "#e8e8e8" },
+  fish:          { k: "#e8a83a", w: "#20242e" },
+  snowball:      { w: "#f0f4f8", s: "#b8c8d8" },
 };
 
 // Palette used for the dog per held powerup (null = no powerup).
@@ -460,6 +463,54 @@ const SPRITES = {
     "...gggg...",
     "..........",
   ]},
+  snake0: { palette: "snake", scale: 4, outline: "#000", rows: [
+    "............",
+    "okk...kkk...",
+    ".kkk.kkkkk..",
+    "...kkk...kk.",
+    "............",
+    "............",
+  ]},
+  snake1: { palette: "snake", scale: 4, outline: "#000", rows: [
+    "............",
+    ".kkk...kk...",
+    "okkkkk.kkkk.",
+    "..k..kkk..k.",
+    "............",
+    "............",
+  ]},
+  fish0: { palette: "fish", scale: 4, outline: "#000", rows: [
+    "............",
+    "...kkkk..k..",
+    ".wkkkkkkkk..",
+    "...kkkk.....",
+    "............",
+    "............",
+  ]},
+  fish1: { palette: "fish", scale: 4, outline: "#000", rows: [
+    "............",
+    "...kkkk.....",
+    ".wkkkkkkkk..",
+    "...kkkk..k..",
+    "............",
+    "............",
+  ]},
+  snowball0: { palette: "snowball", scale: 4, outline: "#000", rows: [
+    "..www...",
+    ".wwwww..",
+    ".wwwws..",
+    ".wwwss..",
+    "..wss...",
+    "........",
+  ]},
+  snowball1: { palette: "snowball", scale: 4, outline: "#000", rows: [
+    "..www...",
+    ".swwww..",
+    ".sswww..",
+    ".sswww..",
+    "..ssw...",
+    "........",
+  ]},
 };
 
 /* ================================================================
@@ -521,6 +572,25 @@ const LEVELS = [
       { paint: "hills",  color: "#e8d6a4", height: 70, y: GROUND_Y - 70, factor: 0.3 },
       { paint: "bushes", color: "#b3a565", height: 36, y: GROUND_Y - 36, factor: 0.6 },
     ] },
+  { name: "Underwater", short: "Underwater",
+    sky: ["#1a5f8f", "#3f8fc4"], ground: "#c9b380", groundLine: "#a3906a",
+    obstacles: ["coral", "wreckShip", "oldDiver"],
+    flyer: { frames: ["fish0", "fish1"], palette: "fish", debris: ["#e8a83a", "#a3702f"] },
+    dogGear: "scuba",
+    layers: [
+      { paint: "stars",  color: "#cdeef8", height: 300, y: 0, factor: 0.05 },   // drifting bubbles
+      { paint: "hills",  color: "#2a6f8f", height: 90, y: GROUND_Y - 90, factor: 0.2 },
+      { paint: "bushes", color: "#e87a9a", height: 40, y: GROUND_Y - 40, factor: 0.55 },
+    ] },
+  { name: "Egyptian Desert", short: "Desert",
+    sky: ["#e8b45a", "#f8e2b0"], ground: "#e8ca8a", groundLine: "#c2a464",
+    obstacles: ["ankh", "sarcophagus", "mummy"],
+    flyer: { frames: ["snake0", "snake1"], palette: "snake", debris: ["#7ba05a", "#4a6a3a"] },
+    layers: [
+      { paint: "peaks",  color: "#c9a05e", height: 190, y: GROUND_Y - 190, factor: 0.1 },  // pyramids
+      { paint: "hills",  color: "#e0c07a", height: 70, y: GROUND_Y - 70, factor: 0.3 },
+      { paint: "bushes", color: "#a08a4a", height: 30, y: GROUND_Y - 30, factor: 0.6 },
+    ] },
   { name: "On a Mountain", short: "Mountain",
     sky: ["#9fc4e8", "#e8f2fa"], ground: "#7d8577", groundLine: "#5a635a",
     obstacles: ["rattlesnake", "goat", "cactus"],
@@ -529,6 +599,16 @@ const LEVELS = [
       { paint: "peaks",    color: "#8fa3b8", accent: "#f0f4f8", height: 220, y: GROUND_Y - 220, factor: 0.08 },
       { paint: "peaks",    color: "#6b7f8f", accent: "#e8eef4", height: 140, y: GROUND_Y - 140, factor: 0.25 },
       { paint: "treeline", color: "#3f6031", height: 70, y: GROUND_Y - 70, factor: 0.55 },
+    ] },
+  { name: "Snow Day", short: "Snow Day",
+    sky: ["#c8d8e8", "#f0f6fa"], ground: "#eef4f8", groundLine: "#c8d4e0",
+    obstacles: ["snowShovel", "snowman", "yeti"],
+    flyer: { frames: ["snowball0", "snowball1"], palette: "snowball", debris: ["#f0f4f8", "#b8c8d8"] },
+    dogGear: "snowHat",
+    layers: [
+      { paint: "peaks",    color: "#d8e2ec", accent: "#ffffff", height: 200, y: GROUND_Y - 200, factor: 0.08 },
+      { paint: "treeline", color: "#4a6a55", height: 90, y: GROUND_Y - 90, factor: 0.3 },
+      { paint: "bushes",   color: "#e0e8f0", height: 36, y: GROUND_Y - 36, factor: 0.6 },   // drifts
     ] },
   { name: "In a Casino", short: "Casino",
     sky: ["#2a1030", "#4a1f4e"], ground: "#8f2f4f", groundLine: "#6a1f38",
@@ -575,6 +655,18 @@ const OBSTACLE_TYPES = [
   { key: "rattlesnake", w: 66, h: 26, color: "#b09a5e", edge: "#7a6a3e", destructible: false },
   { key: "goat",        w: 58, h: 52, color: "#d8d3c8", edge: "#8f8a7d", destructible: false },
   { key: "cactus",      w: 44, h: 66, color: "#4e9a50", edge: "#e878b0", destructible: true },
+  // Underwater
+  { key: "coral",       w: 48, h: 44, color: "#e87a9a", edge: "#a34a68", destructible: false },
+  { key: "wreckShip",   w: 96, h: 60, color: "#7a5a3a", edge: "#4e3a24", destructible: false },
+  { key: "oldDiver",    w: 42, h: 70, color: "#c9a05e", edge: "#8a6a38", destructible: true },
+  // Egyptian desert
+  { key: "ankh",        w: 34, h: 80, color: "#e8c53f", edge: "#a8862a", destructible: false },
+  { key: "sarcophagus", w: 52, h: 82, color: "#3fa8a0", edge: "#22726c", destructible: false },
+  { key: "mummy",       w: 42, h: 72, color: "#d8d2c0", edge: "#9a927c", destructible: true },
+  // Snow day
+  { key: "snowShovel",  w: 56, h: 42, color: "#d8524a", edge: "#93332e", destructible: false },
+  { key: "snowman",     w: 50, h: 76, color: "#f0f4f8", edge: "#b8c8d8", destructible: false },
+  { key: "yeti",        w: 56, h: 84, color: "#dfe9f2", edge: "#8fa8bc", destructible: true },
   // Casino
   { key: "slotMachine", w: 46, h: 84, color: "#c23a8a", edge: "#7a2458", destructible: false },
   { key: "clawMachine", w: 48, h: 86, color: "#4aa8d8", edge: "#2a6a92", destructible: false },
@@ -1605,6 +1697,30 @@ function drawSparkle(x, y, t) {
   ctx.stroke();
 }
 
+/* Theme costume overlays (placeholder until the Phase 4 sprite pass).
+   x,y = top-left of the 96px dog sprite. */
+function drawGear(type, x, y) {
+  if (type === "scuba") {
+    ctx.fillStyle = "rgba(90,215,255,0.85)";
+    ctx.fillRect(x + 54, y + 28, 34, 10);      // visor over the eyes
+    ctx.fillStyle = "#1d7fb8";
+    ctx.fillRect(x + 40, y + 30, 14, 6);       // strap
+    ctx.fillStyle = "#8fa8bc";
+    ctx.fillRect(x + 16, y + 44, 16, 30);      // air tank on the back
+    ctx.fillStyle = "#5c6a78";
+    ctx.fillRect(x + 20, y + 38, 8, 6);        // valve
+  } else if (type === "snowHat") {
+    ctx.fillStyle = "#d8524a";
+    ctx.fillRect(x + 54, y + 4, 34, 13);       // beanie
+    ctx.fillStyle = "#f0f4f8";
+    ctx.fillRect(x + 52, y + 16, 38, 5);       // brim
+    ctx.beginPath();
+    ctx.arc(x + 71, y + 2, 5, 0, 7);
+    ctx.fillStyle = "#f0f4f8";
+    ctx.fill();                                 // pompom
+  }
+}
+
 function drawPlayer() {
   // blink while invincible
   if (player.iframes > 0 && Math.floor(player.iframes * 12) % 2 === 0) return;
@@ -1635,8 +1751,10 @@ function drawPlayer() {
     }
     if (alpha > 0) {
       ctx.globalAlpha = alpha;
-      ctx.drawImage(sprite(pose, palName),
-        CONFIG.playerScreenX + Math.round(dx), Math.round(player.y) - player.spriteSize);
+      const gx = CONFIG.playerScreenX + Math.round(dx);
+      const gy = Math.round(player.y) - player.spriteSize;
+      ctx.drawImage(sprite(pose, palName), gx, gy);
+      if (game.level.theme.dogGear) drawGear(game.level.theme.dogGear, gx, gy);
       ctx.globalAlpha = 1;
     }
     // the unlock "click": a sparkle at the knob (distinct from the claw powerup)
@@ -1652,7 +1770,9 @@ function drawPlayer() {
   if (player.swipeTimer > 0) pose = "dogSwipe";
   else if (player.y < GROUND_Y) pose = "dogJump";
   else pose = player.runFrame === 0 ? "dogRun0" : "dogRun1";
-  ctx.drawImage(sprite(pose, palName), CONFIG.playerScreenX, Math.round(player.y) - player.spriteSize);
+  const py = Math.round(player.y) - player.spriteSize;
+  ctx.drawImage(sprite(pose, palName), CONFIG.playerScreenX, py);
+  if (game.level && game.level.theme.dogGear) drawGear(game.level.theme.dogGear, CONFIG.playerScreenX, py);
 
   // swipe feedback: three jagged claw marks, fading out over the swing
   if (player.swipeTimer > 0) {
@@ -1850,13 +1970,18 @@ function drawConfetti() {
 
 /* ---- title screen level select ---- */
 function chipRect(i) {
-  const w = 126, h = 64, gap = 8;
-  const total = LEVELS.length * w + (LEVELS.length - 1) * gap;
+  // two rows of five cards
+  const w = 150, h = 58, gapX = 12, gapY = 10, cols = 5;
+  const total = cols * w + (cols - 1) * gapX;
   const x0 = (VIEW_W - total) / 2;
-  return { x: x0 + i * (w + gap), y: 280, w: w, h: h };
+  return {
+    x: x0 + (i % cols) * (w + gapX),
+    y: 240 + Math.floor(i / cols) * (h + gapY),
+    w: w, h: h,
+  };
 }
 function endlessRect() {
-  return { x: VIEW_W / 2 - 150, y: 366, w: 300, h: 44 };
+  return { x: VIEW_W / 2 - 150, y: 382, w: 300, h: 44 };
 }
 function hitChip(x, y) {
   for (let i = 0; i < LEVELS.length; i++) {
@@ -1891,7 +2016,7 @@ function drawEndlessButton() {
     ctx.fillText("ENDLESS MODE" + best, r.x + r.w / 2, r.y + 28);
   } else {
     ctx.fillStyle = "#9a9a9a";
-    ctx.fillText("ENDLESS — beat all 7 levels", r.x + r.w / 2, r.y + 28);
+    ctx.fillText("ENDLESS — beat all 10 levels", r.x + r.w / 2, r.y + 28);
   }
 }
 function drawLevelChips() {
@@ -2020,13 +2145,13 @@ function render() {
   } else if (game.state === STATE.LEVEL_SELECT) {
     // level select
     overlayBackdrop();
-    fancyText("CHOOSE A LEVEL", 200, 44, ["#ffe9a3", "#f5a623"], { outline: 8, outlineColor: "#3a2415", shadow: true });
-    divider(232, "rgba(245,166,35,0.55)");
+    fancyText("CHOOSE A LEVEL", 178, 42, ["#ffe9a3", "#f5a623"], { outline: 8, outlineColor: "#3a2415", shadow: true });
+    divider(208, "rgba(245,166,35,0.55)");
     drawLevelChips();
     drawEndlessButton();
     if (game.highScore > 0)
-      fancyText("HI SCORE  " + String(game.highScore).padStart(6, "0"), 442, 19, "#9fb7c9", {});
-    drawHint(isTouch ? "Tap a level to start" : "Arrows to choose, SPACE to start", 478);
+      fancyText("HI SCORE  " + String(game.highScore).padStart(6, "0"), 452, 19, "#9fb7c9", {});
+    drawHint(isTouch ? "Tap a level to start" : "Arrows to choose, SPACE to start", 484);
   } else if (game.state === STATE.DEAD) {
     overlayBackdrop();
     fancyText("OUCH!", 220, 64, ["#ff9078", "#c22525"], { outline: 10, outlineColor: "#3d0d0d", shadow: true });

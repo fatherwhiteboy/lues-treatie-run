@@ -1,22 +1,27 @@
 # Lue's Treatie Run! — Design Document
 
-A level-based auto-runner browser game starring Lue. Chrome-dino-style movement, but seven finite themed levels that each end at a door: Backyard → Inside a House → Park → Beach → On a Mountain → In a Casino → Night City.
+A level-based auto-runner browser game starring Lue. Chrome-dino-style movement, but ten finite themed levels that each end at a door: Backyard → Inside a House → Park → Beach → Underwater → Egyptian Desert → On a Mountain → Snow Day → In a Casino → Night City (always last).
 
 Per-level obstacles and flyers (flying obstacle appears from level 2 on):
 
-| Level | Solid obstacles | Breakable (white outline) | Flyer |
-|---|---|---|---|
-| Backyard | tennis-ball piles, sunflowers | zombies | — (static only) |
-| Inside a House | turkey legs, pancake stacks (w/ syrup + butter) | glasses of milk | parakeet |
-| Park | water fountains, swingsets | hedges | blackbird |
-| Beach | watermelon slices, crabs, sharks | sandcastles | seagull |
-| On a Mountain | rattlesnakes, goats | cactus w/ pink flower | eagle |
-| In a Casino | slot machines, claw machines | casino-chip piles | flying mixed drink |
-| Night City | Starla (photo in Phase 4), alligators | T-rex | pigeon |
+| Level | Solid obstacles | Breakable (white outline) | Flyer | Costume |
+|---|---|---|---|---|
+| Backyard | tennis-ball piles, sunflowers | zombies | — (static only) | |
+| Inside a House | turkey legs, pancake stacks (w/ syrup + butter) | glasses of milk | parakeet | |
+| Park | water fountains, swingsets | hedges | blackbird | |
+| Beach | watermelon slices, crabs, sharks | sandcastles | seagull | |
+| Underwater | coral, wrecked ships | old-school divers (bubble helmet) | fish | scuba gear |
+| Egyptian Desert (pyramids behind) | ankhs, sarcophagi | mummies | snakes | |
+| On a Mountain | rattlesnakes, goats | cactus w/ pink flower | eagle | |
+| Snow Day | snow shovels, snowmen | yeti | snowballs | snow hat |
+| In a Casino | slot machines, claw machines | casino-chip piles | flying mixed drink | |
+| Night City | Starla (photo in Phase 4), alligators | T-rex | pigeon | |
+
+Costumes are per-theme overlays (`dogGear`) drawn over the dog sprite in any palette — placeholder shapes now, real art in Phase 4.
 
 Breakable obstacles are drawn with a white outline so they're identifiable at a glance.
 
-**Endless mode** (unlocked permanently by beating all 7 levels; own localStorage flag): terrain generates on the fly a few screens ahead of the camera using the same fairness rules, difficulty ramps over time (speed 340→700 px/s, tightening gaps, more/faster flyers — all in the CONFIG `endless*` group), and the theme cycles through all seven levels every 30 s (each segment uses its theme's obstacles and flyer). No door — the run ends only on death. Keeps a separate persisted best score (`ENDLESS BEST`) so it doesn't swamp the campaign high score. Launched from a dedicated button under the level-select cards; retry after death restarts the endless run.
+**Endless mode** (unlocked permanently by beating all 10 levels; own localStorage flag): terrain generates on the fly a few screens ahead of the camera using the same fairness rules, difficulty ramps over time (speed 340→700 px/s, tightening gaps, more/faster flyers — all in the CONFIG `endless*` group), and the theme cycles through all ten levels every 30 s (each segment uses its theme's obstacles, flyer, and costume). No door — the run ends only on death. Keeps a separate persisted best score (`ENDLESS BEST`) so it doesn't swamp the campaign high score. Launched from a dedicated button under the level-select cards; retry after death restarts the endless run.
 
 ## Hard Constraints
 
@@ -42,7 +47,7 @@ Everything hand-editable sits at the top of the `<script>`.
 5. **Sprite renderer** — bakes each (pixel array × palette) into an offscreen canvas once at load; draws scaled 3–4× with `imageSmoothingEnabled = false` for crisp pixels.
 6. **Audio** — one `AudioContext`, created/resumed on first user gesture (iOS requirement). Each SFX is a small function of oscillators + gain envelopes: jump (square blip up), pickup (quick arpeggio), hit (noise burst), fireball (saw sweep), door (two-tone chime). No music.
 7. **Input** — unified via Pointer Events. Desktop: Space = jump, X = action (F alias). Mobile: tap anywhere on canvas = jump; persistent DOM action button (bottom-right, large hit target) = action. Jump buffering + coyote time from CONFIG so touch feels fair.
-8. **Entities** — plain objects with update/draw functions: player, static obstacles (destructible / solid / jump-only), movers (per-theme flyers at varying heights, levels 2–7), pickups, fireballs, particles.
+8. **Entities** — plain objects with update/draw functions: player, static obstacles (destructible / solid / jump-only), movers (per-theme flyers at varying heights, levels 2–10), pickups, fireballs, particles.
 9. **Level generator** — seeded PRNG (mulberry32) with a fresh random seed per attempt. Places obstacles along the level respecting min-gap rules derived from jump physics at that level's scroll speed (no unwinnable sections); places powerups with guaranteed minimum spacing so runs aren't luck-dead.
 10. **Game state machine** — `TITLE → PLAYING → DOOR_ANIM → LEVEL_COMPLETE → (next level | VICTORY)`, plus `DEAD → retry`. The door animation is pure flavor, not tied to the claw powerup: control is removed, the dog stops at the door, unlocks/opens it with the claw on her paw, walks through, fade out.
 11. **Main loop** — `requestAnimationFrame` render + fixed-timestep update (accumulator, ~120 Hz) with delta clamping, so physics feels identical on 60/90/120 Hz displays.
@@ -52,7 +57,7 @@ Everything hand-editable sits at the top of the `<script>`.
 
 - **Damage (Mario-style)**: no powerup + hit = death → death screen → restart current level, infinite retries, no lives counter. Powerup + hit = lose the powerup, brief i-frames (blinking), keep running. A powerup is effectively 1 extra hitpoint.
 - **Powerups** (one held at a time; new pickup replaces current): **Fireball** (action fires a projectile that destroys destructibles at range), **Double-Jump** (second jump mid-air; action does nothing), **Claw** (action does a short-range swipe). Dog visibly changes per powerup (palette swap at minimum) plus a HUD icon.
-- **Obstacles**: destructibles (killed by fireball or claw), solids, and jump-only obstacles so no powerup trivializes the game. Flyers are destructible. Level 1 is static-only; levels 2–7 add per-theme movers. Scroll speed and density escalate per level via CONFIG (all per-level arrays have 7 entries).
+- **Obstacles**: destructibles (killed by fireball or claw), solids, and jump-only obstacles so no powerup trivializes the game. Flyers are destructible. Level 1 is static-only; levels 2–10 add per-theme movers. Scroll speed and density escalate per level via CONFIG (all per-level arrays have 10 entries).
 - **Score**: distance ticks + destruction bonuses, accumulated across the run. Score snapshots at level start and restores on death-retry. High score in localStorage.
 - **HUD**: score, level indicator, held-powerup icon.
 - **PWA-ready**: everything is inline in one file, so the Phase 4 manifest + service worker are purely additive — no refactor.
