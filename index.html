@@ -3,6 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Treatie Run">
+<meta name="theme-color" content="#f5a623">
 <title>Lue's Treatie Run!</title>
 <style>
   html, body {
@@ -175,10 +180,26 @@ const CONFIG = {
    held powerup is shown as a palette swap.
    ================================================================ */
 const PALETTES = {
-  dogNormal: { o: "#3a2415", b: "#8a5a2b", w: "#e8dcc8", k: "#1b1410" },
-  dogFire:   { o: "#5a1a10", b: "#c0492a", w: "#ffd9a0", k: "#241008" },
-  dogDouble: { o: "#14335a", b: "#3f7fc4", w: "#dff2ff", k: "#0c1a2a" },
-  dogClaw:   { o: "#3a2445", b: "#8a5fb0", w: "#efe0ff", k: "#1b1024" },
+  /* Lue (owner-drawn art, art/dogRun0.png): tan coat, dark grizzled
+     saddle on the back, white chest, cream muzzle/belly, black nose.
+     o outline / t tan / n tan shade / l cream / d saddle / g grizzle /
+     w white / k black / e inner ear / p tongue. */
+  dogNormal: { o: "#3a2a1a", t: "#c89a62", n: "#a87c4e", l: "#e8d4ac",
+               d: "#5e564a", g: "#7a7060", w: "#f2ead8", k: "#1e1710",
+               e: "#8a6438", p: "#d87888" },
+  dogFire:   { o: "#4a1c10", t: "#d86a3a", n: "#b04e28", l: "#f5c9a0",
+               d: "#7a3020", g: "#96543a", w: "#ffe8d0", k: "#241008",
+               e: "#a3502a", p: "#d87888" },
+  dogDouble: { o: "#1c2a4a", t: "#7f9cc8", n: "#5f7ca8", l: "#d8e8f8",
+               d: "#3a4a6e", g: "#556a8e", w: "#eef4ff", k: "#0c1220",
+               e: "#4a6a9e", p: "#d87888" },
+  dogClaw:   { o: "#2a1c4a", t: "#a583c8", n: "#8563a8", l: "#e8dcf8",
+               d: "#4e3a6e", g: "#6a568e", w: "#f4eeff", k: "#140c24",
+               e: "#7a58a8", p: "#d87888" },
+  /* Starla: tri-color Australian shepherd — black fluff, white blaze
+     and chest, tan points. */
+  starla:    { K: "#26221e", G: "#4a443c", W: "#f0ece4", T: "#b98a55",
+               o: "#14100c", k: "#0a0a0a" },
   pickupFire:   { y: "#ffd541", o: "#ff8a1e" },
   pickupDouble: { c: "#5ad7ff" },
   pickupClaw:   { p: "#c9a0ef" },
@@ -191,6 +212,12 @@ const PALETTES = {
   birdPigeon:    { k: "#9099ac", o: "#5c5c66", w: "#20242e" },
   drink:         { g: "#cdeef8", y: "#ffd75e", s: "#e05a7a" },
   bone:          { w: "#f0ead8" },
+  // red butterfly wings (reference photo): sheer translucent red fabric,
+  // darker red edge wire, silver star sparkles
+  wings:         { r: "#d83040cc", R: "#8f1f2a", s: "#e8ecf4" },
+  // costume overlays, drawn on the same 32x32 canvas as Lue
+  gearScuba:     { c: "#5ad7ffcc", f: "#1d7fb8", m: "#8fa8bc", v: "#5c6a78" },
+  gearSnowHat:   { r: "#d8524a", q: "#a83832", w: "#f0f4f8" },
   snake:         { k: "#7ba05a", o: "#d83030", w: "#e8e8e8" },
   fish:          { k: "#e8a83a", w: "#20242e" },
   snowball:      { w: "#f0f4f8", s: "#b8c8d8" },
@@ -205,173 +232,342 @@ const DOG_PALETTES = {
 };
 
 const SPRITES = {
-  dogRun0: { palette: "dogNormal", scale: 6, rows: [
-    "................",
-    "................",
-    "..........oo....",
-    ".........obbo...",
-    ".........bbbbo..",
-    ".........bkbbo..",
-    "oo.......bbbb...",
-    ".oo..bbbbbbww...",
-    "..bbbbbbbbbwk...",
-    "..bbbbbbbbbb....",
-    "..bbbbbbbbbb....",
-    "..bbbbbbbbb.....",
-    "...bb....bb.....",
-    "...bb....bb.....",
-    "...oo....oo.....",
-    "................",
+  /* Lue, 32x32 at scale 3 (96px on screen). dogRun0 is owner-drawn art
+     (art/dogRun0.png); the other poses are derived from it — same head
+     and body pixels, re-posed legs. */
+  dogRun0: { palette: "dogNormal", scale: 3, rows: [   // gallop, legs extended
+    "................................",
+    "................................",
+    "................................",
+    "...................oo...........",
+    "..................otto..........",
+    ".................oteto..........",
+    ".................otetooo........",
+    "................otttttttooo.....",
+    "................ottttktttttkk...",
+    "................ottttttttttkk...",
+    "................otttttttttlo....",
+    ".................ottttttlllo....",
+    "................ootttttooooo....",
+    ".oo...........oootttttto........",
+    "ottooooooooooooddttttttoo.......",
+    "ottttdddddggggddtttttttlo.......",
+    ".otttddddddddddddtttttllo.......",
+    ".otttddddddddddgttttttlwo.......",
+    "..ottdddddddddgtttttttlwo.......",
+    "..otttttttttttttttttttlwo.......",
+    "..otttttttttttttttttttlwo.......",
+    "...ottttttttttttttttttlwo.......",
+    "...oottttt......ttttttlo........",
+    "....ootttt.......tttttoo........",
+    ".....ottto........ottto.........",
+    ".....nott.........nott..........",
+    ".....nott.........nottt.........",
+    "....nott...........nott.........",
+    "....nott...........nott.........",
+    "....nott...........nott.........",
+    "....ott.............ott.........",
+    "....otk.............otk.........",
   ]},
-  dogRun1: { palette: "dogNormal", scale: 6, rows: [
-    "................",
-    "................",
-    "..........oo....",
-    ".........obbo...",
-    ".........bbbbo..",
-    ".........bkbbo..",
-    "oo.......bbbb...",
-    ".oo..bbbbbbww...",
-    "..bbbbbbbbbwk...",
-    "..bbbbbbbbbb....",
-    "..bbbbbbbbbb....",
-    "..bbbbbbbbb.....",
-    "..bb......bb....",
-    ".bb........bb...",
-    ".oo........oo...",
-    "................",
+  dogRun1: { palette: "dogNormal", scale: 3, rows: [   // gallop, legs gathered
+    "................................",
+    "................................",
+    "................................",
+    "...................oo...........",
+    "..................otto..........",
+    ".................oteto..........",
+    ".................otetooo........",
+    "................otttttttooo.....",
+    "................ottttktttttkk...",
+    "................ottttttttttkk...",
+    "................otttttttttlo....",
+    ".................ottttttlllo....",
+    "................ootttttooooo....",
+    ".oo...........oootttttto........",
+    "ottooooooooooooddttttttoo.......",
+    "ottttdddddggggddtttttttlo.......",
+    ".otttddddddddddddtttttllo.......",
+    ".otttddddddddddgttttttlwo.......",
+    "..ottdddddddddgtttttttlwo.......",
+    "..otttttttttttttttttttlwo.......",
+    "..otttttttttttttttttttlwo.......",
+    "...ottttttttttttttttttlwo.......",
+    "...oottttt......ttttttlo........",
+    "....ootttt.......tttttoo........",
+    ".....ottto.......ottto..........",
+    "......nott.......nott...........",
+    "......nott.......nott...........",
+    "......nott......nott............",
+    "......nott......nott............",
+    "......nott......nott............",
+    "......ott.......ott.............",
+    "......otk.......otk.............",
   ]},
-  dogJump: { palette: "dogNormal", scale: 6, rows: [
-    "................",
-    "................",
-    "..........oo....",
-    ".........obbo...",
-    ".........bbbbo..",
-    ".........bkbbo..",
-    "oo.......bbbb...",
-    ".oo..bbbbbbww...",
-    "..bbbbbbbbbwk...",
-    "..bbbbbbbbbb....",
-    "..bbbbbbbbbb....",
-    "..bbbbbbbbb.....",
-    "...bbb...bbb....",
-    "....oo....oo....",
-    "................",
-    "................",
+  dogJump: { palette: "dogNormal", scale: 3, rows: [   // airborne, legs tucked
+    "................................",
+    "................................",
+    "................................",
+    "...................oo...........",
+    "..................otto..........",
+    ".................oteto..........",
+    ".................otetooo........",
+    "................otttttttooo.....",
+    "................ottttktttttkk...",
+    "................ottttttttttkk...",
+    "................otttttttttlo....",
+    ".................ottttttlllo....",
+    "................ootttttooooo....",
+    ".oo...........oootttttto........",
+    "ottooooooooooooddttttttoo.......",
+    "ottttdddddggggddtttttttlo.......",
+    ".otttddddddddddddtttttllo.......",
+    ".otttddddddddddgttttttlwo.......",
+    "..ottdddddddddgtttttttlwo.......",
+    "..otttttttttttttttttttlwo.......",
+    "..otttttttttttttttttttlwo.......",
+    "...ottttttttttttttttttlwo.......",
+    "...oottttt......ttttttlo........",
+    "....ootttt.......tttttoo........",
+    "....ottto.........ottto.........",
+    "....nott............nott........",
+    "...nott..............nottt......",
+    "..nott................nott......",
+    "..otk..................otk......",
+    "................................",
+    "................................",
+    "................................",
   ]},
-  dogSwipe: { palette: "dogNormal", scale: 6, rows: [
-    "................",
-    "................",
-    "..........oo....",
-    ".........obbo...",
-    ".........bbbbo..",
-    ".........bkbbo..",
-    "oo.......bbbbbb.",
-    ".oo..bbbbbbwwbb.",
-    "..bbbbbbbbbwk...",
-    "..bbbbbbbbbb....",
-    "..bbbbbbbbbb....",
-    "..bbbbbbbbb.....",
-    "...bb....bb.....",
-    "...bb....bb.....",
-    "...oo....oo.....",
-    "................",
+  dogSwipe: { palette: "dogNormal", scale: 3, rows: [  // front paw raised, claw out
+    "................................",
+    "................................",
+    "................................",
+    "...................oo...........",
+    "..................otto..........",
+    ".................oteto..........",
+    ".................otetooo........",
+    "................otttttttooo.....",
+    "................ottttktttttkk...",
+    "................ottttttttttkk...",
+    "................otttttttttlo....",
+    ".................ottttttlllo....",
+    "................ootttttooooo....",
+    ".oo...........oootttttto........",
+    "ottooooooooooooddttttttoo.......",
+    "ottttdddddggggddtttttttlotttto..",
+    ".otttddddddddddddtttttlloottkk..",
+    ".otttddddddddddgttttttlwo.......",
+    "..ottdddddddddgtttttttlwo.......",
+    "..otttttttttttttttttttlwo.......",
+    "..otttttttttttttttttttlwo.......",
+    "...ottttttttttttttttttlwo.......",
+    "...oottttt......ttttttlo........",
+    "....ootttt.......tttttoo........",
+    ".....ottto........otto..........",
+    ".....nott.........not...........",
+    ".....nott.........not...........",
+    "....nott...........not..........",
+    "....nott...........not..........",
+    "....nott...........not..........",
+    "....ott.............ot..........",
+    "....otk.............otk.........",
   ]},
-  dogSit: { palette: "dogNormal", scale: 6, rows: [
-    "................",
-    "................",
-    "..........oo....",
-    ".........obbo...",
-    ".........bbbbo..",
-    ".........bkbbo..",
-    "..........bbb...",
-    "......bbbbbww...",
-    "....bbbbbbbwk...",
-    "...bbbbbbbbb....",
-    "..bbbbbbbbbb....",
-    "..bbbbbbbbb.....",
-    "..bbbbbb.bb.....",
-    "o.bbbb...bb.....",
-    "oo.oo....oo.....",
-    "................",
+  dogSit: { palette: "dogNormal", scale: 3, rows: [   // sitting at the door
+    "................................",
+    "................................",
+    "................................",
+    "...................oo...........",
+    "..................otto..........",
+    ".................oteto..........",
+    ".................otetooo........",
+    "................otttttttooo.....",
+    "................ottttktttttkk...",
+    "................ottttttttttkk...",
+    "................otttttttttlo....",
+    ".................ottttttlllo....",
+    "................ootttttooooo....",
+    "..............ootttttttto.......",
+    ".............oodtttttttto.......",
+    "............ooddttttttttlo......",
+    "...........oodddtttttttllo......",
+    "..........oodddgtttttttlwo......",
+    ".........oodddggtttttttlwo......",
+    "........oodddddgtttttttlwo......",
+    "..oo..oodddddddggttttttlwo......",
+    ".ottooddddddddddgttttttlwo......",
+    ".otttdddddddddddgttttttlo.......",
+    "..otttddddddddddgtttttto........",
+    "..otttttddddddttt..nott.........",
+    "..ottttttddddttt...nott.........",
+    "..ottttttttttttt...nott.........",
+    "...otttttttttttt...nott.........",
+    "....otttttttttt....nott.........",
+    "......oottttttoo...nott.........",
+    ".........ootttk....nott.........",
+    "..........ootk.....otk..........",
   ]},
-  dogPick0: { palette: "dogNormal", scale: 6, rows: [
-    "................",
-    "................",
-    "..........oo....",
-    ".........obbo...",
-    ".........bbbbo..",
-    ".........bkbbo..",
-    "..........bbb...",
-    "......bbbbbwwbb.",
-    "....bbbbbbbwkbk.",
-    "...bbbbbbbbb....",
-    "..bbbbbbbbbb....",
-    "..bbbbbbbbb.....",
-    "..bbbbbb.bb.....",
-    "o.bbbb...bb.....",
-    "oo.oo....oo.....",
-    "................",
+  dogPick0: { palette: "dogNormal", scale: 3, rows: [   // sitting, claw in the lock
+    "................................",
+    "................................",
+    "................................",
+    "...................oo...........",
+    "..................otto..........",
+    ".................oteto..........",
+    ".................otetooo........",
+    "................otttttttooo.....",
+    "................ottttktttttkk...",
+    "................ottttttttttkk...",
+    "................otttttttttlo....",
+    ".................ottttttlllo....",
+    "................ootttttooooo....",
+    "..............ootttttttto.......",
+    ".............oodttttttttottt....",
+    "............ooddttttttttloottkk.",
+    "...........oodddtttttttllo......",
+    "..........oodddgtttttttlwo......",
+    ".........oodddggtttttttlwo......",
+    "........oodddddgtttttttlwo......",
+    "..oo..oodddddddggttttttlwo......",
+    ".ottooddddddddddgttttttlwo......",
+    ".otttdddddddddddgttttttlo.......",
+    "..otttddddddddddgtttttto........",
+    "..otttttddddddttt..nott.........",
+    "..ottttttddddttt...nott.........",
+    "..ottttttttttttt...nott.........",
+    "...otttttttttttt...nott.........",
+    "....otttttttttt....nott.........",
+    "......oottttttoo...nott.........",
+    ".........ootttk....nott.........",
+    "..........ootk.....otk..........",
   ]},
-  dogPick1: { palette: "dogNormal", scale: 6, rows: [
-    "................",
-    "................",
-    "..........oo....",
-    ".........obbo...",
-    ".........bbbbo..",
-    ".........bkbbo..",
-    "..........bbb...",
-    "......bbbbbww...",
-    "....bbbbbbbwkbb.",
-    "...bbbbbbbbb..k.",
-    "..bbbbbbbbbb....",
-    "..bbbbbbbbb.....",
-    "..bbbbbb.bb.....",
-    "o.bbbb...bb.....",
-    "oo.oo....oo.....",
-    "................",
+  dogPick1: { palette: "dogNormal", scale: 3, rows: [   // paw jiggled lower
+    "................................",
+    "................................",
+    "................................",
+    "...................oo...........",
+    "..................otto..........",
+    ".................oteto..........",
+    ".................otetooo........",
+    "................otttttttooo.....",
+    "................ottttktttttkk...",
+    "................ottttttttttkk...",
+    "................otttttttttlo....",
+    ".................ottttttlllo....",
+    "................ootttttooooo....",
+    "..............ootttttttto.......",
+    ".............oodtttttttto.......",
+    "............ooddttttttttlottt...",
+    "...........oodddtttttttlloottkk.",
+    "..........oodddgtttttttlwo......",
+    ".........oodddggtttttttlwo......",
+    "........oodddddgtttttttlwo......",
+    "..oo..oodddddddggttttttlwo......",
+    ".ottooddddddddddgttttttlwo......",
+    ".otttdddddddddddgttttttlo.......",
+    "..otttddddddddddgtttttto........",
+    "..otttttddddddttt..nott.........",
+    "..ottttttddddttt...nott.........",
+    "..ottttttttttttt...nott.........",
+    "...otttttttttttt...nott.........",
+    "....otttttttttt....nott.........",
+    "......oottttttoo...nott.........",
+    ".........ootttk....nott.........",
+    "..........ootk.....otk..........",
   ]},
-  dogEat0: { palette: "dogNormal", scale: 6, rows: [
-    "................",
-    "................",
-    "................",
-    "................",
-    "................",
-    "..........oo....",
-    ".........obbo...",
-    ".......bbbbbbo..",
-    "....bbbbbbkbbo..",
-    "...bbbbbbbbww...",
-    "..bbbbbbbbbwk...",
-    "..bbbbbbbbb.....",
-    "..bbbbbb.bb.....",
-    "o.bbbb...bb.....",
-    "oo.oo....oo.....",
-    "................",
+  dogEat0: { palette: "dogNormal", scale: 3, rows: [   // lying, chewing the bone
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "...................oo...........",
+    "..................otto..........",
+    ".................oteto..........",
+    ".................otetooo........",
+    "................otttttttooo.....",
+    "................ottttktttttkk...",
+    "................ottttttttttkk...",
+    "....ooooooo....otttttttttlo.....",
+    "..oodddddddoo....ottttttlllo....",
+    ".oddddddddddggo.ootttttooooo....",
+    ".otddddddddddggttttttttto.......",
+    ".otttdddddddddgttttttttlo.......",
+    ".ottttttttttttttttttttllo.......",
+    "..otttttttttttttttttttlo........",
+    "..ottttttttttttttttttllo........",
+    "...ottttttttttttttttttoo........",
+    "....oottttttttttttttoo..........",
+    "......ooootttttttooo............",
+    ".........ooooooo...ottto........",
+    "...................ootko........",
   ]},
-  dogEat1: { palette: "dogNormal", scale: 6, rows: [
-    "................",
-    "................",
-    "................",
-    "................",
-    "................",
-    "................",
-    "..........oo....",
-    ".........obbo...",
-    ".......bbbbbbo..",
-    "....bbbbbbkbbo..",
-    "...bbbbbbbbww...",
-    "..bbbbbbbbbwk...",
-    "..bbbbbb.bb.....",
-    "o.bbbb...bb.....",
-    "oo.oo....oo.....",
-    "................",
+  dogEat1: { palette: "dogNormal", scale: 3, rows: [   // head dips for a bite
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "...................oo...........",
+    "..................otto..........",
+    ".................oteto..........",
+    ".................otetooo........",
+    "................otttttttooo.....",
+    "................ottttktttttkk...",
+    "....ooooooo.....ottttttttttkk...",
+    "..oodddddddoo...otttttttttlo....",
+    ".oddddddddddggo..ottttttlllo....",
+    ".otddddddddddggoootttttooooo....",
+    ".otttdddddddddgttttttttlo.......",
+    ".ottttttttttttttttttttllo.......",
+    "..otttttttttttttttttttlo........",
+    "..ottttttttttttttttttllo........",
+    "...ottttttttttttttttttoo........",
+    "....oottttttttttttttoo..........",
+    "......ooootttttttooo............",
+    ".........ooooooo...ottto........",
+    "...................ootko........",
   ]},
   bone: { palette: "bone", scale: 4, outline: "#000", rows: [
     "ww........ww",
     "wwwwwwwwwwww",
     "wwwwwwwwwwww",
     "ww........ww",
+  ]},
+  /* Starla lying down (Night City obstacle) — fluffy black tri-color
+     Aussie with a white blaze and chest, tan points. */
+  starla: { palette: "starla", scale: 3, rows: [
+    "....................",
+    "............ooo.....",
+    "...........oKKo.....",
+    "..........oKKKKo....",
+    "..........oKWKKTo...",
+    "..........oKWKKTTo..",
+    "..........oKWWKTko..",
+    ".........oKKWWKKo...",
+    "........oKKWWWKo....",
+    "..oo...oKKKWWWKKo...",
+    ".oGKooKKKKKWWKKKKo..",
+    ".oGKKKKKKKKKKWKKKKTo",
+    ".oGKKKKKKKKKKKKKTTTo",
+    "..oGKKKKKKKKKKTTWWTo",
+    "...ooKKKKKKKKTWWWWoo",
+    ".....ooooooooTTooWWo",
+    "............oo..oo..",
+    "....................",
   ]},
   puFire: { palette: "pickupFire", scale: 4, outline: "#000", rows: [
     "............",
@@ -462,6 +658,112 @@ const SPRITES = {
     "....gg....",
     "...gggg...",
     "..........",
+  ]},
+  wings0: { palette: "wings", scale: 4, rows: [   // flap up: two heart lobes
+    "................",
+    "...RRRR.........",
+    ".RRrrrrRR.......",
+    ".RrrsrrrrR......",
+    "RrrrrrsrrR......",
+    "RrsrrrrrrrR.....",
+    "RrrrrrsrrrR.....",
+    ".RrrrrrrrrrR....",
+    "..RRrrsrrrrRR...",
+    "...RRrrsrrRR....",
+    "..RrrrrsrrrR....",
+    "..RrrsrrrrR.....",
+    "...RrrrrrR......",
+    "....RRrrRR......",
+    "......RR........",
+    "................",
+  ]},
+  wings1: { palette: "wings", scale: 4, rows: [   // flap down
+    "................",
+    "................",
+    "................",
+    "...RRRR.........",
+    ".RRrrrrRR.......",
+    ".RrrsrrrrR......",
+    "RrrrrrsrrR......",
+    "RrsrrrrrrrR.....",
+    ".RrrrrrsrrR.....",
+    "..RRrrrrrRR.....",
+    "...RRrrsrrRR....",
+    "...RrrrrsrrR....",
+    "....RrrsrrR.....",
+    ".....RRrrR......",
+    ".......RR.......",
+    "................",
+  ]},
+  /* Costume overlays: same 32x32 canvas as Lue, drawn over her sprite —
+     redraw these in Piskel on top of a dog pose for a perfect fit. */
+  gearScuba: { palette: "gearScuba", scale: 3, rows: [
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "..................ffffffffff....",
+    "..............fffffccccccccf....",
+    "..................fccccccccf....",
+    "..................ffffffffff....",
+    "................................",
+    "................................",
+    "........vv......................",
+    ".......mmmm.....................",
+    "......mmmmmm....................",
+    "......mmmmmm....................",
+    "......mmmmmm....................",
+    "......mmmmmm....................",
+    "......mmmmmm....................",
+    "......mmmmmm....................",
+    ".......mmmm.....................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+  ]},
+  gearSnowHat: { palette: "gearSnowHat", scale: 3, rows: [
+    "...................ww...........",
+    "..................wwww..........",
+    "................rrrrrrrrr.......",
+    "...............rrrrrrrrrrr......",
+    "...............rrrrrrrrrrr......",
+    "...............qqqqqqqqqqq......",
+    "..............wwwwwwwwwwwww.....",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
   ]},
   snake0: { palette: "snake", scale: 4, outline: "#000", rows: [
     "............",
@@ -672,7 +974,7 @@ const OBSTACLE_TYPES = [
   { key: "clawMachine", w: 48, h: 86, color: "#4aa8d8", edge: "#2a6a92", destructible: false },
   { key: "chipPile",    w: 50, h: 34, color: "#d84a4a", edge: "#8f2f2f", destructible: true },
   // Night City
-  { key: "starla",      w: 60, h: 52, color: "#8a7a6a", edge: "#5a4e42", destructible: false },
+  { key: "starla",      w: 60, h: 52, color: "#8a7a6a", edge: "#5a4e42", destructible: false, sprite: "starla" },
   { key: "alligator",   w: 92, h: 30, color: "#5c7a3a", edge: "#3a5224", destructible: false },
   { key: "trex",        w: 52, h: 88, color: "#6a9a4a", edge: "#446630", destructible: true },
 ];
@@ -958,6 +1260,65 @@ function saveEndlessBest(score) {
 }
 
 /* ================================================================
+   Audio — Web Audio synth SFX, no files. The context is created /
+   resumed on the first user gesture (iOS requirement); every effect
+   is a no-op until then.
+   ================================================================ */
+let audioCtx = null;
+function ensureAudio() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+  } catch (e) { audioCtx = null; }
+}
+function tone(f0, f1, dur, type, vol, delay) {
+  if (!audioCtx) return;
+  const t0 = audioCtx.currentTime + (delay || 0);
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(f0, t0);
+  osc.frequency.exponentialRampToValueAtTime(Math.max(1, f1), t0 + dur);
+  g.gain.setValueAtTime(vol, t0);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(audioCtx.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.02);
+}
+function noiseBurst(dur, vol, delay) {
+  if (!audioCtx) return;
+  const t0 = audioCtx.currentTime + (delay || 0);
+  const n = Math.floor(audioCtx.sampleRate * dur);
+  const buf = audioCtx.createBuffer(1, n, audioCtx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / n);
+  const src = audioCtx.createBufferSource();
+  src.buffer = buf;
+  const g = audioCtx.createGain();
+  g.gain.setValueAtTime(vol, t0);
+  src.connect(g).connect(audioCtx.destination);
+  src.start(t0);
+}
+const SFX = {
+  jump()     { tone(300, 620, 0.16, "square", 0.15); },
+  double()   { tone(430, 900, 0.15, "square", 0.15); },
+  pickup()   { tone(660, 660, 0.06, "square", 0.13);
+               tone(880, 880, 0.06, "square", 0.13, 0.06);
+               tone(1100, 1100, 0.1, "square", 0.13, 0.12); },
+  hit()      { noiseBurst(0.22, 0.28); tone(220, 90, 0.22, "sawtooth", 0.18); },
+  death()    { tone(320, 55, 0.6, "sawtooth", 0.2); noiseBurst(0.3, 0.2, 0.05); },
+  fireball() { tone(520, 160, 0.2, "sawtooth", 0.16); },
+  claw()     { noiseBurst(0.1, 0.18); tone(900, 300, 0.08, "sawtooth", 0.08); },
+  destroy()  { noiseBurst(0.18, 0.24); tone(160, 60, 0.16, "square", 0.1); },
+  click()    { tone(1200, 1200, 0.05, "square", 0.18);
+               tone(1650, 1650, 0.07, "square", 0.16, 0.07); },
+  complete() { [523, 659, 784, 1047].forEach((f, i) =>
+                 tone(f, f, 0.14, "square", 0.14, i * 0.1)); },
+  victory()  { [392, 523, 659, 784, 659, 784, 1047].forEach((f, i) =>
+                 tone(f, f, i === 6 ? 0.5 : 0.15, "square", 0.14, i * 0.12)); },
+};
+
+/* ================================================================
    Level generation — obstacles placed along the level with gaps
    drawn from CONFIG (in seconds of travel, so layouts stay fair as
    scroll speed changes); then powerup pickups into wide gaps with
@@ -1086,7 +1447,7 @@ const player = {
   jumpsUsed: 0,
   runFrame: 0,
   runTimer: 0,
-  spriteSize: 96,      // 16 art px * scale 6
+  spriteSize: 96,      // 32 art px * scale 3
   powerup: null,       // null | "fire" | "double" | "claw"
   iframes: 0,          // s of invincibility remaining
   fireCooldown: 0,
@@ -1149,6 +1510,7 @@ function finishLevel() {
     if (i + 1 > game.unlocked) { game.unlocked = i + 1; saveUnlocked(game.unlocked); }
     game.completeMsg = LEVEL_COMPLETE_PHRASES[Math.floor(Math.random() * LEVEL_COMPLETE_PHRASES.length)];
     game.state = STATE.LEVEL_COMPLETE;
+    SFX.complete();
   } else {
     game.justUnlockedEndless = !game.endlessUnlocked;
     if (!game.endlessUnlocked) {
@@ -1156,6 +1518,7 @@ function finishLevel() {
       saveEndlessUnlocked();
     }
     game.state = STATE.VICTORY;
+    SFX.victory();
   }
 }
 
@@ -1164,6 +1527,12 @@ function finishLevel() {
    arrows = level select on the title. Mobile: tap anywhere = jump
    (tap a level card to pick it), on-screen button = action.
    ================================================================ */
+function gotoLevelSelect() {
+  game.scoreSnapshot = 0;
+  game.level = null;
+  game.state = STATE.LEVEL_SELECT;
+}
+
 function pressJump() {
   if (game.state === STATE.TITLE) { game.state = STATE.HOWTO; return; }
   if (game.state === STATE.HOWTO) { game.state = STATE.LEVEL_SELECT; return; }
@@ -1190,14 +1559,22 @@ function pressAction() {
       y: player.y - player.spriteSize * 0.55,
       traveled: 0,
     });
+    SFX.fireball();
   } else if (player.powerup === "claw" && player.swipeTimer <= 0) {
     player.swipeTimer = CONFIG.clawSwingDuration;
+    SFX.claw();
   }
   // "double" has no action — its power is the mid-air second jump.
 }
 
 window.addEventListener("keydown", (e) => {
   if (e.repeat) return;
+  ensureAudio();
+  if (e.code === "Escape" && game.state === STATE.DEAD) {
+    e.preventDefault();
+    gotoLevelSelect();
+    return;
+  }
   if (game.state === STATE.LEVEL_SELECT && (e.code === "ArrowLeft" || e.code === "ArrowRight")) {
     e.preventDefault();
     const dir = e.code === "ArrowLeft" ? -1 : 1;
@@ -1210,6 +1587,17 @@ window.addEventListener("keydown", (e) => {
 });
 canvas.addEventListener("pointerdown", (e) => {
   e.preventDefault();
+  ensureAudio();
+  if (game.state === STATE.DEAD) {
+    const r = canvas.getBoundingClientRect();
+    const x = (e.clientX - r.left) * (VIEW_W / r.width);
+    const y = (e.clientY - r.top) * (VIEW_H / r.height);
+    const m = deathMenuRect();
+    if (x >= m.x && x <= m.x + m.w && y >= m.y && y <= m.y + m.h) {
+      gotoLevelSelect();
+      return;
+    }
+  }
   if (game.state === STATE.LEVEL_SELECT) {
     const r = canvas.getBoundingClientRect();
     const x = (e.clientX - r.left) * (VIEW_W / r.width);
@@ -1233,6 +1621,7 @@ canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 const actionBtn = document.getElementById("actionBtn");
 actionBtn.addEventListener("pointerdown", (e) => {
   e.preventDefault(); e.stopPropagation();
+  ensureAudio();
   pressAction();
 });
 
@@ -1272,6 +1661,7 @@ function destroyObstacle(obs) {
   game.score += CONFIG.destroyBonus;
   spawnDebris(obs.x - game.cam + obs.type.w / 2, GROUND_Y - obs.type.h / 2,
     obs.type.color, obs.type.edge);
+  SFX.destroy();
 }
 
 function destroyFlyer(f) {
@@ -1279,6 +1669,7 @@ function destroyFlyer(f) {
   game.score += CONFIG.destroyBonus;
   const deb = (f.fdef || game.level.theme.flyer).debris;
   spawnDebris(f.x - game.cam, f.curY, deb[0], deb[1]);
+  SFX.destroy();
 }
 
 function takeHit() {
@@ -1286,9 +1677,11 @@ function takeHit() {
   if (player.powerup) {
     player.powerup = null;
     player.iframes = CONFIG.iframeDuration;
+    SFX.hit();
   } else {
     game.newHighScore = game.level.endless ? saveEndlessBest(game.score) : saveHighScore(game.score);
     game.state = STATE.DEAD;
+    SFX.death();
   }
 }
 
@@ -1309,7 +1702,10 @@ function doorTotalTime() {
 function update(dt) {
   if (game.state === STATE.DOOR_ANIM) {
     game.time += dt;
+    const before = game.doorT;
     game.doorT += dt;
+    const ph = doorPhases();
+    if (before < ph.p3 && game.doorT >= ph.p3) SFX.click();   // the lock gives
     updateParticles(dt, 0);
     if (game.doorT >= doorTotalTime()) finishLevel();
     return;
@@ -1351,9 +1747,11 @@ function update(dt) {
     if (player.coyote > 0) {
       player.vy = -CONFIG.jumpVelocity;
       player.jumpBuffer = 0; player.coyote = 0; player.jumpsUsed = 1;
+      SFX.jump();
     } else if (player.powerup === "double" && player.jumpsUsed < 2) {
       player.vy = -CONFIG.doubleJumpVelocity;
       player.jumpBuffer = 0; player.jumpsUsed = 2;
+      SFX.double();
     }
   }
 
@@ -1383,6 +1781,7 @@ function update(dt) {
     if (overlaps(box, sx - 20, p.y - grab, 40, grab * 2)) {
       p.dead = true;
       player.powerup = p.kind;   // new pickup replaces the current one
+      SFX.pickup();
     }
   }
 
@@ -1550,6 +1949,17 @@ function drawObstacle(obs) {
   const sx = Math.round(obs.x - game.cam);
   if (sx + obs.type.w < 0 || sx > VIEW_W) return;
   const oy = GROUND_Y - obs.type.h;
+  // types with real art draw their sprite instead of a placeholder block
+  if (obs.type.sprite) {
+    const img = sprite(obs.type.sprite);
+    if (obs.type.destructible) {
+      ctx.strokeStyle = "rgba(255,255,255,0.9)";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(sx - 2.5, GROUND_Y - img.height - 2.5, img.width + 5, img.height + 5);
+    }
+    ctx.drawImage(img, sx + Math.round((obs.type.w - img.width) / 2), GROUND_Y - img.height);
+    return;
+  }
   if (obs.type.destructible) {
     // white rim: breakable-obstacle identifier
     ctx.strokeStyle = "rgba(255,255,255,0.9)";
@@ -1697,28 +2107,20 @@ function drawSparkle(x, y, t) {
   ctx.stroke();
 }
 
-/* Theme costume overlays (placeholder until the Phase 4 sprite pass).
-   x,y = top-left of the 96px dog sprite. */
+/* Butterfly wings for the double-jump powerup (red w/ silver sparkles —
+   placeholder until the Phase 4 reference photo). Drawn BEHIND the dog;
+   they flap slowly on the ground and fast in the air. */
+function drawWings(x, y) {
+  const airborne = player.y < GROUND_Y;
+  const frame = Math.floor(game.time * (airborne ? 12 : 5)) % 2;
+  ctx.drawImage(sprite(frame ? "wings1" : "wings0"), x - 4, y + 6);
+}
+
+/* Theme costume overlays — pixel sprites on the same 32x32 canvas as
+   Lue, drawn over her at the same position (all poses share the same
+   head placement). */
 function drawGear(type, x, y) {
-  if (type === "scuba") {
-    ctx.fillStyle = "rgba(90,215,255,0.85)";
-    ctx.fillRect(x + 54, y + 28, 34, 10);      // visor over the eyes
-    ctx.fillStyle = "#1d7fb8";
-    ctx.fillRect(x + 40, y + 30, 14, 6);       // strap
-    ctx.fillStyle = "#8fa8bc";
-    ctx.fillRect(x + 16, y + 44, 16, 30);      // air tank on the back
-    ctx.fillStyle = "#5c6a78";
-    ctx.fillRect(x + 20, y + 38, 8, 6);        // valve
-  } else if (type === "snowHat") {
-    ctx.fillStyle = "#d8524a";
-    ctx.fillRect(x + 54, y + 4, 34, 13);       // beanie
-    ctx.fillStyle = "#f0f4f8";
-    ctx.fillRect(x + 52, y + 16, 38, 5);       // brim
-    ctx.beginPath();
-    ctx.arc(x + 71, y + 2, 5, 0, 7);
-    ctx.fillStyle = "#f0f4f8";
-    ctx.fill();                                 // pompom
-  }
+  ctx.drawImage(sprite(type === "scuba" ? "gearScuba" : "gearSnowHat"), x, y);
 }
 
 function drawPlayer() {
@@ -1753,6 +2155,7 @@ function drawPlayer() {
       ctx.globalAlpha = alpha;
       const gx = CONFIG.playerScreenX + Math.round(dx);
       const gy = Math.round(player.y) - player.spriteSize;
+      if (player.powerup === "double") drawWings(gx, gy);
       ctx.drawImage(sprite(pose, palName), gx, gy);
       if (game.level.theme.dogGear) drawGear(game.level.theme.dogGear, gx, gy);
       ctx.globalAlpha = 1;
@@ -1771,6 +2174,7 @@ function drawPlayer() {
   else if (player.y < GROUND_Y) pose = "dogJump";
   else pose = player.runFrame === 0 ? "dogRun0" : "dogRun1";
   const py = Math.round(player.y) - player.spriteSize;
+  if (player.powerup === "double") drawWings(CONFIG.playerScreenX, py);
   ctx.drawImage(sprite(pose, palName), CONFIG.playerScreenX, py);
   if (game.level && game.level.theme.dogGear) drawGear(game.level.theme.dogGear, CONFIG.playerScreenX, py);
 
@@ -1983,6 +2387,9 @@ function chipRect(i) {
 function endlessRect() {
   return { x: VIEW_W / 2 - 150, y: 382, w: 300, h: 44 };
 }
+function deathMenuRect() {
+  return { x: VIEW_W / 2 - 130, y: 420, w: 260, h: 42 };
+}
 function hitChip(x, y) {
   for (let i = 0; i < LEVELS.length; i++) {
     const r = chipRect(i);
@@ -2158,6 +2565,20 @@ function render() {
     divider(252, "rgba(194,37,37,0.55)");
     drawScoreLines(302);
     drawHint(go + "retry", 390);
+    // back-out option: return to level select
+    const m = deathMenuRect();
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(m.x, m.y, m.w, m.h, 12);
+    else ctx.rect(m.x, m.y, m.w, m.h);
+    ctx.fillStyle = "rgba(20,16,10,0.5)";
+    ctx.fill();
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = "rgba(255,215,94,0.6)";
+    ctx.stroke();
+    ctx.font = "bold 17px monospace";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#ffd75e";
+    ctx.fillText(isTouch ? "LEVEL SELECT" : "LEVEL SELECT (ESC)", m.x + m.w / 2, m.y + 27);
   } else if (game.state === STATE.LEVEL_COMPLETE) {
     overlayBackdrop();
     drawConfetti();
@@ -2202,6 +2623,46 @@ function frame(now) {
 bakeSprites();
 fitCanvas();
 requestAnimationFrame(frame);
+
+/* ================================================================
+   PWA — manifest + icon generated at runtime so the game stays a
+   single file. The icon is Lue's own sprite on an amber tile. When
+   hosted over https this makes the game installable; opening the
+   local file directly is unaffected.
+   ================================================================ */
+(function setupPWA() {
+  try {
+    const icon = document.createElement("canvas");
+    icon.width = icon.height = 192;
+    const c = icon.getContext("2d");
+    c.imageSmoothingEnabled = false;
+    const g = c.createLinearGradient(0, 0, 0, 192);
+    g.addColorStop(0, "#ffd75e");
+    g.addColorStop(1, "#f5a623");
+    c.fillStyle = g;
+    c.fillRect(0, 0, 192, 192);
+    c.drawImage(sprite("dogRun0"), 20, 36, 150, 150);
+    const iconURL = icon.toDataURL("image/png");
+    const manifest = {
+      name: "Lue's Treatie Run!",
+      short_name: "Treatie Run",
+      display: "fullscreen",
+      orientation: "landscape",
+      background_color: "#000000",
+      theme_color: "#f5a623",
+      start_url: ".",
+      icons: [{ src: iconURL, sizes: "192x192", type: "image/png" }],
+    };
+    const link = document.createElement("link");
+    link.rel = "manifest";
+    link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: "application/json" }));
+    document.head.appendChild(link);
+    const touch = document.createElement("link");
+    touch.rel = "apple-touch-icon";
+    touch.href = iconURL;
+    document.head.appendChild(touch);
+  } catch (e) {}
+})();
 </script>
 </body>
 </html>

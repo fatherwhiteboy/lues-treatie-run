@@ -70,7 +70,7 @@ Everything hand-editable sits at the top of the `<script>`.
 
 **Phase 3 — Levels + screens** (later expanded from 3 to 7 levels): data-driven themed levels with parallax code-drawn backgrounds, per-level difficulty escalation, per-theme movers from level 2 on, door + exit animation (locksmith-paw sequence), title screen with level select, level-complete / death / victory screens, progress persistence.
 
-**Phase 4 — Art, sound, polish**: real 32×32 dog sprite from photos (run cycle, jump, swipe, ~12-color palette + powerup palette swaps), obstacle/pickup/door sprites, Web Audio SFX wired to events, PWA manifest + service worker, particles/juice, CONFIG tuning pass.
+**Phase 4 — Art, sound, polish** (in progress): real 32×32 Lue sprite from reference photos — run cycle, jump, swipe done (~12-color palette: tan coat, dark saddle, white chest, cream muzzle + fire/double/claw recolors); Starla sprite (obstacle types can now declare `sprite` for real art instead of placeholder blocks); Web Audio synth SFX wired to every event (jump, double jump, pickup, hit, death, fireball, claw, destroy, lock click, level fanfares); PWA manifest + icon generated at runtime from Lue's sprite (single-file preserved; installable when hosted over https — no service worker, so no offline cache yet). Remaining: 32×32 sit / lock-pick / eating poses (door + victory animations still use legacy placeholder art via palette aliases), victory-screen photo inline (needs the image file), wings art matched to the reference photo, art for the other 21 obstacle types, tuning pass.
 
 ## Verification (per phase)
 
