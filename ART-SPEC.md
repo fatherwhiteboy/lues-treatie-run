@@ -81,8 +81,9 @@ Don't draw the powerup gear into the poses: butterfly wings, scuba visor
 
 ## Costume overlays (scuba gear, snow hat)
 
-- `gearScuba.png` and `gearSnowHat.png`, **32×32 px** — the SAME canvas
-  as Lue, drawn directly over her sprite at the same position.
+- `gearScuba.png` and `gearSnowHat0.png`/`gearSnowHat1.png` (two frames —
+  the christmas-hat lights twinkle), **32×32 px** — the SAME canvas as
+  Lue, drawn directly over her sprite at the same position.
 - To redraw: open a Lue pose in Piskel, add the gear on a layer above
   her, then export ONLY the gear layer as the 32×32 PNG. Perfect
   alignment guaranteed.
