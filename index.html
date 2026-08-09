@@ -219,6 +219,11 @@ const PALETTES = {
   wings:         { r: "#d83040cc", R: "#8f1f2a", s: "#e8ecf4" },
   // costume overlays, drawn on the same 32x32 canvas as Lue
   gearScuba:     { c: "#5ad7ffcc", f: "#1d7fb8", m: "#8fa8bc", v: "#5c6a78" },
+  // claw-powerup glam: pink leopard mohawk (p crest, s spots) + red lips
+  clawFit:       { p: "#ff5ac8", s: "#b02a86", R: "#e01030" },
+  heel:          { p: "#ff5ac8", d: "#b02a86" },
+  // fire-powerup: flame aura engulfing her
+  fireAura:      { y: "#ffd541", o: "#ff8a1e", r: "#e03b1c" },
   // christmas hat: red body, white fur brim, silver pompom, and a string
   // of twinkling lights (g/y/b bulbs) around the base band
   gearSnowHat:   { r: "#d8524a", q: "#a83832", w: "#f0f4f8", s: "#c8ccd8",
@@ -804,6 +809,191 @@ const SPRITES = {
     "................................",
     "................................",
   ]},
+  /* Claw-powerup glam overlay: pink leopard mohawk along the skull +
+     red lipstick on the muzzle tip. Same 32x32 canvas as Lue. Heels
+     are stamped separately at per-pose paw positions (PAW_HEELS). */
+  clawFit: { palette: "clawFit", scale: 3, rows: [
+    "...............p..p..p..p.......",
+    "..............pppsppppsppp......",
+    "..............ppspppsppspp......",
+    "...............pppsppppsp.......",
+    "...............ppsppppspp.......",
+    "................pspppspp........",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "...........................RR...",
+    "..........................RRR...",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+    "................................",
+  ]},
+  heel: { palette: "heel", scale: 3, rows: [   // pink stiletto pump, toe right
+    "..ppp",
+    ".pppp",
+    "ppppp",
+    ".d..p",
+  ]},
+  /* Fire-powerup flame aura, running poses: 48 wide (16 art px wider
+     than Lue on the left) so the fire STREAMS horizontally behind her —
+     tapered streaks at torso height, longest mid-body. Drawn BEHIND
+     her; two frames flicker. Columns 16-47 align with her canvas. */
+  fireAura0: { palette: "fireAura", scale: 3, rows: [
+    "................................................",
+    "........................................o.......",
+    ".......................................oyo......",
+    ".......................................oyo......",
+    "......................................ooyo......",
+    "................................................",
+    "............................o....o..............",
+    "...........................oyo..oyo...o.........",
+    "...........................oyo..oyo..oyo........",
+    "..........................oyyo.oyyo..oyo........",
+    "..........................oyyoooyyyooyyo........",
+    ".........................oryyoyyryyoyyryo.......",
+    ".........................orryyyyyryyyyryo.......",
+    "......orryyyyyyyyyyoo...........................",
+    "..orryyyyyyyyyyyyyyyoo..........................",
+    "....orryyyyyyyyyyyyoo...........................",
+    "........orryyyyyyyyoo...........................",
+    ".....oryyyyyyyyyyyyoo...........................",
+    "..........oryyyyyyyoo...........................",
+    ".............oryyyyoo...........................",
+    "...............oryyoo...........................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+  ]},
+  fireAura1: { palette: "fireAura", scale: 3, rows: [   // flicker frame
+    "................................................",
+    ".......................................o........",
+    "......................................oyo.......",
+    ".......................................oyo......",
+    "......................................oyo.......",
+    "................................................",
+    "..............................o....o............",
+    "............................o.oyo...oyo.........",
+    "...........................oyo.oyyo..oyo........",
+    "..........................oyyo.oyyo.oyyo........",
+    ".........................ooyyyooyyyoooyyoo......",
+    ".........................oryyyoyryyyoyyryoo.....",
+    "........................orryyyyryyyyyryoo.......",
+    "...orryyyyyyyyyyyyyoo...........................",
+    ".....orryyyyyyyyyyyoo...........................",
+    "..orryyyyyyyyyyyyyyoo...........................",
+    "......oryyyyyyyyyyyoo...........................",
+    ".........oryyyyyyyoo............................",
+    ".......orryyyyyyyyyoo...........................",
+    "...........oryyyyyyoo...........................",
+    "..............oryyyoo...........................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+  ]},
+  /* Sitting-pose flame aura (door animation): no motion trail — flames
+     rise along her back slope and beside her haunch instead. */
+  fireAuraSit0: { palette: "fireAura", scale: 3, rows: [
+    "................................................",
+    "........................................o.......",
+    ".......................................oyo......",
+    ".......................................oyo......",
+    "......................................ooyo......",
+    "................................................",
+    "................................................",
+    ".............................o..................",
+    "............................oyo.................",
+    "............................oyo.................",
+    "...........................oyyo.................",
+    "..........................oyyo.o................",
+    ".........................oyyoooyo...............",
+    "........................oryyoyyo................",
+    ".......................oryyyoyo.................",
+    "......................orryyyo...................",
+    ".....................oryyyo.....................",
+    "....................oryyo.......................",
+    "..............o....oryo.........................",
+    ".............oyo..oro...........................",
+    ".............oyo................................",
+    "............oyyo................................",
+    "............oryo................................",
+    ".............oro................................",
+    ".............oo.................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+  ]},
+  fireAuraSit1: { palette: "fireAura", scale: 3, rows: [
+    "................................................",
+    ".......................................o........",
+    "......................................oyo.......",
+    ".......................................oyo......",
+    "......................................oyo.......",
+    "................................................",
+    "................................................",
+    "...............................o................",
+    "..............................oyo...............",
+    ".............................oyo................",
+    "............................oyyo................",
+    "...........................oyyo.o...............",
+    "..........................oyyooyo...............",
+    ".........................oryyoyo................",
+    "........................oryyyoo.................",
+    ".......................orryyo...................",
+    "......................oryyo.....................",
+    ".....................oryo.......................",
+    "...............o....oro.........................",
+    "..............oyo..oo...........................",
+    "..............oyo...............................",
+    ".............oyyo...............................",
+    ".............oryo...............................",
+    "..............oro...............................",
+    "..............oo................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+    "................................................",
+  ]},
   snake0: { palette: "snake", scale: 4, outline: "#000", rows: [
     "............",
     "okk...kkk...",
@@ -894,6 +1084,8 @@ const LEVELS = [
     layers: [
       { paint: "hills",  color: "#a9d488", height: 110, y: GROUND_Y - 110, factor: 0.15 },
       { paint: "fence",  color: "#9a7346", accent: "#7d5a33", height: 74, y: GROUND_Y - 74, factor: 0.4 },
+      { paint: "yardStuff", color: "#8a5a36", roof: "#6e4626", dark: "#2e2018", ball: "#c8e04a",
+        catY: 48, height: 120, y: GROUND_Y - 120, factor: 0.4 },
       { paint: "bushes", color: "#5f9e46", height: 46, y: GROUND_Y - 46, factor: 0.7 },
     ] },
   { name: "Inside a House", short: "House",
@@ -903,12 +1095,16 @@ const LEVELS = [
     layers: [
       { paint: "wallpaper", color: "#cfc0a0", accent: "#a8946e", frame: "#6e4a2a", art: "#b8cfe0", height: 220, y: GROUND_Y - 220, factor: 0.12 },
       { paint: "fence", color: "#b08850", accent: "#8a6538", height: 58, y: GROUND_Y - 58, factor: 0.4 },
+      { paint: "livingRoom", couch: "#a34a3a", dark: "#3a3230", screen: "#9fd8e8", bowl: "#c23a5a",
+        lampGlass: "#b04ad8", lampGoo: "#ff8a3d",
+        height: 60, y: GROUND_Y - 60, factor: 0.4 },
     ] },
   { name: "Park", short: "Park",
     sky: ["#8fd4e8", "#f2f6d8"], ground: "#6fae62", groundLine: "#4c8446",
     obstacles: ["fountain", "swingset", "hedgeBreak"],
     flyer: { frames: ["bird0", "bird1"], palette: "birdBlackbird", debris: ["#23252e", "#4a4d5c"] },
     layers: [
+      { paint: "parkLife", kite: "#e05a6a", bird: "#3a3f4a", height: 150, y: 15, factor: 0.12 },
       { paint: "treeline", color: "#7fb96e", height: 120, y: GROUND_Y - 120, factor: 0.15 },
       { paint: "trees",    color: "#4e8a3a", accent: "#6e4a2a", height: 130, y: GROUND_Y - 130, factor: 0.45 },
       { paint: "bushes",   color: "#3f7031", height: 40, y: GROUND_Y - 40, factor: 0.7 },
@@ -917,10 +1113,14 @@ const LEVELS = [
     sky: ["#7ec8f0", "#ffeec2"], ground: "#e6cf96", groundLine: "#c9ad6a",
     obstacles: ["watermelon", "crab", "shark", "sandcastle"],
     flyer: { frames: ["bird0", "bird1"], palette: "birdSeagull", debris: ["#e2e6ec", "#9aa2b0"] },
+    celestial: { x: 760, y: 85, r: 30, color: "#fff2c0", glow: "rgba(255,236,160,0.5)" },
     layers: [
       { paint: "waves",  color: "#3f8fc4", accent: "#dff2ff", height: 90, y: GROUND_Y - 90, factor: 0.08 },
+      { paint: "boats",  hull: "#8a4a2a", sail: "#f6f2e8", height: 90, y: GROUND_Y - 90, factor: 0.08 },
       { paint: "hills",  color: "#e8d6a4", height: 70, y: GROUND_Y - 70, factor: 0.3 },
       { paint: "bushes", color: "#b3a565", height: 36, y: GROUND_Y - 36, factor: 0.6 },
+      { paint: "beachFront", pole: "#8a5a3a", umb1: "#e05a6a", umb2: "#f6f2e8", shell: "#f0e8d8",
+        height: 48, y: GROUND_Y - 48, factor: 0.65 },
     ] },
   { name: "Underwater", short: "Underwater",
     sky: ["#1a5f8f", "#3f8fc4"], ground: "#c9b380", groundLine: "#a3906a",
@@ -928,17 +1128,22 @@ const LEVELS = [
     flyer: { frames: ["fish0", "fish1"], palette: "fish", debris: ["#e8a83a", "#a3702f"] },
     dogGear: "scuba",
     layers: [
-      { paint: "stars",  color: "#cdeef8", height: 300, y: 0, factor: 0.05 },   // drifting bubbles
-      { paint: "hills",  color: "#2a6f8f", height: 90, y: GROUND_Y - 90, factor: 0.2 },
-      { paint: "bushes", color: "#e87a9a", height: 40, y: GROUND_Y - 40, factor: 0.55 },
+      { paint: "stars",   color: "#cdeef8", height: 300, y: 0, factor: 0.05 },   // drifting bubbles
+      { paint: "hills",   color: "#2a6f8f", height: 90, y: GROUND_Y - 90, factor: 0.2 },
+      { paint: "seaLife", color: "#1d5578", height: 230, y: GROUND_Y - 230, factor: 0.3 },
+      { paint: "bushes",  colors: ["#3ee06a", "#eaff3d", "#ff6a4d"],   // vibrant reef
+        height: 40, y: GROUND_Y - 40, factor: 0.55 },
+      { paint: "crabs",   color: "#153f5e", height: 26, y: GROUND_Y - 26, factor: 0.6 },
     ] },
   { name: "Egyptian Desert", short: "Desert",
     sky: ["#e8b45a", "#f8e2b0"], ground: "#e8ca8a", groundLine: "#c2a464",
     obstacles: ["ankh", "sarcophagus", "mummy"],
     flyer: { frames: ["snake0", "snake1"], palette: "snake", debris: ["#7ba05a", "#4a6a3a"] },
+    celestial: { x: 740, y: 80, r: 34, color: "#fff6d0", glow: "rgba(255,220,140,0.55)" },
     layers: [
       { paint: "peaks",  color: "#c9a05e", height: 190, y: GROUND_Y - 190, factor: 0.1 },  // pyramids
       { paint: "hills",  color: "#e0c07a", height: 70, y: GROUND_Y - 70, factor: 0.3 },
+      { paint: "oasis",  color: "#6b4a26", height: 70, y: GROUND_Y - 70, factor: 0.35 },
       { paint: "bushes", color: "#a08a4a", height: 30, y: GROUND_Y - 30, factor: 0.6 },
     ] },
   { name: "On a Mountain", short: "Mountain",
@@ -946,19 +1151,26 @@ const LEVELS = [
     obstacles: ["rattlesnake", "goat", "cactus"],
     flyer: { frames: ["bird0", "bird1"], palette: "birdEagle", debris: ["#6e4a2a", "#3f2a16"] },
     layers: [
+      { paint: "skyFlock", cloud: "#f2f6fa", bird: "#4a4238", height: 140, y: 12, factor: 0.06 },
+      { paint: "rainbow",  height: 200, y: 40, factor: 0.1 },
       { paint: "peaks",    color: "#8fa3b8", accent: "#f0f4f8", height: 220, y: GROUND_Y - 220, factor: 0.08 },
       { paint: "peaks",    color: "#6b7f8f", accent: "#e8eef4", height: 140, y: GROUND_Y - 140, factor: 0.25 },
       { paint: "treeline", color: "#3f6031", height: 70, y: GROUND_Y - 70, factor: 0.55 },
+      { paint: "unicorns", body: "#f4f2ee", horn: "#ffd75e", height: 60, y: GROUND_Y - 60, factor: 0.6 },
     ] },
   { name: "Snow Day", short: "Snow Day",
     sky: ["#c8d8e8", "#f0f6fa"], ground: "#eef4f8", groundLine: "#c8d4e0",
     obstacles: ["snowShovel", "snowman", "yeti"],
     flyer: { frames: ["snowball0", "snowball1"], palette: "snowball", debris: ["#f0f4f8", "#b8c8d8"] },
     dogGear: "snowHat",
+    weather: "snow",
     layers: [
       { paint: "peaks",    color: "#d8e2ec", accent: "#ffffff", height: 200, y: GROUND_Y - 200, factor: 0.08 },
       { paint: "treeline", color: "#4a6a55", height: 90, y: GROUND_Y - 90, factor: 0.3 },
       { paint: "bushes",   color: "#e0e8f0", height: 36, y: GROUND_Y - 36, factor: 0.6 },   // drifts
+      { paint: "snowFolk", color: "#f6fafc", dark: "#3a4048", height: 60, y: GROUND_Y - 60, factor: 0.62 },
+      { paint: "reindeer", color: "#6e4a30", antler: "#4a3018", nose: "#e03030",
+        height: 60, y: GROUND_Y - 60, factor: 0.65 },
     ] },
   { name: "In a Casino", short: "Casino",
     sky: ["#2a1030", "#4a1f4e"], ground: "#8f2f4f", groundLine: "#6a1f38",
@@ -968,15 +1180,19 @@ const LEVELS = [
       { paint: "stars",     color: "#ffd75e", height: 140, y: 0, factor: 0.03 },
       { paint: "wallpaper", color: "#5e1f4a", accent: "#8a2f6a", frame: "#ffd75e", art: "#2a1030", height: 220, y: GROUND_Y - 220, factor: 0.12 },
       { paint: "fence",     color: "#7a2f5e", accent: "#5e1f4a", height: 56, y: GROUND_Y - 56, factor: 0.4 },
+      { paint: "casinoFloor", white: "#f2f0e8", dark: "#232030", red: "#e04a4a", blue: "#4a6ae0",
+        gold: "#ffd75e", height: 30, y: GROUND_Y - 30, factor: 0.6 },
     ] },
   { name: "Night City", short: "Night City",
     sky: ["#0e1030", "#454a80"], ground: "#3d3f4a", groundLine: "#2b2d36",
     obstacles: ["starla", "alligator", "trex"],
     flyer: { frames: ["bird0", "bird1"], palette: "birdPigeon", debris: ["#9099ac", "#5c5c66"] },
+    celestial: { x: 780, y: 85, r: 30, color: "#e8e6da", glow: "rgba(200,210,255,0.35)", craters: true },
     layers: [
       { paint: "stars",   color: "#ffffff", height: 300, y: 0, factor: 0.04 },
       { paint: "skyline", color: "#20223a", accent: "#ffd75e", height: 240, y: GROUND_Y - 240, factor: 0.15 },
       { paint: "skyline", color: "#141626", accent: "#9fb7c9", height: 150, y: GROUND_Y - 150, factor: 0.4 },
+      { paint: "neon",    height: 150, y: GROUND_Y - 150, factor: 0.4 },
     ] },
 ];
 
@@ -1067,8 +1283,10 @@ const LAYER_PAINTERS = {
     for (let x = 0; x < w; x += 26) c.fillRect(x + 7, 10, 4, h - 10);
   },
   bushes(c, w, h, def, rand) {
-    c.fillStyle = def.color;
+    // def.colors (optional array) cycles per bump — used for vibrant reefs
+    const cols = def.colors || [def.color];
     for (let i = 0; i < 10; i++) {
+      c.fillStyle = cols[i % cols.length];
       const x = (i / 10) * w + rand() * 30, r = 18 + rand() * 22;
       for (const ox of [-w, 0, w]) { c.beginPath(); c.arc(x + ox, h, r, Math.PI, 0); c.fill(); }
     }
@@ -1143,6 +1361,327 @@ const LAYER_PAINTERS = {
           c.fill();
         }
       }
+    }
+  },
+  yardStuff(c, w, h, def, rand) {   // doghouse, cat on the fence, tennis balls
+    const hx = 60 + rand() * 60, hw = 66, hh = 44, hy = h - hh;
+    for (const ox of [-w, 0, w]) {
+      c.fillStyle = def.color;
+      c.fillRect(hx + ox, hy, hw, hh);
+      c.fillStyle = def.roof;
+      c.beginPath(); c.moveTo(hx + ox - 6, hy); c.lineTo(hx + ox + hw / 2, hy - 26); c.lineTo(hx + ox + hw + 6, hy); c.closePath(); c.fill();
+      c.fillStyle = def.dark;
+      c.beginPath(); c.arc(hx + ox + hw / 2, h - 16, 14, Math.PI, 0); c.fill();
+      c.fillRect(hx + ox + hw / 2 - 14, h - 16, 28, 16);
+    }
+    const cx = 300 + rand() * 120, cy = def.catY;
+    for (const ox of [-w, 0, w]) {
+      c.fillStyle = def.dark;
+      c.beginPath(); c.ellipse(cx + ox, cy, 8, 10, 0, 0, 7); c.fill();
+      c.beginPath(); c.arc(cx + ox, cy - 12, 6, 0, 7); c.fill();
+      c.beginPath(); c.moveTo(cx + ox - 6, cy - 15); c.lineTo(cx + ox - 4, cy - 21); c.lineTo(cx + ox - 1, cy - 16); c.closePath(); c.fill();
+      c.beginPath(); c.moveTo(cx + ox + 6, cy - 15); c.lineTo(cx + ox + 4, cy - 21); c.lineTo(cx + ox + 1, cy - 16); c.closePath(); c.fill();
+      c.strokeStyle = def.dark; c.lineWidth = 3;
+      c.beginPath(); c.moveTo(cx + ox + 7, cy + 6); c.quadraticCurveTo(cx + ox + 17, cy + 4, cx + ox + 15, cy - 8); c.stroke();
+    }
+    c.fillStyle = def.ball;
+    for (let i = 0; i < 4; i++) {
+      const x = rand() * w, y = h - 4 - rand() * 6;
+      for (const ox of [-w, 0, w]) { c.beginPath(); c.arc(x + ox, y, 4, 0, 7); c.fill(); }
+    }
+  },
+  livingRoom(c, w, h, def, rand) {   // couch, TV, food bowls
+    const j = rand() * 20;
+    for (const ox of [-w, 0, w]) {
+      c.fillStyle = def.couch;
+      c.fillRect(40 + j + ox, h - 34, 90, 22);
+      c.fillRect(40 + j + ox, h - 52, 90, 20);
+      c.fillRect(34 + j + ox, h - 44, 10, 32);
+      c.fillRect(126 + j + ox, h - 44, 10, 32);
+      c.fillStyle = def.dark;
+      c.fillRect(250 + j + ox, h - 56, 56, 34);
+      c.fillStyle = def.screen;
+      c.fillRect(254 + j + ox, h - 52, 48, 26);
+      c.fillStyle = def.dark;
+      c.fillRect(270 + j + ox, h - 22, 16, 6);
+      c.fillRect(262 + j + ox, h - 16, 32, 4);
+      c.fillStyle = def.bowl;
+      c.beginPath(); c.arc(380 + j + ox, h - 9, 10, 0, Math.PI); c.fill();
+      c.beginPath(); c.arc(408 + j + ox, h - 9, 8, 0, Math.PI); c.fill();
+      // lava lamp: tapered glass, floating goo blobs
+      const lx = 440 + j + ox;
+      c.fillStyle = def.dark;
+      c.fillRect(lx - 8, h - 8, 16, 8);
+      c.fillRect(lx - 3, h - 46, 6, 4);
+      c.fillStyle = def.lampGlass;
+      c.beginPath(); c.moveTo(lx - 8, h - 8); c.lineTo(lx - 2, h - 42); c.lineTo(lx + 2, h - 42); c.lineTo(lx + 8, h - 8); c.closePath(); c.fill();
+      c.fillStyle = def.lampGoo;
+      c.beginPath(); c.ellipse(lx, h - 16, 4.5, 6, 0, 0, 7); c.fill();
+      c.beginPath(); c.ellipse(lx + 1, h - 30, 3, 4, 0, 0, 7); c.fill();
+      c.beginPath(); c.ellipse(lx - 2, h - 38, 2, 2.5, 0, 0, 7); c.fill();
+    }
+  },
+  parkLife(c, w, h, def, rand) {   // a kite and small flying birds
+    const kx = 100 + rand() * 80, ky = 34 + rand() * 20;
+    for (const ox of [-w, 0, w]) {
+      c.fillStyle = def.kite;
+      c.beginPath(); c.moveTo(kx + ox, ky - 14); c.lineTo(kx + ox + 10, ky); c.lineTo(kx + ox, ky + 14); c.lineTo(kx + ox - 10, ky); c.closePath(); c.fill();
+      c.strokeStyle = def.kite; c.lineWidth = 2;
+      c.beginPath(); c.moveTo(kx + ox, ky + 14); c.quadraticCurveTo(kx + ox - 18, ky + 34, kx + ox - 8, ky + 52); c.stroke();
+    }
+    c.strokeStyle = def.bird; c.lineWidth = 2.5;
+    for (let i = 0; i < 5; i++) {
+      const x = rand() * w, y = 20 + rand() * 80;
+      for (const ox of [-w, 0, w]) {
+        c.beginPath(); c.arc(x + ox - 5, y, 5, Math.PI * 1.1, Math.PI * 1.9); c.stroke();
+        c.beginPath(); c.arc(x + ox + 5, y, 5, Math.PI * 1.1, Math.PI * 1.9); c.stroke();
+      }
+    }
+    // butterflies: bright wing pairs fluttering lower down near the trees
+    const bcols = ["#ff5ac8", "#ffd75e", "#5ad7ff", "#ff6a4d"];
+    for (let i = 0; i < 5; i++) {
+      const x = rand() * w, y = 70 + rand() * 70;
+      c.fillStyle = bcols[i % bcols.length];
+      for (const ox of [-w, 0, w]) {
+        c.beginPath(); c.ellipse(x + ox - 3, y, 3, 4.5, -0.4, 0, 7); c.fill();
+        c.beginPath(); c.ellipse(x + ox + 3, y, 3, 4.5, 0.4, 0, 7); c.fill();
+      }
+      c.fillStyle = def.bird;
+      for (const ox of [-w, 0, w]) c.fillRect(x + ox - 1, y - 3, 2, 7);
+    }
+  },
+  rainbow(c, w, h, def, rand) {   // arcing rainbow among the peaks
+    const cx = 160 + rand() * 160, cy = h + 60;
+    const cols = ["#e04a4a", "#ff8a3d", "#ffd75e", "#4ec24e", "#4a6ae0", "#8a4ad8"];
+    c.lineWidth = 7;
+    c.globalAlpha = 0.7;
+    for (let i = 0; i < cols.length; i++) {
+      c.strokeStyle = cols[i];
+      for (const ox of [-w, 0, w]) {
+        c.beginPath(); c.arc(cx + ox, cy, 150 - i * 7, Math.PI * 1.05, Math.PI * 1.95); c.stroke();
+      }
+    }
+    c.globalAlpha = 1;
+  },
+  unicorns(c, w, h, def, rand) {   // white unicorns, rainbow manes and tails
+    const manes = ["#e04a4a", "#ff8a3d", "#ffd75e", "#4ec24e", "#4a6ae0", "#8a4ad8"];
+    for (const spot of [[110, 1], [330, 0.8]]) {
+      const x = spot[0] + rand() * 50, s = spot[1], y = h - 16 * s;
+      for (const ox of [-w, 0, w]) {
+        c.fillStyle = def.body;
+        c.beginPath(); c.ellipse(x + ox, y, 15 * s, 7 * s, 0, 0, 7); c.fill();
+        for (const lx of [-11, -5, 5, 11]) c.fillRect(x + ox + lx * s, y + 4 * s, 2.5 * s, 12 * s);
+        c.save(); c.translate(x + ox + 13 * s, y - 8 * s); c.rotate(-0.5);
+        c.fillRect(-2.5 * s, -8 * s, 5 * s, 12 * s); c.restore();
+        c.beginPath(); c.ellipse(x + ox + 17 * s, y - 14 * s, 5.5 * s, 3.5 * s, 0.15, 0, 7); c.fill();
+        c.fillStyle = def.horn;
+        c.beginPath(); c.moveTo(x + ox + 19 * s, y - 17 * s); c.lineTo(x + ox + 23 * s, y - 25 * s); c.lineTo(x + ox + 21 * s, y - 15 * s); c.closePath(); c.fill();
+        for (let i = 0; i < 5; i++) {   // mane
+          c.strokeStyle = manes[i % manes.length];
+          c.lineWidth = 2 * s;
+          c.beginPath();
+          c.moveTo(x + ox + (15 - i * 1.5) * s, y + (-15 + i * 2) * s);
+          c.quadraticCurveTo(x + ox + (10 - i * 1.5) * s, y + (-10 + i * 2) * s,
+                             x + ox + (11 - i * 1.5) * s, y + (-4 + i * 1.5) * s);
+          c.stroke();
+        }
+        for (let i = 0; i < 4; i++) {   // tail
+          c.strokeStyle = manes[(i + 2) % manes.length];
+          c.lineWidth = 2 * s;
+          c.beginPath();
+          c.moveTo(x + ox - 14 * s, y + (-3 + i * 2) * s);
+          c.quadraticCurveTo(x + ox - 20 * s, y + i * 2.5 * s, x + ox - 19 * s, y + (8 + i * 2) * s);
+          c.stroke();
+        }
+      }
+    }
+  },
+  reindeer(c, w, h, def, rand) {   // brown reindeer with antlers; the lead one has a red nose
+    for (const spot of [[100, 1, true], [320, 0.8, false]]) {
+      const x = spot[0] + rand() * 60, s = spot[1], y = h - 16 * s;
+      for (const ox of [-w, 0, w]) {
+        c.fillStyle = def.color;
+        c.beginPath(); c.ellipse(x + ox, y, 13 * s, 6.5 * s, 0, 0, 7); c.fill();
+        for (const lx of [-9, -4, 4, 9]) c.fillRect(x + ox + lx * s, y + 4 * s, 2.5 * s, 11 * s);
+        c.save(); c.translate(x + ox + 11 * s, y - 7 * s); c.rotate(-0.5);
+        c.fillRect(-2 * s, -8 * s, 4.5 * s, 11 * s); c.restore();
+        c.beginPath(); c.ellipse(x + ox + 15 * s, y - 13 * s, 5 * s, 3 * s, 0.1, 0, 7); c.fill();
+        c.strokeStyle = def.antler; c.lineWidth = 1.8 * s;
+        for (const dir of [-1, 1]) {
+          c.beginPath();
+          c.moveTo(x + ox + (13 + dir) * s, y - 15 * s);
+          c.lineTo(x + ox + (13 + dir * 4) * s, y - 23 * s);
+          c.moveTo(x + ox + (13 + dir * 2.5) * s, y - 19 * s);
+          c.lineTo(x + ox + (13 + dir * 6) * s, y - 20 * s);
+          c.stroke();
+        }
+        if (spot[2]) {
+          c.fillStyle = def.nose;
+          c.beginPath(); c.arc(x + ox + 20 * s, y - 12.5 * s, 2.2 * s, 0, 7); c.fill();
+        }
+      }
+    }
+  },
+  boats(c, w, h, def, rand) {   // sailboats on the horizon
+    for (const bx of [70 + rand() * 60, 300 + rand() * 80]) {
+      for (const ox of [-w, 0, w]) {
+        c.fillStyle = def.hull;
+        c.beginPath(); c.moveTo(bx + ox - 16, 16); c.lineTo(bx + ox + 16, 16); c.lineTo(bx + ox + 10, 23); c.lineTo(bx + ox - 10, 23); c.closePath(); c.fill();
+        c.fillStyle = def.sail;
+        c.beginPath(); c.moveTo(bx + ox + 2, 14); c.lineTo(bx + ox + 2, 0); c.lineTo(bx + ox + 14, 14); c.closePath(); c.fill();
+        c.beginPath(); c.moveTo(bx + ox - 2, 14); c.lineTo(bx + ox - 2, 3); c.lineTo(bx + ox - 12, 14); c.closePath(); c.fill();
+      }
+    }
+  },
+  beachFront(c, w, h, def, rand) {   // umbrella + seashells, foreground sand
+    const ux = 150 + rand() * 100;
+    for (const ox of [-w, 0, w]) {
+      c.strokeStyle = def.pole; c.lineWidth = 3;
+      c.beginPath(); c.moveTo(ux + ox, h - 4); c.lineTo(ux + ox + 6, h - 40); c.stroke();
+      c.fillStyle = def.umb1;
+      c.beginPath(); c.arc(ux + ox + 6, h - 38, 26, Math.PI, 0); c.fill();
+      c.fillStyle = def.umb2;
+      c.beginPath(); c.moveTo(ux + ox + 6, h - 38); c.arc(ux + ox + 6, h - 38, 26, Math.PI, Math.PI * 1.32); c.closePath(); c.fill();
+      c.beginPath(); c.moveTo(ux + ox + 6, h - 38); c.arc(ux + ox + 6, h - 38, 26, Math.PI * 1.66, 0); c.closePath(); c.fill();
+    }
+    c.fillStyle = def.shell;
+    for (let i = 0; i < 6; i++) {
+      const x = rand() * w, y = h - 3 - rand() * 5;
+      for (const ox of [-w, 0, w]) { c.beginPath(); c.arc(x + ox, y, 3, Math.PI, 0); c.fill(); }
+    }
+  },
+  oasis(c, w, h, def, rand) {   // palm trees + a camel, desert silhouettes
+    for (const px of [90 + rand() * 50, 320 + rand() * 60]) {
+      for (const ox of [-w, 0, w]) {
+        c.strokeStyle = def.color; c.lineWidth = 5;
+        c.beginPath(); c.moveTo(px + ox, h); c.quadraticCurveTo(px + ox + 4, h - 30, px + ox + 12, h - 52); c.stroke();
+        c.lineWidth = 3;
+        for (const a of [-2.7, -2.2, -1.7, -1.1, -0.5]) {
+          c.beginPath(); c.moveTo(px + ox + 12, h - 52);
+          c.quadraticCurveTo(px + ox + 12 + Math.cos(a) * 16, h - 52 + Math.sin(a) * 16,
+                             px + ox + 12 + Math.cos(a) * 30, h - 52 + Math.sin(a) * 22 + 8);
+          c.stroke();
+        }
+      }
+    }
+    const cx = 210 + rand() * 60, cy = h - 16;
+    for (const ox of [-w, 0, w]) {
+      c.fillStyle = def.color;
+      c.beginPath(); c.ellipse(cx + ox, cy, 16, 8, 0, 0, 7); c.fill();
+      c.beginPath(); c.arc(cx + ox - 6, cy - 8, 6, 0, 7); c.fill();
+      c.beginPath(); c.arc(cx + ox + 5, cy - 8, 6, 0, 7); c.fill();
+      c.strokeStyle = def.color; c.lineWidth = 4;
+      c.beginPath(); c.moveTo(cx + ox + 13, cy - 4); c.quadraticCurveTo(cx + ox + 21, cy - 8, cx + ox + 22, cy - 18); c.stroke();
+      c.fillRect(cx + ox + 19, cy - 22, 9, 5);
+      for (const lx of [-11, -5, 4, 10]) c.fillRect(cx + ox + lx, cy + 4, 3, 12);
+    }
+  },
+  skyFlock(c, w, h, def, rand) {   // puffy clouds + soaring birds
+    for (let i = 0; i < 3; i++) {
+      const x = (i / 3) * w + rand() * 60, y = 24 + rand() * 50;
+      for (const ox of [-w, 0, w]) {
+        c.fillStyle = def.cloud;
+        c.beginPath(); c.ellipse(x + ox, y, 26, 10, 0, 0, 7); c.fill();
+        c.beginPath(); c.ellipse(x + ox + 14, y - 6, 16, 8, 0, 0, 7); c.fill();
+        c.beginPath(); c.ellipse(x + ox - 14, y - 4, 14, 7, 0, 0, 7); c.fill();
+      }
+    }
+    c.strokeStyle = def.bird; c.lineWidth = 2.5;
+    for (let i = 0; i < 3; i++) {
+      const x = rand() * w, y = 44 + rand() * 70;
+      for (const ox of [-w, 0, w]) {
+        c.beginPath(); c.arc(x + ox - 5, y, 5, Math.PI * 1.1, Math.PI * 1.9); c.stroke();
+        c.beginPath(); c.arc(x + ox + 5, y, 5, Math.PI * 1.1, Math.PI * 1.9); c.stroke();
+      }
+    }
+  },
+  snowFolk(c, w, h, def, rand) {   // distant snowmen
+    for (const sx of [120 + rand() * 80, 340 + rand() * 80]) {
+      for (const ox of [-w, 0, w]) {
+        c.fillStyle = def.color;
+        c.beginPath(); c.arc(sx + ox, h - 10, 10, 0, 7); c.fill();
+        c.beginPath(); c.arc(sx + ox, h - 24, 7, 0, 7); c.fill();
+        c.beginPath(); c.arc(sx + ox, h - 34, 5, 0, 7); c.fill();
+        c.fillStyle = def.dark;
+        c.fillRect(sx + ox - 6, h - 41, 12, 3);
+        c.fillRect(sx + ox - 4, h - 47, 8, 6);
+      }
+    }
+  },
+  casinoFloor(c, w, h, def, rand) {   // dice, playing cards, chip stacks
+    const j = rand() * 30;
+    for (const ox of [-w, 0, w]) {
+      c.fillStyle = def.white;
+      c.fillRect(70 + j + ox, h - 14, 12, 12);
+      c.fillRect(86 + j + ox, h - 10, 9, 9);
+      c.fillStyle = def.dark;
+      c.fillRect(73 + j + ox, h - 11, 3, 3);
+      c.fillRect(77 + j + ox, h - 7, 3, 3);
+      c.fillRect(89 + j + ox, h - 7, 3, 3);
+      c.save(); c.translate(200 + j + ox, h - 7); c.rotate(-0.25);
+      c.fillStyle = def.white; c.fillRect(-7, -10, 14, 20);
+      c.fillStyle = def.red; c.fillRect(-3, -6, 5, 5);
+      c.restore();
+      c.save(); c.translate(214 + j + ox, h - 6); c.rotate(0.2);
+      c.fillStyle = def.white; c.fillRect(-7, -10, 14, 20);
+      c.restore();
+      for (let i = 0; i < 4; i++) { c.fillStyle = i % 2 ? def.red : def.blue; c.fillRect(330 + j + ox, h - 6 - i * 5, 18, 4); }
+      for (let i = 0; i < 3; i++) { c.fillStyle = i % 2 ? def.blue : def.gold; c.fillRect(354 + j + ox, h - 6 - i * 5, 18, 4); }
+    }
+  },
+  neon(c, w, h, def, rand) {   // glowing neon signs on the near buildings
+    const colors = ["#ff4d8f", "#5ad7ff", "#3ee06a", "#ffd75e"];
+    for (let i = 0; i < 4; i++) {
+      const x = 30 + (i / 4) * w + rand() * 40, y = 20 + rand() * 60;
+      const cw = 26 + rand() * 22, ch = 10 + rand() * 10;
+      const col = colors[Math.floor(rand() * colors.length)];
+      for (const ox of [-w, 0, w]) {
+        c.fillStyle = col + "44";
+        c.fillRect(x + ox - 4, y - 4, cw + 8, ch + 8);
+        c.fillStyle = col;
+        c.fillRect(x + ox, y, cw, ch);
+        c.fillStyle = "#141626";
+        for (let tx = x + 3; tx < x + cw - 3; tx += 6) c.fillRect(tx + ox, y + 3, 3, ch - 6);
+      }
+    }
+  },
+  seaLife(c, w, h, def, rand) {   // whale, dolphins, turtles; crabs on the floor
+    c.fillStyle = def.color;
+    const all = (fn, x, y, s) => { for (const ox of [-w, 0, w]) fn(x + ox, y, s); };
+    const whale = (x, y, s) => {
+      c.beginPath(); c.ellipse(x, y, 38 * s, 13 * s, 0, 0, 7); c.fill();
+      c.beginPath(); c.moveTo(x - 36 * s, y); c.lineTo(x - 50 * s, y - 12 * s); c.lineTo(x - 45 * s, y + 2 * s); c.closePath(); c.fill();
+      c.beginPath(); c.moveTo(x - 36 * s, y); c.lineTo(x - 50 * s, y + 12 * s); c.lineTo(x - 44 * s, y + 2 * s); c.closePath(); c.fill();
+      c.beginPath(); c.ellipse(x + 6 * s, y + 12 * s, 8 * s, 4 * s, 0.6, 0, 7); c.fill();
+    };
+    const dolphin = (x, y, s) => {
+      c.beginPath(); c.ellipse(x, y, 16 * s, 5 * s, -0.25, 0, 7); c.fill();
+      c.beginPath(); c.moveTo(x - 2 * s, y - 4 * s); c.lineTo(x + 3 * s, y - 11 * s); c.lineTo(x + 7 * s, y - 4 * s); c.closePath(); c.fill();
+      c.beginPath(); c.moveTo(x - 15 * s, y); c.lineTo(x - 22 * s, y - 6 * s); c.lineTo(x - 22 * s, y + 5 * s); c.closePath(); c.fill();
+    };
+    const turtle = (x, y, s) => {
+      c.beginPath(); c.ellipse(x, y, 12 * s, 8 * s, 0, 0, 7); c.fill();
+      c.beginPath(); c.ellipse(x + 13 * s, y - 2 * s, 5 * s, 3.5 * s, 0, 0, 7); c.fill();
+      c.beginPath(); c.ellipse(x - 4 * s, y - 9 * s, 7 * s, 3 * s, 0.7, 0, 7); c.fill();
+      c.beginPath(); c.ellipse(x - 6 * s, y + 8 * s, 6 * s, 3 * s, -0.6, 0, 7); c.fill();
+    };
+    all(whale,   60 + rand() * 80,  60 + rand() * 40, 1);
+    all(dolphin, 250 + rand() * 60, 40 + rand() * 30, 1);
+    all(dolphin, 300 + rand() * 60, 95 + rand() * 30, 0.8);
+    all(turtle,  150 + rand() * 80, 130 + rand() * 40, 1);
+    all(turtle,  360 + rand() * 70, 165 + rand() * 30, 0.7);
+  },
+  crabs(c, w, h, def, rand) {     // foreground floor crabs (drawn over the coral)
+    c.fillStyle = def.color;
+    const crab = (x, y, s) => {
+      c.beginPath(); c.ellipse(x, y, 7 * s, 4.5 * s, 0, 0, 7); c.fill();
+      c.beginPath(); c.arc(x - 8 * s, y - 3 * s, 3 * s, 0, 7); c.fill();
+      c.beginPath(); c.arc(x + 8 * s, y - 3 * s, 3 * s, 0, 7); c.fill();
+      for (let i = -2; i <= 2; i++) if (i) c.fillRect(x + i * 4 * s, y + 3 * s, 1.5 * s, 4 * s);
+    };
+    for (const spot of [[80, 1], [220, 0.75], [330, 0.9]]) {
+      const x = spot[0] + rand() * 60;
+      for (const ox of [-w, 0, w]) crab(x + ox, h - 9 * spot[1], spot[1]);
     }
   },
   skyline(c, w, h, def, rand) {
@@ -1738,11 +2277,22 @@ function takeHit() {
 function updateParticles(dt, drift) {
   for (const pt of particles) {
     pt.life -= dt;
-    pt.vy += CONFIG.gravity * 0.5 * dt;
-    pt.x += (pt.vx - drift) * dt;
-    pt.y += pt.vy * dt;
+    if (pt.bubble) {
+      // scuba exhaust: rises with a wobble instead of falling
+      pt.x += (pt.vx - drift) * dt + Math.sin(pt.life * 10) * 20 * dt;
+      pt.y += pt.vy * dt;
+    } else if (pt.snow) {
+      // snowflakes: drift down with a sway; land at the ground line
+      pt.x += (pt.vx - drift * 0.2) * dt + Math.sin(pt.life * 3) * 14 * dt;
+      pt.y += pt.vy * dt;
+      if (pt.y > GROUND_Y) pt.life = 0;
+    } else {
+      pt.vy += CONFIG.gravity * 0.5 * dt;
+      pt.x += (pt.vx - drift) * dt;
+      pt.y += pt.vy * dt;
+    }
   }
-  particles = particles.filter((pt) => pt.life > 0);
+  particles = particles.filter((pt) => pt.life > 0 && pt.y > -20);
 }
 
 function doorTotalTime() {
@@ -1796,6 +2346,43 @@ function update(dt) {
   player.iframes = Math.max(0, player.iframes - dt);
   player.fireCooldown = Math.max(0, player.fireCooldown - dt);
   player.swipeTimer = Math.max(0, player.swipeTimer - dt);
+
+  // -- weather: falling snow --
+  if (lvl.theme.weather === "snow") {
+    player.snowTimer = (player.snowTimer || 0) - dt;
+    if (player.snowTimer <= 0) {
+      player.snowTimer = 0.12;
+      particles.push({
+        x: Math.random() * (VIEW_W + 160) - 40,
+        y: -8,
+        vx: -20 - Math.random() * 25,
+        vy: 45 + Math.random() * 40,
+        life: 12,
+        size: 1.5 + Math.random() * 2,
+        snow: true,
+      });
+    }
+  }
+
+  // -- scuba exhaust: occasional bubbles from her regulator --
+  if (lvl.theme.dogGear === "scuba") {
+    player.bubbleTimer = (player.bubbleTimer || 0) - dt;
+    if (player.bubbleTimer <= 0) {
+      player.bubbleTimer = 0.35 + Math.random() * 0.55;
+      const n = 1 + Math.floor(Math.random() * 3);
+      for (let i = 0; i < n; i++) {
+        particles.push({
+          x: CONFIG.playerScreenX + 84 + Math.random() * 6,
+          y: player.y - player.spriteSize + 26 + Math.random() * 6,
+          vx: -30 - Math.random() * 30,
+          vy: -55 - Math.random() * 45,
+          life: 0.9 + Math.random() * 0.7,
+          size: 2 + Math.random() * 3,
+          bubble: true,
+        });
+      }
+    }
+  }
 
   // -- jumping: buffered input + coyote time + double jump --
   const onGround = player.y >= GROUND_Y;
@@ -2175,6 +2762,35 @@ function drawWings(x, y) {
   ctx.drawImage(sprite(frame ? "wings1" : "wings0"), x + 8, y + 6);
 }
 
+/* Fire-powerup: flickering flame aura drawn BEHIND Lue (its canvas is
+   16 art px wider on the left so the fire streams out behind her).
+   Sitting poses use the trail-less rising-flame variant. */
+function drawFireAura(x, y, pose) {
+  const frame = Math.floor(game.time * 10) % 2;
+  const sitting = pose === "dogSit" || pose === "dogPick0" || pose === "dogPick1";
+  const base = sitting ? "fireAuraSit" : "fireAura";
+  ctx.drawImage(sprite(base + frame), x - 48, y);
+}
+
+/* Claw-powerup glam: the mohawk + lipstick overlay shares Lue's canvas
+   (her head is fixed across poses), but the heels follow her paws —
+   stamped at per-pose anchor points [art col of paw, heel top row]. */
+const PAW_HEELS = {
+  dogRun0:  [[4, 28], [21, 28]],
+  dogRun1:  [[8, 28], [16, 28]],
+  dogJump:  [[2, 24], [22, 24]],
+  dogSwipe: [[4, 28], [21, 28]],
+  dogSit:   [[10, 28], [19, 28]],
+  dogPick0: [[10, 28], [19, 28]],
+  dogPick1: [[10, 28], [19, 28]],
+};
+function drawClawFit(x, y, pose) {
+  ctx.drawImage(sprite("clawFit"), x, y);
+  for (const anchor of PAW_HEELS[pose] || []) {
+    ctx.drawImage(sprite("heel"), x + (anchor[0] - 1) * 3, y + anchor[1] * 3);
+  }
+}
+
 /* Theme costume overlays — pixel sprites on the same 32x32 canvas as
    Lue, drawn over her at the same position (all poses share the same
    head placement). */
@@ -2224,7 +2840,9 @@ function drawPlayer() {
       const gx = CONFIG.playerScreenX + Math.round(dx);
       const gy = Math.round(player.y) - player.spriteSize;
       if (player.powerup === "double") drawWings(gx, gy);
+      if (player.powerup === "fire") drawFireAura(gx, gy, pose);
       ctx.drawImage(sprite(pose, palName), gx, gy);
+      if (player.powerup === "claw") drawClawFit(gx, gy, pose);
       if (game.level.theme.dogGear) drawGear(game.level.theme.dogGear, gx, gy);
       ctx.globalAlpha = 1;
     }
@@ -2243,7 +2861,9 @@ function drawPlayer() {
   else pose = player.runFrame === 0 ? "dogRun0" : "dogRun1";
   const py = Math.round(player.y) - player.spriteSize;
   if (player.powerup === "double") drawWings(CONFIG.playerScreenX, py);
+  if (player.powerup === "fire") drawFireAura(CONFIG.playerScreenX, py, pose);
   ctx.drawImage(sprite(pose, palName), CONFIG.playerScreenX, py);
+  if (player.powerup === "claw") drawClawFit(CONFIG.playerScreenX, py, pose);
   if (game.level && game.level.theme.dogGear) drawGear(game.level.theme.dogGear, CONFIG.playerScreenX, py);
 
   // swipe feedback: three jagged claw marks, fading out over the swing
@@ -2543,6 +3163,25 @@ function render() {
   // sky, parallax, ground
   ctx.fillStyle = getSkyGradient(theme);
   ctx.fillRect(0, 0, VIEW_W, GROUND_Y);
+  // sun / moon: astronomically far, so it doesn't parallax
+  if (theme.celestial) {
+    const cel = theme.celestial;
+    const g = ctx.createRadialGradient(cel.x, cel.y, cel.r * 0.5, cel.x, cel.y, cel.r * 2.2);
+    g.addColorStop(0, cel.glow);
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(cel.x - cel.r * 2.2, cel.y - cel.r * 2.2, cel.r * 4.4, cel.r * 4.4);
+    ctx.fillStyle = cel.color;
+    ctx.beginPath();
+    ctx.arc(cel.x, cel.y, cel.r, 0, 7);
+    ctx.fill();
+    if (cel.craters) {
+      ctx.fillStyle = "rgba(0,0,0,0.12)";
+      ctx.beginPath(); ctx.arc(cel.x - 10, cel.y - 6, 7, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(cel.x + 8, cel.y + 8, 5, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(cel.x + 4, cel.y - 12, 4, 0, 7); ctx.fill();
+    }
+  }
   drawParallax(theme);
   ctx.fillStyle = theme.ground;
   ctx.fillRect(0, GROUND_Y, VIEW_W, VIEW_H - GROUND_Y);
@@ -2560,8 +3199,21 @@ function render() {
     ctx.drawImage(sprite("fireball"), Math.round(fb.x), Math.round(fb.y));
   }
   for (const pt of particles) {
-    ctx.fillStyle = pt.color;
-    ctx.fillRect(Math.round(pt.x), Math.round(pt.y), pt.size, pt.size);
+    if (pt.bubble) {
+      ctx.strokeStyle = "rgba(205,238,248,0.8)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(Math.round(pt.x), Math.round(pt.y), pt.size, 0, 7);
+      ctx.stroke();
+    } else if (pt.snow) {
+      ctx.fillStyle = "rgba(246,250,252,0.85)";
+      ctx.beginPath();
+      ctx.arc(Math.round(pt.x), Math.round(pt.y), pt.size, 0, 7);
+      ctx.fill();
+    } else {
+      ctx.fillStyle = pt.color;
+      ctx.fillRect(Math.round(pt.x), Math.round(pt.y), pt.size, pt.size);
+    }
   }
 
   if (game.state === STATE.PLAYING || game.state === STATE.DEAD || game.state === STATE.DOOR_ANIM) {
