@@ -101,7 +101,13 @@ Everything hand-editable is at the top of the `<script>`; engine code below.
 - **`LAYER_PAINTERS`** — procedural parallax painters into wrap-safe tiles,
   480px wide unless the layer sets `tileW` for a longer repeat (backyard
   yardStuff uses 1920 so every 4th fence cat is a UFO abduction); elements
-  crossing edges drawn at x−w/x/x+w. Baked lazily
+  crossing edges drawn at x−w/x/x+w. Individual props are owner-replaceable
+  with hand-drawn sprites: `bgProp(c, name, x, yBottom)` stamps
+  `SPRITES[name]` bottom-centered and returns false when the sprite doesn't
+  exist (painter falls back to its procedural shape). Wired so far:
+  `bgCat`/`bgUfo`/`bgDoghouse` in yardStuff — sizes and rules in
+  ART-SPEC.md; background props use scale 2 and no baked outline. Wire more
+  by adding a `bgProp` call at the procedural shape's anchor point. Baked lazily
   per theme (`theme._tiles`). **Layer array order = draw order and `factor`
   must increase toward the foreground** — recurring bug class: critters placed
   behind foliage (crabs/coral, reindeer/drifts) vanish. Mountain unicorns

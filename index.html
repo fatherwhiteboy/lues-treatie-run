@@ -1988,6 +1988,18 @@ const DOOR = { w: 62, h: 116, screenX: 320, dogStopDx: 103, walkDx: 108, knobX: 
    Elements that could cross a tile edge are drawn at x-w/x/x+w
    so the tile wraps seamlessly.
    ================================================================ */
+/* Background-prop override: if a hand-drawn sprite named `name` exists
+   in SPRITES, stamp it bottom-centered at (x, yBottom) and return true;
+   otherwise return false and the painter draws its procedural shape.
+   Lets the owner replace individual background props with PNGs one at a
+   time (spec + wired prop names in ART-SPEC.md). */
+function bgProp(c, name, x, yBottom) {
+  if (!SPRITES[name]) return false;
+  const img = sprite(name);
+  c.drawImage(img, Math.round(x - img.width / 2), Math.round(yBottom - img.height));
+  return true;
+}
+
 /* One white unicorn with a rainbow mane and tail, facing right, drawn at
    (x, y) body center and scale s. Hooves reach y + 16*s. Shared by the
    peaks painter (summit perchers); callers handle tile wrapping. */
@@ -2148,6 +2160,7 @@ const LAYER_PAINTERS = {
       const sx = s * 480;
       const hx = sx + 60 + rand() * 60, hw = 66, hh = 44, hy = h - hh;
       for (const ox of [-w, 0, w]) {
+        if (bgProp(c, "bgDoghouse", hx + ox + hw / 2, h)) continue;
         c.fillStyle = def.color;
         c.fillRect(hx + ox, hy, hw, hh);
         c.fillStyle = def.roof;
@@ -2173,6 +2186,7 @@ const LAYER_PAINTERS = {
           c.lineTo(cx + ox - 24, def.catY + 24);
           c.closePath(); c.fill();
           c.globalAlpha = 1;
+          if (bgProp(c, "bgUfo", cx + ox, uy + 9)) continue;
           // saucer: glass dome, hull disc, running lights
           c.fillStyle = def.dome;
           c.beginPath(); c.arc(cx + ox, uy - 2, 9, Math.PI, 0); c.fill();
@@ -2185,6 +2199,7 @@ const LAYER_PAINTERS = {
         }
       }
       for (const ox of [-w, 0, w]) {
+        if (bgProp(c, "bgCat", cx + ox, cy + 10)) continue;
         c.fillStyle = def.dark;
         c.beginPath(); c.ellipse(cx + ox, cy, 8, 10, 0, 0, 7); c.fill();
         c.beginPath(); c.arc(cx + ox, cy - 12, 6, 0, 7); c.fill();

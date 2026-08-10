@@ -82,6 +82,12 @@ Update this file at the end of every work session.
   2026-08-10): owner may redraw any of them — drop a PNG in `art/`
   (obstacles ≈ collision box ÷ 3; flyer frames at their grid sizes)
   and import as usual.
+- **Background-prop PNG slots (2026-08-10)**: `bgProp()` lets painters
+  stamp a hand-drawn sprite in place of a procedural shape, falling back
+  to the code-drawn version until a PNG exists. Wired: bgCat / bgUfo /
+  bgDoghouse in the backyard (scale 2, bottom-center anchor, no outline;
+  spec in ART-SPEC.md). Waiting on owner PNGs; more props get wired on
+  request.
 - **Derived Lue poses**: run1/jump/swipe/pick0/pick1/eat0/eat1 are Claude-
   derived from the owner frames — usable, but the owner may want to redraw
   any of them (drop PNGs in `art/`, exact names in ART-SPEC.md).

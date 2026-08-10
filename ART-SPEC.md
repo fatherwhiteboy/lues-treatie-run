@@ -89,6 +89,38 @@ Don't draw the powerup gear into the poses: butterfly wings, scuba visor
   alignment guaranteed.
 - Semi-transparent pixels allowed (the scuba visor glass uses them).
 
+## Background props (hand-drawn PNGs, one at a time)
+
+The parallax backgrounds are drawn in code, but individual props can be
+replaced with hand-drawn pixel art. If a sprite with the right name
+exists, the game stamps it in place of the code-drawn shape — any prop
+without a PNG keeps its code-drawn look, so you can replace them one at
+a time in any order.
+
+- Background props use **scale 2** (1 art pixel = 2 screen px — finer
+  than the scale-3/4 gameplay art, which makes them read as distant).
+- Anchored **bottom-center** on the spot where the code version sits:
+  the bottom row of your canvas is the contact line (fence top, grass).
+- Own palette per prop, any colors, ~8 colors is plenty. No powerup
+  recoloring, so no slot discipline needed. No black outline is baked —
+  background props stay soft on purpose.
+- Same golden rules as everything else: pixel-exact canvas, transparent
+  background, no anti-aliasing.
+
+Wired so far (backyard):
+
+| File | Size | What / where it sits |
+|---|---|---|
+| `bgCat.png` | 14×16 | fence cat (also the one being abducted) — bottom row rests just below the fence top |
+| `bgUfo.png` | 26×12 | the saucer; the tractor beam stays game-drawn beneath it |
+| `bgDoghouse.png` | 40×36 | backyard doghouse, bottom row on the grass |
+
+Any other background prop (clouds, snowmen, reindeer, the camel, palm
+trees, neon signs...) can be wired the same way — draw it at roughly
+half its on-screen pixel size, pick a name, and tell Claude what it
+replaces. Delivery is the same as always: save the PNG into
+`C:\Drew\Runner\art\` and say the word.
+
 ## Other sprites, if you get ambitious (each has its own palette)
 
 | File | Size | What |
