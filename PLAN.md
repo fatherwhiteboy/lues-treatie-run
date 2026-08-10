@@ -58,26 +58,20 @@ against `DESIGN.md`. Update this file at the end of every work session.
 - **Wings/pickups/accessory art**: Claude-drawn pixel art, approved so far
   but owner-redrawable through the same pipeline.
 
-## DESIGN.md drift (doc fixes owed)
+## DESIGN.md drift
 
-- Endless speeds say 340→700; implementation is 380→720, and the campaign
-  speed gradient isn't documented.
-- Architecture §4 says "seven themes" (there are 10); §3 says the dog art
-  "ships as a crude placeholder" (it's owner art now); §10's state machine
-  is missing HOWTO / LEVEL_SELECT, the death→level-select path, and the
-  land-before-door rule.
-- The Phase 4 paragraph lists as "remaining" several things now done
-  (sit/pick/eat poses, victory photo, wings). Only obstacle/flyer art
-  genuinely remains.
-- Nothing in the doc yet about: powerup outfits, world-inhabitant layers,
-  celestial/weather systems, scuba bubbles, death taunts, Christmas hat.
+**Resolved 2026-08-10** — DESIGN.md refreshed: speeds corrected to 380→720
+with the campaign gradient documented, ten themes, owner-art status, full
+state machine (HOWTO / LEVEL_SELECT / death→select / land-before-door), a
+new "Presentation & Flair" section (powerup outfits, living-world layers,
+celestial/weather/bubbles, phrase lists, victory photo), and the Phase 4
+paragraph now lists only the obstacle/flyer art pass as remaining.
 
 ## What's next
 
 1. **Art pass on obstacles + flyers** (the last placeholder tier) — owner
    draws or Claude derives; sizes per type ≈ collision box ÷ 3.
-2. **Refresh DESIGN.md** per the drift list above.
-3. **Host over https** to make the PWA installable on the niece's device;
+2. **Host over https** to make the PWA installable on the niece's device;
    real-device playtest of the v1.5 difficulty curve.
-4. Optional/backlog: mute toggle, offline service worker (would add a second
+3. Optional/backlog: mute toggle, offline service worker (would add a second
    file — needs an explicit decision), further tuning from niece feedback.
