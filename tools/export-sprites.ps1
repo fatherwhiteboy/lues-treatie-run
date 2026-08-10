@@ -18,7 +18,8 @@ $palRegion = $Matches[1]
 $palettes = @{}
 foreach ($m in [regex]::Matches($palRegion, "(\w+):\s*\{([^}]+)\}")) {
   $name = $m.Groups[1].Value
-  $map = @{}
+  # case-SENSITIVE keys: palettes distinguish e.g. 'p' from 'P'
+  $map = New-Object System.Collections.Hashtable ([System.StringComparer]::Ordinal)
   foreach ($pair in [regex]::Matches($m.Groups[2].Value, '(\w+):\s*"(#[0-9a-fA-F]{3,6})"')) {
     $map[$pair.Groups[1].Value] = [System.Drawing.ColorTranslator]::FromHtml($pair.Groups[2].Value)
   }

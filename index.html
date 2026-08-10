@@ -202,17 +202,48 @@ const PALETTES = {
      and chest, tan points. */
   starla:    { K: "#26221e", G: "#4a443c", W: "#f0ece4", T: "#b98a55",
                o: "#14100c", k: "#0a0a0a" },
+  /* --- obstacle art (one palette per sprite, named after its type) --- */
+  tennisBalls: { y: "#c8e04a", d: "#8fa832", w: "#eef4d0" },
+  zombie:      { g: "#8aa86a", G: "#5c744a", k: "#20241e", s: "#3a6a6e", p: "#4a4e5a" },
+  sunflower:   { y: "#f0c93a", b: "#7a4a22", g: "#4e8a3a", G: "#35602a" },
+  turkeyLeg:   { m: "#b07038", M: "#7a4a22", b: "#f0ead8" },
+  pancakes:    { p: "#e0aa5e", P: "#9a713a", s: "#a05a1a", b: "#ffe9a3", w: "#f0f2f5", W: "#b8c2cc" },
+  milkGlass:   { c: "#cdeef8", C: "#7fa8c8", m: "#f8f8f2", r: "#d84a4a" },
+  fountain:    { s: "#9fb7c9", S: "#6a8194", w: "#5ad7ff" },
+  swingset:    { r: "#c25046", R: "#7e332c", c: "#b8c2cc", s: "#4a3a28" },
+  hedgeBreak:  { h: "#4e8a3a", H: "#35602a", l: "#6fae4e" },
+  watermelon:  { r: "#e05a6a", R: "#c23b4e", w: "#f0ead8", g: "#3f7031", k: "#20241e" },
+  crab:        { c: "#e0563a", C: "#983524", k: "#20241e" },
+  shark:       { b: "#6a8194", B: "#42556a", w: "#e8ecf2", k: "#20241e", t: "#f0f0f0" },
+  sandcastle:  { s: "#e0c990", S: "#b09a5e", f: "#d84a4a", p: "#6a5a3e" },
+  rattlesnake: { b: "#b09a5e", B: "#7a6a3e", r: "#8a7550", k: "#20241e", p: "#d84a4a" },
+  goat:        { w: "#d8d3c8", W: "#8f8a7d", h: "#b09a5e", k: "#20241e" },
+  cactus:      { c: "#4e9a50", C: "#35673a", f: "#e878b0", F: "#ffd75e" },
+  coral:       { p: "#e87a9a", P: "#a34a68" },
+  wreckShip:   { h: "#7a5a3a", H: "#4e3a24", d: "#9a7448", m: "#5e4426", s: "#c8c2b0", o: "#2e2e38" },
+  oldDiver:    { b: "#c8a03a", B: "#8a6a24", g: "#9adbe8", s: "#c9a05e", S: "#8a6a38", k: "#3a3630" },
+  ankh:        { g: "#e8c53f", G: "#a8862a" },
+  sarcophagus: { t: "#3fa8a0", T: "#22726c", g: "#e8c53f", k: "#1e2a2a" },
+  mummy:       { w: "#d8d2c0", W: "#9a927c", k: "#20241e" },
+  snowShovel:  { r: "#d8524a", R: "#93332e", h: "#b07038", s: "#f0f4f8", S: "#b8c8d8" },
+  snowman:     { s: "#f0f4f8", S: "#b8c8d8", k: "#20242e", c: "#f5a05a", a: "#6a4a2e", r: "#d8524a" },
+  yeti:        { f: "#e8f0f8", F: "#9db4c8", s: "#6e8ca0", k: "#1a2430", t: "#ffffff" },
+  slotMachine: { m: "#e8b93a", M: "#a87c1e", s: "#20242e", y: "#e03c3c", r: "#ff4a4a", l: "#b8c2cc", b: "#e05050" },
+  clawMachine: { b: "#4aa8d8", B: "#2a6a92", g: "#cdeef8", c: "#8f9aa8", y: "#ffd75e", p: "#ff8ac8", G: "#4ec24e" },
+  chipPile:    { r: "#d84a4a", b: "#4a6ad8", g: "#3aa85a", w: "#f0f0f0" },
+  alligator:   { g: "#5c7a3a", G: "#3a5224", y: "#c8c08a", k: "#20241e", t: "#f0f0f0" },
+  trex:        { g: "#6a9a4a", G: "#446630", y: "#b8c86a", k: "#20241e", t: "#f0f0f0" },
   pickupFire:   { y: "#ffd541", o: "#ff8a1e" },
   pickupDouble: { c: "#5ad7ff" },
   pickupClaw:   { p: "#c9a0ef" },
   // flyer palettes — every palette starting with "bird" is baked for the
-  // bird sprites (k = body, o = beak, w = eye)
-  birdParakeet:  { k: "#59b840", o: "#f5a623", w: "#20242e" },
-  birdBlackbird: { k: "#23252e", o: "#f5c623", w: "#e8e8e8" },
-  birdSeagull:   { k: "#e2e6ec", o: "#f5a623", w: "#20242e" },
-  birdEagle:     { k: "#6e4a2a", o: "#e8c53f", w: "#f0ead8" },
-  birdPigeon:    { k: "#9099ac", o: "#5c5c66", w: "#20242e" },
-  drink:         { g: "#cdeef8", y: "#ffd75e", s: "#e05a7a" },
+  // bird sprites (k = body, K = wing/tail, b = belly, o = beak, w = eye)
+  birdParakeet:  { k: "#59b840", K: "#2f8a28", b: "#b8e048", o: "#f5a623", w: "#20242e" },
+  birdBlackbird: { k: "#23252e", K: "#14151c", b: "#3a3d4a", o: "#f5c623", w: "#e8e8e8" },
+  birdSeagull:   { k: "#e2e6ec", K: "#9aa2b0", b: "#ffffff", o: "#f5a623", w: "#20242e" },
+  birdEagle:     { k: "#6e4a2a", K: "#4a2f18", b: "#a3702f", o: "#e8c53f", w: "#f0ead8" },
+  birdPigeon:    { k: "#9099ac", K: "#6a7080", b: "#c8ccd8", o: "#5c5c66", w: "#20242e" },
+  drink:         { g: "#cdeef8", y: "#ffd75e", s: "#e05a7a", o: "#4ec24e" },
   bone:          { w: "#f0ead8" },
   // red butterfly wings (reference photo): sheer translucent red fabric,
   // darker red edge wire, silver star sparkles
@@ -228,9 +259,9 @@ const PALETTES = {
   // of twinkling lights (g/y/b bulbs) around the base band
   gearSnowHat:   { r: "#d8524a", q: "#a83832", w: "#f0f4f8", s: "#c8ccd8",
                    g: "#4ec24e", y: "#ffd75e", b: "#5ad7ff" },
-  snake:         { k: "#7ba05a", o: "#d83030", w: "#e8e8e8" },
-  fish:          { k: "#e8a83a", w: "#20242e" },
-  snowball:      { w: "#f0f4f8", s: "#b8c8d8" },
+  snake:         { k: "#7ba05a", K: "#55793a", o: "#d83030", w: "#e8e8e8" },
+  fish:          { k: "#e8a83a", K: "#b5762a", b: "#f8d488", w: "#f0f0f0", e: "#20242e" },
+  snowball:      { w: "#ffffff", b: "#b8cce4", s: "#7f98b8" },
 };
 
 // Palette used for the dog per held powerup (null = no powerup).
@@ -579,6 +610,678 @@ const SPRITES = {
     "............oo..oo..",
     "....................",
   ]},
+  /* ================================================================
+     Obstacle art — one sprite per OBSTACLE_TYPES entry, named after
+     its key. Sized ~ collision box / 3 (scale 3); bottom row touches
+     the ground line. Collision boxes are unchanged.
+     ================================================================ */
+  tennisBalls: { palette: "tennisBalls", scale: 3, outline: "#000", rows: [
+    ".....yyy.....yyy.....",
+    "....yyyyy...yyyyy....",
+    "...yyywwyy.yyywwyy...",
+    "...ywyyyyy.ywyyyyy...",
+    "...yyyyyyy.yyyyyyy...",
+    "..yyyyyyyyyyyyyyyyy..",
+    ".yyywwyyyyywwyyyywwy.",
+    "yyywyyyyyywyyyyyywyyy",
+    "yyyyyyyyyyyyyyyyyyyyy",
+    "ydddyyyyydddyyyyydddy",
+    ".yyyyyy.yyyyyyy.yyyyy",
+    "..yyyy...yyyyy...yyy.",
+  ]},
+  zombie: { palette: "zombie", scale: 3, outline: "#000", rows: [
+    "....gggggg....",
+    "...gggggggg...",
+    "...gkkggkkg...",
+    "...gggggggg...",
+    "...ggkkkkgg...",
+    "...gGGGGGGg...",
+    "....gggggg....",
+    "...ssssssss...",
+    "gggsssssssss..",
+    "gggsssssssss..",
+    "...ssss.sss...",
+    "...ssssssss...",
+    "...sss.ssss...",
+    "...ssssssss...",
+    "...pppppppp...",
+    "...pppppppp...",
+    "...ppp..ppp...",
+    "...ppp..ppp...",
+    "...ppp..ppp...",
+    "...ppp..ppp...",
+    "...ppp..ppp...",
+    "...ggg..ggg...",
+    "...ggg..ggg...",
+    "..gggg..gggg..",
+    "..gggg..gggg..",
+  ]},
+  sunflower: { palette: "sunflower", scale: 3, outline: "#000", rows: [
+    "...yyyyyy...",
+    "..yyyyyyyy..",
+    ".yyybbbbyyy.",
+    ".yybbbbbbyy.",
+    "yybbbbbbbbyy",
+    "yybbbbbbbbyy",
+    ".yybbbbbbyy.",
+    ".yyybbbbyyy.",
+    "..yyyyyyyy..",
+    "...yyyyyy...",
+    ".....gg.....",
+    ".....gg.....",
+    ".....gg.....",
+    ".....gg.....",
+    "..GGGgg.....",
+    ".GGGGgg.....",
+    "..GGGgg.....",
+    ".....ggGGG..",
+    ".....ggGGGG.",
+    ".....ggGGG..",
+    ".....gg.....",
+    ".....gg.....",
+    ".....gg.....",
+    ".....gg.....",
+    ".....gg.....",
+    ".....gg.....",
+    "....gggg....",
+    "....gggg....",
+  ]},
+  turkeyLeg: { palette: "turkeyLeg", scale: 3, outline: "#000", rows: [
+    "...mmmm.........",
+    ".mmmmmmmm.......",
+    "mmmmmmmmm.......",
+    "mmmmmmmmmm......",
+    "mmmmmmmmmm..bbb.",
+    "mmmmmmmmmmbbbbbb",
+    "mmmmmmmmmmbbbbbb",
+    "Mmmmmmmmmm..bbb.",
+    "MMmmmmmmm.......",
+    ".MMMmmmm........",
+    "..MMMMM.........",
+  ]},
+  pancakes: { palette: "pancakes", scale: 3, outline: "#000", rows: [
+    "......bbbb........",
+    "......bbbb........",
+    ".ssssssssssssssss.",
+    "ppsppppsspppppsspp",
+    ".PPsPPPPssPPPPsPP.",
+    ".pppppppppppppppp.",
+    "pppppppppppppppppp",
+    ".PPPPPPPPPPPPPPPP.",
+    ".pppppppppppppppp.",
+    "pppppppppppppppppp",
+    ".PPPPPPPPPPPPPPPP.",
+    ".pppppppppppppppp.",
+    "pppppppppppppppppp",
+    ".PPPPPPPPPPPPPPPP.",
+    ".pppppppppppppppp.",
+    "pppppppppppppppppp",
+    ".PPPPPPPPPPPPPPPP.",
+    ".pppppppppppppppp.",
+    "pppppppppppppppppp",
+    ".PPPPPPPPPPPPPPPP.",
+    ".pppppppppppppppp.",
+    "pppppppppppppppppp",
+    ".PPPPPPPPPPPPPPPP.",
+    ".wwwwwwwwwwwwwwww.",
+    "wwwwwwwwwwwwwwwwww",
+    "WWWWWWWWWWWWWWWWWW",
+    "..WWWWWWWWWWWWWW..",
+  ]},
+  milkGlass: { palette: "milkGlass", scale: 3, outline: "#000", rows: [
+    "........rr...",
+    "........rr...",
+    "CCCCCCCCCCCCC",
+    "CcccccccrrccC",
+    "CcccccccrrccC",
+    "CmmmmmmmrrmmC",
+    "CmmmmmmmmmmmC",
+    "CmmmmmmmmmmmC",
+    "CmmmmmmmmmmmC",
+    "CmmmmmmmmmmmC",
+    "CmmmmmmmmmmmC",
+    "CmmmmmmmmmmmC",
+    "CmmmmmmmmmmmC",
+    "CmmmmmmmmmmmC",
+    "CmmmmmmmmmmmC",
+    "CmmmmmmmmmmmC",
+    "CmmmmmmmmmmmC",
+    "CCCCCCCCCCCCC",
+  ]},
+  fountain: { palette: "fountain", scale: 3, outline: "#000", rows: [
+    ".............w..w.............",
+    "..........w...ww...w..........",
+    "..............ww..............",
+    "..............ww..............",
+    "..............ww..............",
+    ".........wwwwwwwwwwww.........",
+    "........ssssssssssssss........",
+    ".........ssssssssssss.........",
+    "..........SSSSSSSSSS..........",
+    "........ww...ssss...ww........",
+    "........ww...ssss...ww........",
+    "........ww...ssss...ww........",
+    "........ww...ssss...ww........",
+    "........ww...ssss...ww........",
+    "........ww...ssss...ww........",
+    ".ssssssssssssssssssssssssssss.",
+    "ssssssssssssssssssssssssssssss",
+    ".sSSSSSSSSSSSSSSSSSSSSSSSSSSs.",
+    ".ssssssssssssssssssssssssssss.",
+    "..ssssssssssssssssssssssssss..",
+    "..SSSSSSSSSSSSSSSSSSSSSSSSSS..",
+    "...ssssssssssssssssssssssss...",
+  ]},
+  swingset: { palette: "swingset", scale: 3, outline: "#000", rows: [
+    "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+    "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+    "..rr.....c..c......c..c.....rr..",
+    "..rr.....c..c......c..c.....rr..",
+    "..rr.....c..c......c..c.....rr..",
+    "..rr.....c..c......c..c.....rr..",
+    "..rr.....c..c......c..c.....rr..",
+    "..rr.....c..c......c..c.....rr..",
+    "..rr.....c..c......c..c.....rr..",
+    "..rr.....c..c......c..c.....rr..",
+    "..rr.....c..c......c..c.....rr..",
+    "..rr.....c..c......c..c.....rr..",
+    "..rr.....c..c......c..c.....rr..",
+    "..rr.....c..c......c..c.....rr..",
+    "..rr.....c..c......c..c.....rr..",
+    "..rr.....c..c......c..c.....rr..",
+    "..rr.....c..c......c..c.....rr..",
+    "..rr.....c..c......c..c.....rr..",
+    "..rr.....c..c......c..c.....rr..",
+    "..rr....ssssss....ssssss....rr..",
+    "..rr....ssssss....ssssss....rr..",
+    "..rr........................rr..",
+    ".rrrr......................rrrr.",
+    ".rrrr......................rrrr.",
+  ]},
+  hedgeBreak: { palette: "hedgeBreak", scale: 3, outline: "#000", rows: [
+    "......hhhh....hhhh......",
+    "....hhhhhhhhhhhhhhhh....",
+    "...hhhhhhhhhhhhhhhhhh...",
+    "..hhlhhhhhlhhhhhhlhhhh..",
+    ".hhhhhhhhhhhhhhhhhhhhhh.",
+    ".hhhhhlhhhhhhhhlhhhhhhh.",
+    "hhhhhhhhhhhhhhhhhhhhhhhh",
+    "hhhlhhhhhhhlhhhhhhhhlhhh",
+    "hhhhhhhhhhhhhhhhhhhhhhhh",
+    "hhhhhhhhlhhhhhhlhhhhhhhh",
+    "hhhhhhhhhhhhhhhhhhhhhhhh",
+    "HhhhhhhhhhhhhhhhhhhhhhhH",
+    "HHHhhhhhhhhhhhhhhhhhhHHH",
+    ".HHHHHHHHHHHHHHHHHHHHHH.",
+  ]},
+  watermelon: { palette: "watermelon", scale: 3, outline: "#000", rows: [
+    "..rrrrrrrrrrrr..",
+    ".rrrrrrrrrrrrrr.",
+    ".rrkrrrrkrrrkrr.",
+    ".rrrrrrrrrrrrrr.",
+    ".rrrrkrrrrkrrrr.",
+    ".rrrrrrrrrrrrrr.",
+    ".RrrrrrrrrrrrrR.",
+    ".wwwwwwwwwwwwww.",
+    ".gggggggggggggg.",
+    "..gggggggggggg..",
+  ]},
+  crab: { palette: "crab", scale: 3, outline: "#000", rows: [
+    ".cc..........cc.",
+    "cc.c........c.cc",
+    "cccc........cccc",
+    ".ccc..k..k..ccc.",
+    "..cccckcckcccc..",
+    "..cccccccccccc..",
+    ".cccccccccccccc.",
+    ".CCCCCCCCCCCCCC.",
+    "..cc..cc..cc.cc.",
+    ".cc..cc....cc.cc",
+  ]},
+  shark: { palette: "shark", scale: 3, outline: "#000", rows: [
+    "....bbbbbbb.......",
+    "..bbbbbbbbbb......",
+    ".bbbbbbbbbbbb.....",
+    "bbbbbbkbbbbbbb....",
+    "tbbbbbbbbbbbbbb...",
+    ".t.bbbbbbbbbbbbb..",
+    "..wwwwbbbbbbbbbb..",
+    ".wwwwbbbbbbbbbb...",
+    "..wwbbbbbbbbbb....",
+    "...wwbbbbbbbbb....",
+    "...wwbbbbbbbbbbb..",
+    "...wwbbbbbbbbbbbb.",
+    "..bwwbbbbbbbbbbbbb",
+    ".bbwwbbbbbbbbbbbb.",
+    "bbbwwbbbbbbbbbb...",
+    "bb.wwbbbbbbbbb....",
+    "...wwbbbbbbbbb....",
+    "...wwbbbbbbbb.....",
+    "....wbbbbbbbb.....",
+    "....wbbbbbbb......",
+    "....bbbbbbb.......",
+    ".....bbbbbb.......",
+    ".....bbbbb........",
+    "....bbbbbb........",
+    "...bbbbbbbb.......",
+    "..bbbb..bbbb......",
+  ]},
+  sandcastle: { palette: "sandcastle", scale: 3, outline: "#000", rows: [
+    ".....pfff..........",
+    ".....pfff..........",
+    ".....p.............",
+    "..s.s.s.s..........",
+    "..sssssss..........",
+    "..sssssss....s.s.s.",
+    "..sssssss...sssssss",
+    "..sSsssSs...sSsssSs",
+    "..sssssss...sssssss",
+    "..sssssssssssssssss",
+    "..sssssssssssssssss",
+    "..ssSssssSssssSssss",
+    "..sssssssssssssssss",
+    ".ssssssssSSSssssss.",
+    "ssssssssSSSssssssss",
+    "SSSSSSSSSSSSSSSSSSS",
+  ]},
+  rattlesnake: { palette: "rattlesnake", scale: 3, outline: "#000", rows: [
+    ".bbb..................",
+    "pbkb...............r..",
+    ".bbb...............r..",
+    "..bb..............rr..",
+    "..bb....bbbb......rr..",
+    "..bb...bbBBbb..bbbrr..",
+    "..bbb.bbbBBbbb.bbBbb..",
+    "...bbbbbbbbbbbbbbbbb..",
+    "..BBBBBBBBBBBBBBBBBBB.",
+  ]},
+  goat: { palette: "goat", scale: 3, outline: "#000", rows: [
+    "..hh...hh...........",
+    "..hh..hh............",
+    ".wwwwwhh............",
+    "wwwwww..............",
+    "wkwwww..............",
+    "wwwwwwww............",
+    ".wwwwwwww...........",
+    "..ww.wwwwwwwwwwww...",
+    ".....wwwwwwwwwwwwwww",
+    "....wwwwwwwwwwwwwww.",
+    "....wwwwwwwwwwwwwww.",
+    "....wwwwwwwwwwwwwww.",
+    "....wWWwwwwwwwWWwww.",
+    "....ww..ww....ww.ww.",
+    "....ww..ww....ww.ww.",
+    "....ww..ww....ww.ww.",
+    "....ww..ww....ww.ww.",
+    "....kk..kk....kk.kk.",
+  ]},
+  cactus: { palette: "cactus", scale: 3, outline: "#000", rows: [
+    "......fff......",
+    ".....fFFFf.....",
+    "......fff......",
+    "......ccc......",
+    ".....ccCcc.....",
+    ".....ccCcc..cc.",
+    ".....ccCcc.ccc.",
+    ".....ccCcc.ccc.",
+    ".cc..ccCcc.ccc.",
+    ".cc..ccCcc.ccc.",
+    ".cc..ccCcccccc.",
+    ".cc..ccCcc.....",
+    ".ccc.ccCcc.....",
+    ".ccccccCcc.....",
+    ".....ccCcc.....",
+    ".....ccCcc.....",
+    ".....ccCcc.....",
+    ".....ccCcc.....",
+    ".....ccCcc.....",
+    ".....ccCcc.....",
+    ".....ccCcc.....",
+    "....CCCCCCC....",
+  ]},
+  coral: { palette: "coral", scale: 3, outline: "#000", rows: [
+    "......pp........",
+    "......pp........",
+    ".pp...pp...pp...",
+    ".pp...pp...pp...",
+    ".pp..ppp...pp...",
+    ".ppp.ppp..ppp...",
+    "..pp.ppp..ppp...",
+    "..ppppppp.ppp...",
+    "...pppppp.ppp...",
+    "...ppppppppppp..",
+    "....pppppppppp..",
+    "....PppppppppP..",
+    "....pppppppppp..",
+    "...pppppppppppp.",
+    "..PPPPPPPPPPPPPP",
+  ]},
+  wreckShip: { palette: "wreckShip", scale: 3, outline: "#000", rows: [
+    ".........mm.....................",
+    ".........mm.ss..................",
+    ".........mmsss..................",
+    ".........mmssss.................",
+    ".........mm.ss..................",
+    ".........mm.....................",
+    ".........mm.....................",
+    ".........mm.....................",
+    ".........mm.....................",
+    "hh.......mm...................hh",
+    "hhh......mm..................hhh",
+    "hhhhddddddddddddddddddddddddhhhh",
+    "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh",
+    "hhhhohhhhhohhhhhohhhhhohhhhhhhhh",
+    "hhhhhhhhhhhhhh..hhhhhhhhhhhhhhhh",
+    "Hhhhhhhhhhhhh....hhhhhhhhhhhhhhH",
+    "HHhhhhhhhhhhhhhhhhhhhhhhhhhhhhHH",
+    ".HHHHhhhhhhhhhhhhhhhhhhhhhhHHHH.",
+    "..HHHHHHHHHHHHHHHHHHHHHHHHHHHH..",
+    "....HHHHHHHHHHHHHHHHHHHHHHHH....",
+  ]},
+  oldDiver: { palette: "oldDiver", scale: 3, outline: "#000", rows: [
+    "....bbbbbb....",
+    "...bbbbbbbb...",
+    "..bbggggbbbb..",
+    "..bgggggbbbb..",
+    "..bgggggbbbb..",
+    "..bbggggbbbb..",
+    "...bbbbbbbb...",
+    "..ssssssssss..",
+    ".sssssssssss..",
+    ".ss.ssssss.ss.",
+    ".ss.ssssss.ss.",
+    ".ss.ssssss.ss.",
+    ".ss.ssssss.ss.",
+    "....SSSSSS....",
+    "....ssssss....",
+    "....ssssss....",
+    "....ss..ss....",
+    "....ss..ss....",
+    "....ss..ss....",
+    "....ss..ss....",
+    "....ss..ss....",
+    "...kkk..kkk...",
+    "...kkk..kkk...",
+    "..kkkk..kkkk..",
+  ]},
+  ankh: { palette: "ankh", scale: 3, outline: "#000", rows: [
+    "....gggg....",
+    "...gggggg...",
+    "...gg..gg...",
+    "..gg....gg..",
+    "..gg....gg..",
+    "..gg....gg..",
+    "...gg..gg...",
+    "...gggggg...",
+    "gggggggggggg",
+    "gggggggggggg",
+    "....gggg....",
+    "....gggg....",
+    "....gggg....",
+    "....gggg....",
+    "....gggg....",
+    "....gggg....",
+    "....gggg....",
+    "....gggg....",
+    "....gggg....",
+    "....gggg....",
+    "....gggg....",
+    "....gggg....",
+    "....gggg....",
+    "....gggg....",
+    "....gggg....",
+    "..gggggggg..",
+    ".GGGGGGGGGG.",
+  ]},
+  sarcophagus: { palette: "sarcophagus", scale: 3, outline: "#000", rows: [
+    "......gggggg......",
+    "....gggggggggg....",
+    "...ttggggggggtt...",
+    "..ttggggggggggtt..",
+    "..ttggkggggkggtt..",
+    "..ttggggggggggtt..",
+    "..ttggggkkggggtt..",
+    "..ttggggggggggtt..",
+    "..tttggggggggttt..",
+    "..tttttttttttttt..",
+    "..ttggttggttggtt..",
+    "..tttttttttttttt..",
+    "..ttgggttttgggtt..",
+    "..tttgggttgggttt..",
+    "..tttttggggttttt..",
+    "..tttttttttttttt..",
+    "..tttttttttttttt..",
+    "..gggggggggggggg..",
+    "..tttttttttttttt..",
+    "..tttttttttttttt..",
+    "..gggggggggggggg..",
+    "..tttttttttttttt..",
+    "..tttttttttttttt..",
+    "..gggggggggggggg..",
+    "..tttttttttttttt..",
+    "..tttttttttttttt..",
+    ".TTTTTTTTTTTTTTTT.",
+    ".TTTTTTTTTTTTTTTT.",
+  ]},
+  mummy: { palette: "mummy", scale: 3, outline: "#000", rows: [
+    "....wwwwww....",
+    "...wwwwwwww...",
+    "...wWwwwwWw...",
+    "...wkwwwwkw...",
+    "...wwwWWwww...",
+    "...wwwwwwww...",
+    "....wwwwww....",
+    "wwwwwwwwwww...",
+    "wwwwwwwwwwww..",
+    "...wwwwwwww...",
+    "...wWwwwwww...",
+    "...wwwwWWww...",
+    "...wwwwwwww...",
+    "...wwWwwwww...",
+    "...wwwwwwww...",
+    "...wwwwwwww...",
+    "...www..www...",
+    "...www..www...",
+    "...wWw..www...",
+    "...www..wWw...",
+    "...www..www...",
+    "...www..www...",
+    "..wwww..wwww..",
+    "..wwww..wwww..",
+  ]},
+  snowShovel: { palette: "snowShovel", scale: 3, outline: "#000", rows: [
+    "...........hhhh....",
+    "...........h..h....",
+    "...........hhhh....",
+    "............hh.....",
+    "............hh.....",
+    "............hh.....",
+    "............hh.....",
+    "............hh.....",
+    "..........rrrrrr...",
+    "..........rrrrrr...",
+    ".....sss..rrrrrr...",
+    "...sssssssRRRRRR...",
+    ".sssssssssssssssss.",
+    "sssSssssssSssssssSs",
+  ]},
+  snowman: { palette: "snowman", scale: 3, outline: "#000", rows: [
+    ".....kkkkkkk.....",
+    ".....kkkkkkk.....",
+    ".....kkkkkkk.....",
+    "...kkkkkkkkkkk...",
+    "....sssssssss....",
+    "...sssssssssss...",
+    "...sksssksssss...",
+    ".cccsssssssss....",
+    "...sssssssssss...",
+    "...rrrrrrrrrrr...",
+    "..ssrrsssssssss..",
+    "aasssssssssssssaa",
+    "..sssssskssssss..",
+    "..sssssssssssss..",
+    "..sssssskssssss..",
+    "..sssssssssssss..",
+    ".sssssssssssssss.",
+    ".sssssssssssssss.",
+    "sssssssssssssssss",
+    "sssssssssssssssss",
+    "sssssssssssssssss",
+    "sssssssssssssssss",
+    "sssssssssssssssss",
+    "sSsssssssssssssSs",
+    ".sSSsssssssssSSs.",
+    "..SSSSSSSSSSSSS..",
+  ]},
+  yeti: { palette: "yeti", scale: 3, outline: "#000", rows: [
+    "......fffffff......",
+    ".....fffffffff.....",
+    ".....fsssssssf.....",
+    "ff...fsksskssf...ff",
+    "ff...fsssssssf...ff",
+    "ff...fsstttssf...ff",
+    "fff..fffffffff..fff",
+    "fffffffffffffffffff",
+    ".fffffffffffffffff.",
+    ".fffffffffffffffff.",
+    "..fffffffffffffff..",
+    "..ffFfffffffffFff..",
+    "..fffffsssssfffff..",
+    "..fffffsssssfffff..",
+    "..fffffsssssfffff..",
+    "..fffffffffffffff..",
+    "..fffffffffffffff..",
+    "..fffffffffffffff..",
+    "..fffffffffffffff..",
+    "..ffffff...ffffff..",
+    "..ffffff...ffffff..",
+    "..ffffff...ffffff..",
+    "..ffffff...ffffff..",
+    "..ffffff...ffffff..",
+    "..ffffff...ffffff..",
+    "..ffffff...ffffff..",
+    ".fffffff...fffffff.",
+    ".FFFFFFF...FFFFFFF.",
+  ]},
+  slotMachine: { palette: "slotMachine", scale: 3, outline: "#000", rows: [
+    ".yyyyyyyyyyyy...",
+    "mmmmmmmmmmmmmm..",
+    "mmmmmmmmmmmmmm..",
+    "mmmmmmmmmmmmmmbb",
+    "mmmmmmmmmmmmmm.l",
+    "mmssssssssssmm.l",
+    "mmsrrsrrsrrsmm.l",
+    "mmssrssrssrsmmll",
+    "mmsrssrssrssmm..",
+    "mmssssssssssmm..",
+    "mmmmmmmmmmmmmm..",
+    "mmyymmyymmyymm..",
+    "mmmmmmmmmmmmmm..",
+    "mmmmmmmmmmmmmm..",
+    "mmmmmmmmmmmmmm..",
+    "mmmmmmmmmmmmmm..",
+    "mmmmmmmmmmmmmm..",
+    "mmmmmmmmmmmmmm..",
+    "mmmmmmmmmmmmmm..",
+    "mmmmmmmmmmmmmm..",
+    "mmMMMMMMMMMMmm..",
+    "mmMMMMMMMMMMmm..",
+    "mmmmmmmmmmmmmm..",
+    "mmmmmmmmmmmmmm..",
+    "mmmmmmmmmmmmmm..",
+    "mmmmmmmmmmmmmm..",
+    "mmmmmmmmmmmmmm..",
+    "MMMMMMMMMMMMMM..",
+  ]},
+  clawMachine: { palette: "clawMachine", scale: 3, outline: "#000", rows: [
+    ".bbbbbbbbbbbbbb.",
+    ".bbbbbbbbbbbbbb.",
+    ".bbbbbbbbbbbbbb.",
+    ".bbgggggcggggbb.",
+    ".bbgggggcggggbb.",
+    ".bbgggggcggggbb.",
+    ".bbgggggcggggbb.",
+    ".bbggggcccgggbb.",
+    ".bbgggcgggcggbb.",
+    ".bbggggggggggbb.",
+    ".bbggggggggggbb.",
+    ".bbgyypggGGggbb.",
+    ".bbyyyppgGGGgbb.",
+    ".bbyyypppGGGGbb.",
+    ".bbbbbbbbbbbbbb.",
+    ".bbbbbbbbbbbbbb.",
+    ".bbbbyybbbbbbbb.",
+    ".bbbbbbbbbbbbbb.",
+    ".bbbbbbbbbbbbbb.",
+    ".bbBBBBbbbbbbbb.",
+    ".bbBBBBbbbbbbbb.",
+    ".bbBBBBbbbbbbbb.",
+    ".bbbbbbbbbbbbbb.",
+    ".bbbbbbbbbbbbbb.",
+    ".bbbbbbbbbbbbbb.",
+    ".bbbbbbbbbbbbbb.",
+    ".bbbbbbbbbbbbbb.",
+    ".BBBBBBBBBBBBBB.",
+    ".BBBBBBBBBBBBBB.",
+  ]},
+  chipPile: { palette: "chipPile", scale: 3, outline: "#000", rows: [
+    "......bwbwb......",
+    "......bbbbb......",
+    "......bwbwb......",
+    "......bbbbb......",
+    "rwrwr.bwbwb......",
+    "rrrrr.bbbbb......",
+    "rwrwr.bwbwb......",
+    "rrrrr.bbbbb......",
+    "rwrwr.bwbwb.gwgwg",
+    "rrrrr.bbbbb.ggggg",
+    "rwrwr.bwbwb.gwgwg",
+    "rrrrr.bbbbb.ggggg",
+  ]},
+  alligator: { palette: "alligator", scale: 3, outline: "#000", rows: [
+    "......gg....g....g....g........",
+    ".....gkgg..ggggggggggggggg.....",
+    "ggggggggggggggggggggggggggg....",
+    "gtgtgtggggggggggggggggggggggg..",
+    "gyyyyyggyyyyyyyyyyyyyyygggggggg",
+    ".gggggggggggggggggggggggggggg..",
+    "..gggggggggggggggggggggggggggg.",
+    "....ggggggggggggggggggggggggggg",
+    "..gg...gg.......gg....gg.......",
+    ".ggg...gg.......gg....ggg......",
+  ]},
+  trex: { palette: "trex", scale: 3, outline: "#000", rows: [
+    ".ggggggggg........",
+    "gggggggggggg......",
+    "ggkggggggggg......",
+    "gggggggggggg......",
+    "ggggggggggggg.....",
+    "tgtgtggggggggg....",
+    "..........gggg....",
+    "tgtgtgggggggggg...",
+    "ggggggggggggggg...",
+    "..ggggggggggggg...",
+    "...gggggggggggg...",
+    "....gggggggggggg..",
+    "..g.gyygggggggggg.",
+    "...ggyyggggggggggg",
+    "....gyyggggggggggg",
+    "....gyygggggggggg.",
+    "....gyygggggggggg.",
+    "....ggggggggggggg.",
+    "....ggggggggggGGG.",
+    "....gggggggg..GGG.",
+    "....ggggggg....GG.",
+    "....gggggg......G.",
+    "....gggggg.GGG....",
+    ".....ggggg.GGG....",
+    ".....gggg..GGG....",
+    ".....gggg..GGG....",
+    ".....gggg..GGG....",
+    ".....gggg..GGG....",
+    "....gggggg.GGGG...",
+    "...ggggggg.GGGG...",
+  ]},
   puFire: { palette: "pickupFire", scale: 4, outline: "#000", rows: [
     "............",
     ".....o......",
@@ -629,45 +1332,57 @@ const SPRITES = {
     ".oyyoo..",
     "..oo....",
   ]},
+  /* Bird flyer, 2 flap frames (13x8 @4). Shared body rows so the frames
+     don't jitter; only the wing moves. Recolored per bird* palette:
+     k body, K wing/tail, b belly, o beak, w eye. Faces left (flies at
+     the dog). */
   bird0: { palette: "birdBlackbird", scale: 4, outline: "#000", rows: [
-    ".k......k.",
-    ".kk....kk.",
-    "..kkkkkk..",
-    "okwkkkkkk.",
-    "..kkkkk...",
-    "..........",
+    ".....KKK.....",
+    ".kk.KKKK.....",
+    "okwkkKKKkkKK.",
+    ".kkkkkkkkkKKK",
+    ".kkbbbbbbkKK.",
+    "..kbbbbbk....",
+    ".............",
+    ".............",
   ]},
   bird1: { palette: "birdBlackbird", scale: 4, outline: "#000", rows: [
-    "..........",
-    "..kkkkkk..",
-    "okwkkkkkk.",
-    "..kkkkk...",
-    ".kk....kk.",
-    "..k....k..",
+    ".............",
+    ".kk..........",
+    "okwkkkkkkkKK.",
+    ".kkkkkkkkkKKK",
+    ".kkbKKKbbkKK.",
+    "..kbKKKbk....",
+    ".....KKK.....",
+    "......KK.....",
   ]},
+  /* Casino cocktail: martini glass, olive on the rim, splash droplets
+     alternate sides between frames. */
   drink0: { palette: "drink", scale: 4, outline: "#000", rows: [
-    "......s...",
-    ".....s....",
-    ".gggggggg.",
-    ".gyyyyyyg.",
-    "..gyyyyg..",
-    "...gyyg...",
-    "....gg....",
-    "....gg....",
-    "...gggg...",
-    "..........",
+    "..s....o...",
+    ".s.....o...",
+    "ggggggggggg",
+    ".gyyyyyyyg.",
+    "..gyyyyyg..",
+    "...gyyyg...",
+    "....gyg....",
+    ".....g.....",
+    ".....g.....",
+    "....ggg....",
+    "...ggggg...",
   ]},
   drink1: { palette: "drink", scale: 4, outline: "#000", rows: [
-    "...s...y..",
-    "....s.....",
-    ".gggggggg.",
-    ".gyyyyyyg.",
-    "..gyyyyg..",
-    "...gyyg...",
-    "....gg....",
-    "....gg....",
-    "...gggg...",
-    "..........",
+    "...s...o.s.",
+    "..s....o...",
+    "ggggggggggg",
+    ".gyyyyyyyg.",
+    "..gyyyyyg..",
+    "...gyyyg...",
+    "....gyg....",
+    ".....g.....",
+    ".....g.....",
+    "....ggg....",
+    "...ggggg...",
   ]},
   wings0: { palette: "wings", scale: 4, rows: [   // flap up: two heart lobes
     "................",
@@ -994,53 +1709,67 @@ const SPRITES = {
     "................................................",
     "................................................",
   ]},
+  /* Desert flyer: gliding cobra — hooded head at left, wavy body; the
+     wave humps shift between frames. o = tongue, w = eye, K = pattern. */
   snake0: { palette: "snake", scale: 4, outline: "#000", rows: [
-    "............",
-    "okk...kkk...",
-    ".kkk.kkkkk..",
-    "...kkk...kk.",
-    "............",
-    "............",
+    "..kk..........",
+    ".kkkk...kkk...",
+    "okwkk..kkKkkk.",
+    "..kkkkkkk...kk",
+    "..............",
+    "..............",
   ]},
   snake1: { palette: "snake", scale: 4, outline: "#000", rows: [
-    "............",
-    ".kkk...kk...",
-    "okkkkk.kkkk.",
-    "..k..kkk..k.",
-    "............",
-    "............",
+    "..kk..........",
+    ".kkkk.kkk.....",
+    "okwkkkkkKkk...",
+    "..kkk....kkkkk",
+    "..............",
+    "..............",
   ]},
+  /* Underwater flyer: orange fish — white eye + pupil, pale belly,
+     forked dark tail; dorsal/pelvic fins alternate frames. */
   fish0: { palette: "fish", scale: 4, outline: "#000", rows: [
-    "............",
-    "...kkkk..k..",
-    ".wkkkkkkkk..",
-    "...kkkk.....",
-    "............",
-    "............",
+    ".....KK......",
+    "...kkKKkk..K.",
+    ".kkkkkkkkkKK.",
+    "kwekkkkkkkKK.",
+    ".kbbbbbbkKKK.",
+    "..kkkkkk..K..",
+    ".............",
   ]},
   fish1: { palette: "fish", scale: 4, outline: "#000", rows: [
-    "............",
-    "...kkkk.....",
-    ".wkkkkkkkk..",
-    "...kkkk..k..",
-    "............",
-    "............",
+    ".............",
+    "...kkkkkk..K.",
+    ".kkkkkkkkkKK.",
+    "kwekkkkkkkKK.",
+    ".kbbbbbbkKKK.",
+    "..kkkkkk..K..",
+    ".....KK......",
   ]},
+  /* Snow day flyer: thrown snowball — the shading crescent swaps sides
+     between frames so it reads as spinning. */
   snowball0: { palette: "snowball", scale: 4, outline: "#000", rows: [
-    "..www...",
-    ".wwwww..",
-    ".wwwws..",
-    ".wwwss..",
-    "..wss...",
-    "........",
+    "...........",
+    "....bbbb...",
+    "...bwwbbb..",
+    "..bwwbbbbs.",
+    "..bwbbbbbs.",
+    "..bbbbbbbs.",
+    "...bbbbss..",
+    "....bsss...",
+    "...........",
   ]},
   snowball1: { palette: "snowball", scale: 4, outline: "#000", rows: [
-    "..www...",
-    ".swwww..",
-    ".sswww..",
-    ".sswww..",
-    "..ssw...",
-    "........",
+    "...........",
+    "....sssb...",
+    "...sssbbb..",
+    "..ssbbbbbb.",
+    "..sbbbbbww.",
+    "..sbbbbwww.",
+    "...bbwwww..",
+    "....bbww...",
+    "...........",
   ]},
 };
 
@@ -1074,7 +1803,8 @@ const VIEW_W = 960, VIEW_H = 540, GROUND_Y = 460;
    LEVELS — visual theme data. All tuning numbers live in CONFIG;
    here it's colors, parallax layers, and which obstacles appear.
    Layers scroll at `factor` x camera speed and are painted once by
-   LAYER_PAINTERS[paint] into a 480px repeating tile.
+   LAYER_PAINTERS[paint] into a repeating tile (480px wide unless the
+   layer sets `tileW` for a longer repeat period).
    ================================================================ */
 const LEVELS = [
   { name: "Backyard", short: "Backyard",
@@ -1085,7 +1815,8 @@ const LEVELS = [
       { paint: "hills",  color: "#a9d488", height: 110, y: GROUND_Y - 110, factor: 0.15 },
       { paint: "fence",  color: "#9a7346", accent: "#7d5a33", height: 74, y: GROUND_Y - 74, factor: 0.4 },
       { paint: "yardStuff", color: "#8a5a36", roof: "#6e4626", dark: "#2e2018", ball: "#c8e04a",
-        catY: 48, height: 120, y: GROUND_Y - 120, factor: 0.4 },
+        ufo: "#8fa3b5", dome: "#aee8f8", beam: "#fff3a0",
+        catY: 48, height: 120, y: GROUND_Y - 120, factor: 0.4, tileW: 1920 },
       { paint: "bushes", color: "#5f9e46", height: 46, y: GROUND_Y - 46, factor: 0.7 },
     ] },
   { name: "Inside a House", short: "House",
@@ -1104,7 +1835,7 @@ const LEVELS = [
     obstacles: ["fountain", "swingset", "hedgeBreak"],
     flyer: { frames: ["bird0", "bird1"], palette: "birdBlackbird", debris: ["#23252e", "#4a4d5c"] },
     layers: [
-      { paint: "parkLife", kite: "#e05a6a", bird: "#3a3f4a", height: 150, y: 15, factor: 0.12 },
+      { paint: "parkLife", kite: "#e05a6a", cloud: "#fbfdff", bird: "#3a3f4a" /* butterfly bodies */, height: 150, y: 15, factor: 0.12, tileW: 960 },
       { paint: "treeline", color: "#7fb96e", height: 120, y: GROUND_Y - 120, factor: 0.15 },
       { paint: "trees",    color: "#4e8a3a", accent: "#6e4a2a", height: 130, y: GROUND_Y - 130, factor: 0.45 },
       { paint: "bushes",   color: "#3f7031", height: 40, y: GROUND_Y - 40, factor: 0.7 },
@@ -1152,11 +1883,11 @@ const LEVELS = [
     flyer: { frames: ["bird0", "bird1"], palette: "birdEagle", debris: ["#6e4a2a", "#3f2a16"] },
     layers: [
       { paint: "skyFlock", cloud: "#f2f6fa", bird: "#4a4238", height: 140, y: 12, factor: 0.06 },
-      { paint: "rainbow",  height: 200, y: 40, factor: 0.1 },
+      { paint: "rainbow",  cloud: "#fbfdff", height: 200, y: 40, factor: 0.1 },
       { paint: "peaks",    color: "#8fa3b8", accent: "#f0f4f8", height: 220, y: GROUND_Y - 220, factor: 0.08 },
-      { paint: "peaks",    color: "#6b7f8f", accent: "#e8eef4", height: 140, y: GROUND_Y - 140, factor: 0.25 },
+      { paint: "peaks",    color: "#6b7f8f", accent: "#e8eef4", height: 140, y: GROUND_Y - 140, factor: 0.25,
+        unicorns: true, uniBody: "#f4f2ee", uniHorn: "#ffd75e" },
       { paint: "treeline", color: "#3f6031", height: 70, y: GROUND_Y - 70, factor: 0.55 },
-      { paint: "unicorns", body: "#f4f2ee", horn: "#ffd75e", height: 60, y: GROUND_Y - 60, factor: 0.6 },
     ] },
   { name: "Snow Day", short: "Snow Day",
     sky: ["#c8d8e8", "#f0f6fa"], ground: "#eef4f8", groundLine: "#c8d4e0",
@@ -1201,46 +1932,46 @@ const LEVELS = [
    destructible: false => solid; jumping is the only way past */
 const OBSTACLE_TYPES = [
   // Backyard
-  { key: "tennisBalls", w: 64, h: 34, color: "#c8e04a", edge: "#8fa832", destructible: false },
-  { key: "zombie",      w: 40, h: 74, color: "#8aa86a", edge: "#5c744a", destructible: true },
-  { key: "sunflower",   w: 34, h: 84, color: "#f0c93a", edge: "#a8862a", destructible: false },
+  { key: "tennisBalls", w: 64, h: 34, color: "#c8e04a", edge: "#8fa832", destructible: false, sprite: "tennisBalls" },
+  { key: "zombie",      w: 40, h: 74, color: "#8aa86a", edge: "#5c744a", destructible: true,  sprite: "zombie" },
+  { key: "sunflower",   w: 34, h: 84, color: "#f0c93a", edge: "#a8862a", destructible: false, sprite: "sunflower" },
   // Inside a house
-  { key: "turkeyLeg",   w: 48, h: 34, color: "#b07038", edge: "#7a4a22", destructible: false },
-  { key: "pancakes",    w: 52, h: 80, color: "#e0aa5e", edge: "#9a713a", destructible: false },
-  { key: "milkGlass",   w: 38, h: 52, color: "#f0f2f5", edge: "#b8c2cc", destructible: true },
+  { key: "turkeyLeg",   w: 48, h: 34, color: "#b07038", edge: "#7a4a22", destructible: false, sprite: "turkeyLeg" },
+  { key: "pancakes",    w: 52, h: 80, color: "#e0aa5e", edge: "#9a713a", destructible: false, sprite: "pancakes" },
+  { key: "milkGlass",   w: 38, h: 52, color: "#f0f2f5", edge: "#b8c2cc", destructible: true,  sprite: "milkGlass" },
   // Park
-  { key: "fountain",    w: 90, h: 64, color: "#9fb7c9", edge: "#6a8194", destructible: false },
-  { key: "swingset",    w: 96, h: 70, color: "#c25046", edge: "#7e332c", destructible: false },
-  { key: "hedgeBreak",  w: 70, h: 40, color: "#4e8a3a", edge: "#35602a", destructible: true },
+  { key: "fountain",    w: 90, h: 64, color: "#9fb7c9", edge: "#6a8194", destructible: false, sprite: "fountain" },
+  { key: "swingset",    w: 96, h: 70, color: "#c25046", edge: "#7e332c", destructible: false, sprite: "swingset" },
+  { key: "hedgeBreak",  w: 70, h: 40, color: "#4e8a3a", edge: "#35602a", destructible: true,  sprite: "hedgeBreak" },
   // Beach
-  { key: "watermelon",  w: 48, h: 30, color: "#e05a6a", edge: "#3f7031", destructible: false },
-  { key: "crab",        w: 46, h: 28, color: "#e0563a", edge: "#983524", destructible: false },
-  { key: "shark",       w: 52, h: 78, color: "#6a8194", edge: "#42556a", destructible: false },
-  { key: "sandcastle",  w: 56, h: 48, color: "#e0c990", edge: "#b09a5e", destructible: true },
+  { key: "watermelon",  w: 48, h: 30, color: "#e05a6a", edge: "#3f7031", destructible: false, sprite: "watermelon" },
+  { key: "crab",        w: 46, h: 28, color: "#e0563a", edge: "#983524", destructible: false, sprite: "crab" },
+  { key: "shark",       w: 52, h: 78, color: "#6a8194", edge: "#42556a", destructible: false, sprite: "shark" },
+  { key: "sandcastle",  w: 56, h: 48, color: "#e0c990", edge: "#b09a5e", destructible: true,  sprite: "sandcastle" },
   // Mountain
-  { key: "rattlesnake", w: 66, h: 26, color: "#b09a5e", edge: "#7a6a3e", destructible: false },
-  { key: "goat",        w: 58, h: 52, color: "#d8d3c8", edge: "#8f8a7d", destructible: false },
-  { key: "cactus",      w: 44, h: 66, color: "#4e9a50", edge: "#e878b0", destructible: true },
+  { key: "rattlesnake", w: 66, h: 26, color: "#b09a5e", edge: "#7a6a3e", destructible: false, sprite: "rattlesnake" },
+  { key: "goat",        w: 58, h: 52, color: "#d8d3c8", edge: "#8f8a7d", destructible: false, sprite: "goat" },
+  { key: "cactus",      w: 44, h: 66, color: "#4e9a50", edge: "#e878b0", destructible: true,  sprite: "cactus" },
   // Underwater
-  { key: "coral",       w: 48, h: 44, color: "#e87a9a", edge: "#a34a68", destructible: false },
-  { key: "wreckShip",   w: 96, h: 60, color: "#7a5a3a", edge: "#4e3a24", destructible: false },
-  { key: "oldDiver",    w: 42, h: 70, color: "#c9a05e", edge: "#8a6a38", destructible: true },
+  { key: "coral",       w: 48, h: 44, color: "#e87a9a", edge: "#a34a68", destructible: false, sprite: "coral" },
+  { key: "wreckShip",   w: 96, h: 60, color: "#7a5a3a", edge: "#4e3a24", destructible: false, sprite: "wreckShip" },
+  { key: "oldDiver",    w: 42, h: 70, color: "#c9a05e", edge: "#8a6a38", destructible: true,  sprite: "oldDiver" },
   // Egyptian desert
-  { key: "ankh",        w: 34, h: 80, color: "#e8c53f", edge: "#a8862a", destructible: false },
-  { key: "sarcophagus", w: 52, h: 82, color: "#3fa8a0", edge: "#22726c", destructible: false },
-  { key: "mummy",       w: 42, h: 72, color: "#d8d2c0", edge: "#9a927c", destructible: true },
+  { key: "ankh",        w: 34, h: 80, color: "#e8c53f", edge: "#a8862a", destructible: false, sprite: "ankh" },
+  { key: "sarcophagus", w: 52, h: 82, color: "#3fa8a0", edge: "#22726c", destructible: false, sprite: "sarcophagus" },
+  { key: "mummy",       w: 42, h: 72, color: "#d8d2c0", edge: "#9a927c", destructible: true,  sprite: "mummy" },
   // Snow day
-  { key: "snowShovel",  w: 56, h: 42, color: "#d8524a", edge: "#93332e", destructible: false },
-  { key: "snowman",     w: 50, h: 76, color: "#f0f4f8", edge: "#b8c8d8", destructible: false },
-  { key: "yeti",        w: 56, h: 84, color: "#dfe9f2", edge: "#8fa8bc", destructible: true },
+  { key: "snowShovel",  w: 56, h: 42, color: "#d8524a", edge: "#93332e", destructible: false, sprite: "snowShovel" },
+  { key: "snowman",     w: 50, h: 76, color: "#f0f4f8", edge: "#b8c8d8", destructible: false, sprite: "snowman" },
+  { key: "yeti",        w: 56, h: 84, color: "#dfe9f2", edge: "#8fa8bc", destructible: true,  sprite: "yeti" },
   // Casino
-  { key: "slotMachine", w: 46, h: 84, color: "#c23a8a", edge: "#7a2458", destructible: false },
-  { key: "clawMachine", w: 48, h: 86, color: "#4aa8d8", edge: "#2a6a92", destructible: false },
-  { key: "chipPile",    w: 50, h: 34, color: "#d84a4a", edge: "#8f2f2f", destructible: true },
+  { key: "slotMachine", w: 46, h: 84, color: "#c23a8a", edge: "#7a2458", destructible: false, sprite: "slotMachine" },
+  { key: "clawMachine", w: 48, h: 86, color: "#4aa8d8", edge: "#2a6a92", destructible: false, sprite: "clawMachine" },
+  { key: "chipPile",    w: 50, h: 34, color: "#d84a4a", edge: "#8f2f2f", destructible: true,  sprite: "chipPile" },
   // Night City
   { key: "starla",      w: 60, h: 52, color: "#8a7a6a", edge: "#5a4e42", destructible: false, sprite: "starla" },
-  { key: "alligator",   w: 92, h: 30, color: "#5c7a3a", edge: "#3a5224", destructible: false },
-  { key: "trex",        w: 52, h: 88, color: "#6a9a4a", edge: "#446630", destructible: true },
+  { key: "alligator",   w: 92, h: 30, color: "#5c7a3a", edge: "#3a5224", destructible: false, sprite: "alligator" },
+  { key: "trex",        w: 52, h: 88, color: "#6a9a4a", edge: "#446630", destructible: true,  sprite: "trex" },
 ];
 
 const POWERUP_KINDS = ["fire", "double", "claw"];
@@ -1252,10 +1983,43 @@ const PICKUP_SPRITES = { fire: "puFire", double: "puDouble", claw: "puClaw" };
 const DOOR = { w: 62, h: 116, screenX: 320, dogStopDx: 103, walkDx: 108, knobX: 11, knobYf: 0.52 };
 
 /* ================================================================
-   Parallax layer painters — each fills a 480px-wide repeating tile.
-   Elements that could cross a tile edge are drawn at x-480/x/x+480
+   Parallax layer painters — each fills a repeating tile (width = the
+   layer's tileW, default 480px; the painter receives it as `w`).
+   Elements that could cross a tile edge are drawn at x-w/x/x+w
    so the tile wraps seamlessly.
    ================================================================ */
+/* One white unicorn with a rainbow mane and tail, facing right, drawn at
+   (x, y) body center and scale s. Hooves reach y + 16*s. Shared by the
+   peaks painter (summit perchers); callers handle tile wrapping. */
+function paintUnicorn(c, x, y, s, body, horn) {
+  const manes = ["#e04a4a", "#ff8a3d", "#ffd75e", "#4ec24e", "#4a6ae0", "#8a4ad8"];
+  c.fillStyle = body;
+  c.beginPath(); c.ellipse(x, y, 15 * s, 7 * s, 0, 0, 7); c.fill();
+  for (const lx of [-11, -5, 5, 11]) c.fillRect(x + lx * s, y + 4 * s, 2.5 * s, 12 * s);
+  c.save(); c.translate(x + 13 * s, y - 8 * s); c.rotate(-0.5);
+  c.fillRect(-2.5 * s, -8 * s, 5 * s, 12 * s); c.restore();
+  c.beginPath(); c.ellipse(x + 17 * s, y - 14 * s, 5.5 * s, 3.5 * s, 0.15, 0, 7); c.fill();
+  c.fillStyle = horn;
+  c.beginPath(); c.moveTo(x + 19 * s, y - 17 * s); c.lineTo(x + 23 * s, y - 25 * s); c.lineTo(x + 21 * s, y - 15 * s); c.closePath(); c.fill();
+  for (let i = 0; i < 5; i++) {   // mane
+    c.strokeStyle = manes[i % manes.length];
+    c.lineWidth = 2 * s;
+    c.beginPath();
+    c.moveTo(x + (15 - i * 1.5) * s, y + (-15 + i * 2) * s);
+    c.quadraticCurveTo(x + (10 - i * 1.5) * s, y + (-10 + i * 2) * s,
+                       x + (11 - i * 1.5) * s, y + (-4 + i * 1.5) * s);
+    c.stroke();
+  }
+  for (let i = 0; i < 4; i++) {   // tail
+    c.strokeStyle = manes[(i + 2) % manes.length];
+    c.lineWidth = 2 * s;
+    c.beginPath();
+    c.moveTo(x - 14 * s, y + (-3 + i * 2) * s);
+    c.quadraticCurveTo(x - 20 * s, y + i * 2.5 * s, x - 19 * s, y + (8 + i * 2) * s);
+    c.stroke();
+  }
+}
+
 const LAYER_PAINTERS = {
   stars(c, w, h, def, rand) {
     c.fillStyle = def.color;
@@ -1340,9 +2104,11 @@ const LAYER_PAINTERS = {
     }
   },
   peaks(c, w, h, def, rand) {       // triangle mountains with snow caps
+    const tops = [];
     for (let i = 0; i < 5; i++) {
       const x = (i / 5) * w + rand() * 40, half = 70 + rand() * 50;
       const ph = h * (0.55 + rand() * 0.45);
+      tops.push({ x, ph });
       for (const ox of [-w, 0, w]) {
         c.fillStyle = def.color;
         c.beginPath();
@@ -1362,32 +2128,76 @@ const LAYER_PAINTERS = {
         }
       }
     }
+    // mountain-goat unicorns perched on two of the summits (drawn after
+    // every triangle so a taller neighbor can't paint over them)
+    if (def.unicorns) {
+      for (const [idx, s] of [[1, 0.55], [3, 0.45]]) {
+        const t = tops[idx];
+        const y = h - t.ph - 16 * s;   // hooves land exactly on the apex
+        for (const ox of [-w, 0, w]) paintUnicorn(c, t.x + ox, y, s, def.uniBody, def.uniHorn);
+      }
+    }
   },
-  yardStuff(c, w, h, def, rand) {   // doghouse, cat on the fence, tennis balls
-    const hx = 60 + rand() * 60, hw = 66, hh = 44, hy = h - hh;
-    for (const ox of [-w, 0, w]) {
-      c.fillStyle = def.color;
-      c.fillRect(hx + ox, hy, hw, hh);
-      c.fillStyle = def.roof;
-      c.beginPath(); c.moveTo(hx + ox - 6, hy); c.lineTo(hx + ox + hw / 2, hy - 26); c.lineTo(hx + ox + hw + 6, hy); c.closePath(); c.fill();
-      c.fillStyle = def.dark;
-      c.beginPath(); c.arc(hx + ox + hw / 2, h - 16, 14, Math.PI, 0); c.fill();
-      c.fillRect(hx + ox + hw / 2 - 14, h - 16, 28, 16);
-    }
-    const cx = 300 + rand() * 120, cy = def.catY;
-    for (const ox of [-w, 0, w]) {
-      c.fillStyle = def.dark;
-      c.beginPath(); c.ellipse(cx + ox, cy, 8, 10, 0, 0, 7); c.fill();
-      c.beginPath(); c.arc(cx + ox, cy - 12, 6, 0, 7); c.fill();
-      c.beginPath(); c.moveTo(cx + ox - 6, cy - 15); c.lineTo(cx + ox - 4, cy - 21); c.lineTo(cx + ox - 1, cy - 16); c.closePath(); c.fill();
-      c.beginPath(); c.moveTo(cx + ox + 6, cy - 15); c.lineTo(cx + ox + 4, cy - 21); c.lineTo(cx + ox + 1, cy - 16); c.closePath(); c.fill();
-      c.strokeStyle = def.dark; c.lineWidth = 3;
-      c.beginPath(); c.moveTo(cx + ox + 7, cy + 6); c.quadraticCurveTo(cx + ox + 17, cy + 4, cx + ox + 15, cy - 8); c.stroke();
-    }
-    c.fillStyle = def.ball;
-    for (let i = 0; i < 4; i++) {
-      const x = rand() * w, y = h - 4 - rand() * 6;
-      for (const ox of [-w, 0, w]) { c.beginPath(); c.arc(x + ox, y, 4, 0, 7); c.fill(); }
+  /* Doghouse, fence cats, tennis balls — painted per 480px segment so a
+     wider tile (tileW) keeps the same density. Every 4th cat (the last
+     segment of a 4-segment tile) is mid-abduction: hoisted off the fence
+     inside a UFO tractor beam. */
+  yardStuff(c, w, h, def, rand) {
+    const segs = Math.max(1, Math.round(w / 480));
+    for (let s = 0; s < segs; s++) {
+      const sx = s * 480;
+      const hx = sx + 60 + rand() * 60, hw = 66, hh = 44, hy = h - hh;
+      for (const ox of [-w, 0, w]) {
+        c.fillStyle = def.color;
+        c.fillRect(hx + ox, hy, hw, hh);
+        c.fillStyle = def.roof;
+        c.beginPath(); c.moveTo(hx + ox - 6, hy); c.lineTo(hx + ox + hw / 2, hy - 26); c.lineTo(hx + ox + hw + 6, hy); c.closePath(); c.fill();
+        c.fillStyle = def.dark;
+        c.beginPath(); c.arc(hx + ox + hw / 2, h - 16, 14, Math.PI, 0); c.fill();
+        c.fillRect(hx + ox + hw / 2 - 14, h - 16, 28, 16);
+      }
+      const cx = sx + 300 + rand() * 120;
+      const abducted = segs > 1 && s === segs - 1;
+      const cy = abducted ? 38 : def.catY;   // abductee floats above the fence
+      if (abducted) {
+        const uy = 11;  // saucer hull center line (dome tip grazes the tile top)
+        for (const ox of [-w, 0, w]) {
+          // tractor beam: translucent cone from the saucer past the cat
+          // to the fence top, where the cat used to be sitting
+          c.globalAlpha = 0.35;
+          c.fillStyle = def.beam;
+          c.beginPath();
+          c.moveTo(cx + ox - 8, uy + 5);
+          c.lineTo(cx + ox + 8, uy + 5);
+          c.lineTo(cx + ox + 24, def.catY + 24);
+          c.lineTo(cx + ox - 24, def.catY + 24);
+          c.closePath(); c.fill();
+          c.globalAlpha = 1;
+          // saucer: glass dome, hull disc, running lights
+          c.fillStyle = def.dome;
+          c.beginPath(); c.arc(cx + ox, uy - 2, 9, Math.PI, 0); c.fill();
+          c.fillStyle = def.ufo;
+          c.beginPath(); c.ellipse(cx + ox, uy, 26, 8, 0, 0, 7); c.fill();
+          c.fillStyle = def.beam;
+          for (const lx of [-14, 0, 14]) {
+            c.beginPath(); c.arc(cx + ox + lx, uy + 4, 2, 0, 7); c.fill();
+          }
+        }
+      }
+      for (const ox of [-w, 0, w]) {
+        c.fillStyle = def.dark;
+        c.beginPath(); c.ellipse(cx + ox, cy, 8, 10, 0, 0, 7); c.fill();
+        c.beginPath(); c.arc(cx + ox, cy - 12, 6, 0, 7); c.fill();
+        c.beginPath(); c.moveTo(cx + ox - 6, cy - 15); c.lineTo(cx + ox - 4, cy - 21); c.lineTo(cx + ox - 1, cy - 16); c.closePath(); c.fill();
+        c.beginPath(); c.moveTo(cx + ox + 6, cy - 15); c.lineTo(cx + ox + 4, cy - 21); c.lineTo(cx + ox + 1, cy - 16); c.closePath(); c.fill();
+        c.strokeStyle = def.dark; c.lineWidth = 3;
+        c.beginPath(); c.moveTo(cx + ox + 7, cy + 6); c.quadraticCurveTo(cx + ox + 17, cy + 4, cx + ox + 15, cy - 8); c.stroke();
+      }
+      c.fillStyle = def.ball;
+      for (let i = 0; i < 4; i++) {
+        const x = sx + rand() * 480, y = h - 4 - rand() * 6;
+        for (const ox of [-w, 0, w]) { c.beginPath(); c.arc(x + ox, y, 4, 0, 7); c.fill(); }
+      }
     }
   },
   livingRoom(c, w, h, def, rand) {   // couch, TV, food bowls
@@ -1421,36 +2231,45 @@ const LAYER_PAINTERS = {
       c.beginPath(); c.ellipse(lx - 2, h - 38, 2, 2.5, 0, 0, 7); c.fill();
     }
   },
-  parkLife(c, w, h, def, rand) {   // a kite and small flying birds
-    const kx = 100 + rand() * 80, ky = 34 + rand() * 20;
+  /* Puffy clouds, butterflies, and a kite. Clouds and butterflies keep
+     their density per 480px segment on wider tiles; the kite is painted
+     once per tile — with the layer's tileW of 960 that's half as often
+     as before — and painted LAST so a cloud can never hide it. */
+  parkLife(c, w, h, def, rand) {
+    const segs = Math.max(1, Math.round(w / 480));
+    const bcols = ["#ff5ac8", "#ffd75e", "#5ad7ff", "#ff6a4d"];
+    for (let s = 0; s < segs; s++) {
+      const sx = s * 480;
+      for (let i = 0; i < 3; i++) {
+        const x = sx + ((i + 0.5) / 3) * 480 + rand() * 80, y = 22 + rand() * 55;
+        for (const ox of [-w, 0, w]) {
+          c.fillStyle = def.cloud;
+          c.beginPath(); c.ellipse(x + ox, y, 26, 10, 0, 0, 7); c.fill();
+          c.beginPath(); c.ellipse(x + ox + 14, y - 6, 16, 8, 0, 0, 7); c.fill();
+          c.beginPath(); c.ellipse(x + ox - 14, y - 4, 14, 7, 0, 0, 7); c.fill();
+        }
+      }
+      // butterflies: bright wing pairs fluttering lower down near the trees
+      for (let i = 0; i < 5; i++) {
+        const x = sx + rand() * 480, y = 70 + rand() * 70;
+        c.fillStyle = bcols[i % bcols.length];
+        for (const ox of [-w, 0, w]) {
+          c.beginPath(); c.ellipse(x + ox - 3, y, 3, 4.5, -0.4, 0, 7); c.fill();
+          c.beginPath(); c.ellipse(x + ox + 3, y, 3, 4.5, 0.4, 0, 7); c.fill();
+        }
+        c.fillStyle = def.bird;
+        for (const ox of [-w, 0, w]) c.fillRect(x + ox - 1, y - 3, 2, 7);
+      }
+    }
+    const kx = 60 + rand() * (w - 120), ky = 34 + rand() * 20;
     for (const ox of [-w, 0, w]) {
       c.fillStyle = def.kite;
       c.beginPath(); c.moveTo(kx + ox, ky - 14); c.lineTo(kx + ox + 10, ky); c.lineTo(kx + ox, ky + 14); c.lineTo(kx + ox - 10, ky); c.closePath(); c.fill();
       c.strokeStyle = def.kite; c.lineWidth = 2;
       c.beginPath(); c.moveTo(kx + ox, ky + 14); c.quadraticCurveTo(kx + ox - 18, ky + 34, kx + ox - 8, ky + 52); c.stroke();
     }
-    c.strokeStyle = def.bird; c.lineWidth = 2.5;
-    for (let i = 0; i < 5; i++) {
-      const x = rand() * w, y = 20 + rand() * 80;
-      for (const ox of [-w, 0, w]) {
-        c.beginPath(); c.arc(x + ox - 5, y, 5, Math.PI * 1.1, Math.PI * 1.9); c.stroke();
-        c.beginPath(); c.arc(x + ox + 5, y, 5, Math.PI * 1.1, Math.PI * 1.9); c.stroke();
-      }
-    }
-    // butterflies: bright wing pairs fluttering lower down near the trees
-    const bcols = ["#ff5ac8", "#ffd75e", "#5ad7ff", "#ff6a4d"];
-    for (let i = 0; i < 5; i++) {
-      const x = rand() * w, y = 70 + rand() * 70;
-      c.fillStyle = bcols[i % bcols.length];
-      for (const ox of [-w, 0, w]) {
-        c.beginPath(); c.ellipse(x + ox - 3, y, 3, 4.5, -0.4, 0, 7); c.fill();
-        c.beginPath(); c.ellipse(x + ox + 3, y, 3, 4.5, 0.4, 0, 7); c.fill();
-      }
-      c.fillStyle = def.bird;
-      for (const ox of [-w, 0, w]) c.fillRect(x + ox - 1, y - 3, 2, 7);
-    }
   },
-  rainbow(c, w, h, def, rand) {   // arcing rainbow among the peaks
+  rainbow(c, w, h, def, rand) {   // arcing rainbow, both ends anchored in clouds
     const cx = 160 + rand() * 160, cy = h + 60;
     const cols = ["#e04a4a", "#ff8a3d", "#ffd75e", "#4ec24e", "#4a6ae0", "#8a4ad8"];
     c.lineWidth = 7;
@@ -1462,37 +2281,18 @@ const LAYER_PAINTERS = {
       }
     }
     c.globalAlpha = 1;
-  },
-  unicorns(c, w, h, def, rand) {   // white unicorns, rainbow manes and tails
-    const manes = ["#e04a4a", "#ff8a3d", "#ffd75e", "#4ec24e", "#4a6ae0", "#8a4ad8"];
-    for (const spot of [[110, 1], [330, 0.8]]) {
-      const x = spot[0] + rand() * 50, s = spot[1], y = h - 16 * s;
+    // puffy clouds over the spots where the bands cross the tile bottom,
+    // so the arc rises out of a cloud instead of thin air
+    const dxOut = Math.sqrt(150 * 150 - 60 * 60);   // outermost band at y = h
+    const dxIn  = Math.sqrt(115 * 115 - 60 * 60);   // innermost band at y = h
+    const ex = (dxOut + dxIn) / 2;
+    c.fillStyle = def.cloud;
+    for (const side of [-1, 1]) {
+      const bx = cx + side * ex;
       for (const ox of [-w, 0, w]) {
-        c.fillStyle = def.body;
-        c.beginPath(); c.ellipse(x + ox, y, 15 * s, 7 * s, 0, 0, 7); c.fill();
-        for (const lx of [-11, -5, 5, 11]) c.fillRect(x + ox + lx * s, y + 4 * s, 2.5 * s, 12 * s);
-        c.save(); c.translate(x + ox + 13 * s, y - 8 * s); c.rotate(-0.5);
-        c.fillRect(-2.5 * s, -8 * s, 5 * s, 12 * s); c.restore();
-        c.beginPath(); c.ellipse(x + ox + 17 * s, y - 14 * s, 5.5 * s, 3.5 * s, 0.15, 0, 7); c.fill();
-        c.fillStyle = def.horn;
-        c.beginPath(); c.moveTo(x + ox + 19 * s, y - 17 * s); c.lineTo(x + ox + 23 * s, y - 25 * s); c.lineTo(x + ox + 21 * s, y - 15 * s); c.closePath(); c.fill();
-        for (let i = 0; i < 5; i++) {   // mane
-          c.strokeStyle = manes[i % manes.length];
-          c.lineWidth = 2 * s;
-          c.beginPath();
-          c.moveTo(x + ox + (15 - i * 1.5) * s, y + (-15 + i * 2) * s);
-          c.quadraticCurveTo(x + ox + (10 - i * 1.5) * s, y + (-10 + i * 2) * s,
-                             x + ox + (11 - i * 1.5) * s, y + (-4 + i * 1.5) * s);
-          c.stroke();
-        }
-        for (let i = 0; i < 4; i++) {   // tail
-          c.strokeStyle = manes[(i + 2) % manes.length];
-          c.lineWidth = 2 * s;
-          c.beginPath();
-          c.moveTo(x + ox - 14 * s, y + (-3 + i * 2) * s);
-          c.quadraticCurveTo(x + ox - 20 * s, y + i * 2.5 * s, x + ox - 19 * s, y + (8 + i * 2) * s);
-          c.stroke();
-        }
+        c.beginPath(); c.ellipse(bx + ox, h - 8, 34, 12, 0, 0, 7); c.fill();
+        c.beginPath(); c.ellipse(bx + ox - 18, h - 15, 18, 9, 0, 0, 7); c.fill();
+        c.beginPath(); c.ellipse(bx + ox + 18, h - 16, 20, 10, 0, 0, 7); c.fill();
       }
     }
   },
@@ -1704,9 +2504,10 @@ const LAYER_PAINTERS = {
 function getThemeTiles(theme) {
   if (!theme._tiles) {
     theme._tiles = theme.layers.map((def, i) => {
+      const tw = def.tileW || 480;   // layers may repeat on a wider period
       const cv = document.createElement("canvas");
-      cv.width = 480; cv.height = def.height;
-      LAYER_PAINTERS[def.paint](cv.getContext("2d"), 480, def.height, def,
+      cv.width = tw; cv.height = def.height;
+      LAYER_PAINTERS[def.paint](cv.getContext("2d"), tw, def.height, def,
         mulberry32(9000 + i * 131 + theme.name.length * 7));
       return { cv, def };
     });
@@ -1723,21 +2524,25 @@ const bakedSprites = {};   // bakedSprites[spriteName][paletteName] = canvas
 function bakeVariant(def, paletteName) {
   const pal = PALETTES[paletteName];
   const h = def.rows.length, w = def.rows[0].length, s = def.scale;
+  // Outlined sprites bake onto a canvas padded by 1 cell on every side so
+  // the rim survives at the grid edges — art pixels that touch the edge of
+  // the rows grid would otherwise lose their outline on that side.
+  const pad = def.outline ? 1 : 0;
   const cv = document.createElement("canvas");
-  cv.width = w * s; cv.height = h * s;
+  cv.width = (w + pad * 2) * s; cv.height = (h + pad * 2) * s;
   const c = cv.getContext("2d");
   const filled = (x, y) => x >= 0 && x < w && y >= 0 && y < h && !!pal[def.rows[y][x]];
   // optional outline pass: rim every empty cell that touches a filled one
   if (def.outline) {
     c.fillStyle = def.outline;
-    for (let y = 0; y < h; y++) {
-      for (let x = 0; x < w; x++) {
+    for (let y = -1; y <= h; y++) {
+      for (let x = -1; x <= w; x++) {
         if (filled(x, y)) continue;
         let touch = false;
         for (let dy = -1; dy <= 1 && !touch; dy++)
           for (let dx = -1; dx <= 1 && !touch; dx++)
             if ((dx || dy) && filled(x + dx, y + dy)) touch = true;
-        if (touch) c.fillRect(x * s, y * s, s, s);
+        if (touch) c.fillRect((x + pad) * s, (y + pad) * s, s, s);
       }
     }
   }
@@ -1747,7 +2552,7 @@ function bakeVariant(def, paletteName) {
       const col = pal[row[x]];
       if (!col) continue;
       c.fillStyle = col;
-      c.fillRect(x * s, y * s, s, s);
+      c.fillRect((x + pad) * s, (y + pad) * s, s, s);
     }
   }
   return cv;
@@ -2583,8 +3388,9 @@ function getSkyGradient(theme) {
 
 function drawParallax(theme) {
   for (const { cv, def } of getThemeTiles(theme)) {
-    const off = -((game.cam * def.factor) % 480);
-    for (let x = off; x < VIEW_W; x += 480) {
+    const tw = def.tileW || 480;
+    const off = -((game.cam * def.factor) % tw);
+    for (let x = off; x < VIEW_W; x += tw) {
       ctx.drawImage(cv, Math.round(x), def.y);
     }
   }
@@ -3325,8 +4131,10 @@ function render() {
     }
     drawHint(go + "return to level select", 531);
     // pixel Lue enjoying her treatie, tucked in the bottom-left corner
+    // (bone is outlined, so its canvas carries 1 baked padding cell = 4px:
+    // offsets are -4 from the pre-padding values to keep the art in place)
     const dogX = 60, dogFeet = VIEW_H - 12;
-    ctx.drawImage(sprite("bone"), dogX + 70, dogFeet - 18);
+    ctx.drawImage(sprite("bone"), dogX + 66, dogFeet - 22);
     const eatPose = Math.floor(uiT * 3) % 2 ? "dogEat1" : "dogEat0";
     ctx.drawImage(sprite(eatPose, "dogNormal"), dogX, dogFeet - 96);
   }

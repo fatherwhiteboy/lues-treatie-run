@@ -1,7 +1,7 @@
 # PLAN.md — progress tracker
 
-Status as of **2026-08-10**, at tag **v1.5** (`30d5500`). Compared `index.html`
-against `DESIGN.md`. Update this file at the end of every work session.
+Status as of **2026-08-10** (obstacle art pass, uncommitted on top of v1.5).
+Update this file at the end of every work session.
 
 ## Built (done and verified)
 
@@ -28,14 +28,46 @@ against `DESIGN.md`. Update this file at the end of every work session.
   while running and a rising-flame variant while sitting.
 - **Costumes**: scuba visor + tank (Underwater), Christmas hat with silver
   pompom and twinkling lights (Snow Day) — pixel sprites on Lue's canvas.
-- **Living world (all 10 levels)**: doghouse/fence cat/tennis balls; couch/
-  TV/bowls/lava lamp; kite/birds/butterflies; sailboats/umbrella/shells/sun;
+- **Living world (all 10 levels)**: doghouse/fence cats/tennis balls (every
+  4th cat mid-UFO-abduction, on a 4-wide tile via the new per-layer `tileW`
+  parallax option, 2026-08-10); couch/
+  TV/bowls/lava lamp; kite/clouds/butterflies; sailboats/umbrella/shells/sun;
   whale/dolphins/turtles/crabs/neon reef + scuba exhaust bubbles; palm
-  oasis/camel/desert sun; clouds/soaring birds/rainbow/unicorns with rainbow
-  manes; falling snow/snowmen/reindeer with red-nosed lead; dice/cards/chip
+  oasis/camel/desert sun; clouds/soaring birds/cloud-anchored
+  rainbows/unicorns perched on the background peaks (moved off the
+  foreground 2026-08-10); falling snow/snowmen/reindeer with red-nosed
+  lead; dice/cards/chip
   stacks; cratered moon + neon signs. Engine support: `celestial` (fixed
   sun/moon), `weather` ambient particles, multi-color bush painter.
 - **Starla** sprite (Night City obstacle) via the obstacle `sprite:` field.
+- **Obstacle art (2026-08-10)**: all 30 remaining obstacle types drawn as
+  pixel sprites (Claude-drawn; owner may redraw any via the usual pipeline).
+  One palette per sprite, named after its type key; every sprite bakes with
+  a 1px black outline; sizes ≈ collision box ÷ 3 at scale 3; collision boxes
+  untouched. Verified in-game across all 10 themes (ground contact, breakable
+  white rim, background contrast). Contrast fixes made along the way: gold
+  slot machine (was magenta-on-magenta), blue-rimmed milk glass with a straw,
+  vertical-stream fountain, and reworked crab/rattlesnake/goat silhouettes.
+- **Flyer art (2026-08-10)**: all five flyer species redrawn with 2-frame
+  animation. The shared bird is now 13×8 with head/beak/eye, a flapping
+  wing, and belly/wing/tail palette slots — so parakeet, blackbird,
+  seagull, eagle, and pigeon each get real per-species coloring. New
+  martini-with-olive cocktail (splash droplets alternate sides), gliding
+  hooded cobra (wave humps shift between frames), orange fish with
+  white eye and forked tail (fins alternate), and a spinning blue-shaded
+  snowball. Hitboxes unchanged (fixed 32×18 in `update`).
+- **Outline edge-clip fix (engine)**: art pixels touching the rows-grid
+  edge used to lose their baked outline on that side (snowball "bracket"
+  artifact; shark/zombie/etc. had no top rim). `bakeVariant` now pads
+  outlined sprites by 1 transparent cell on every side before baking, so
+  every sprite gets a full rim with no hand margins needed. All sprite
+  draw sites are centered or bottom-aligned so the +2-cell canvas is
+  position-neutral — except the victory bone (top-left anchored), whose
+  offsets were shifted −4px each to compensate.
+- **Tooling fix**: `tools/export-sprites.ps1` palette hashtables are now
+  case-SENSITIVE — PowerShell's default case-insensitive keys silently merged
+  palette slots like `p`/`P`, exporting wrong colors for any palette that
+  uses both cases of a letter.
 - **Sound**: Web Audio synth SFX on every event; unlocks on first gesture.
 - **PWA**: runtime-generated manifest + icon from Lue's sprite (installable
   over https). No service worker by design (single-file; no offline cache).
@@ -45,13 +77,10 @@ against `DESIGN.md`. Update this file at the end of every work session.
 
 ## Half-done / placeholder
 
-- **Obstacle art**: all 22 obstacle types render as labeled colored blocks
-  (white rim + crack on breakables). Only Starla has a real sprite. The
-  `sprite:` field + import pipeline are ready; this is drawing work, not
-  engineering.
-- **Flyer art**: five species are palette swaps of one 10×6 bird; the
-  drink/snake/fish/snowball sprites are quick placeholders. Functional,
-  but a target for the same art pass.
+- **Obstacle + flyer sprites are Claude-drawn** (art pass complete
+  2026-08-10): owner may redraw any of them — drop a PNG in `art/`
+  (obstacles ≈ collision box ÷ 3; flyer frames at their grid sizes)
+  and import as usual.
 - **Derived Lue poses**: run1/jump/swipe/pick0/pick1/eat0/eat1 are Claude-
   derived from the owner frames — usable, but the owner may want to redraw
   any of them (drop PNGs in `art/`, exact names in ART-SPEC.md).
@@ -69,9 +98,7 @@ paragraph now lists only the obstacle/flyer art pass as remaining.
 
 ## What's next
 
-1. **Art pass on obstacles + flyers** (the last placeholder tier) — owner
-   draws or Claude derives; sizes per type ≈ collision box ÷ 3.
-2. **Host over https** to make the PWA installable on the niece's device;
+1. **Host over https** to make the PWA installable on the niece's device;
    real-device playtest of the v1.5 difficulty curve.
-3. Optional/backlog: mute toggle, offline service worker (would add a second
+2. Optional/backlog: mute toggle, offline service worker (would add a second
    file — needs an explicit decision), further tuning from niece feedback.

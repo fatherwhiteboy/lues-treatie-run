@@ -80,7 +80,10 @@ Everything hand-editable is at the top of the `<script>`; engine code below.
   `bakeSprites()`: names starting `dog` bake one variant per `DOG_PALETTES`
   entry (powerup recolors: fire/double/claw); names starting `bird` bake per
   `bird*` palette (per-level flyer species). Optional `outline: "#000"` bakes
-  a 1px rim; 8-digit hex palette entries give translucency (wings, visor).
+  a 1px rim onto a canvas padded 1 cell per side, so edge-touching pixels
+  keep their rim (no hand margins needed; the padded size only matters to
+  code that positions a sprite by its top-left corner — see the victory
+  bone); 8-digit hex palette entries give translucency (wings, visor).
   Lue is 32×32 @ scale 3 (96px): **`dogRun0` and `dogSit` are owner-drawn**
   (canonical PNGs in `art/`; import pipeline is pixel-exact) — other poses are
   derived from them. Ground poses must have paws on the bottom row; all poses
@@ -90,14 +93,20 @@ Everything hand-editable is at the top of the `<script>`; engine code below.
   debris colors; null = level 1 static-only), parallax `layers`, and optional
   `dogGear` ("scuba"/"snowHat" costume overlays), `celestial` (fixed sun/moon,
   drawn without parallax), `weather` ("snow" → ambient particles).
-- **`OBSTACLE_TYPES`** — placeholder colored blocks (breakables get a white
-  rim + crack). A type may declare `sprite:` for real art (see `starla`).
+- **`OBSTACLE_TYPES`** — every type declares `sprite:` (named after its key,
+  with a same-named palette; drawn at ≈ collision box ÷ 3, scale 3, baked
+  black outline). Breakables get a white rim. The colored-block renderer
+  (`color`/`edge` + crack) survives as the fallback for spriteless types.
   Each level keeps exactly one breakable type.
-- **`LAYER_PAINTERS`** — procedural parallax painters into 480px-wide
-  wrap-safe tiles (elements crossing edges drawn at x−w/x/x+w). Baked lazily
+- **`LAYER_PAINTERS`** — procedural parallax painters into wrap-safe tiles,
+  480px wide unless the layer sets `tileW` for a longer repeat (backyard
+  yardStuff uses 1920 so every 4th fence cat is a UFO abduction); elements
+  crossing edges drawn at x−w/x/x+w. Baked lazily
   per theme (`theme._tiles`). **Layer array order = draw order and `factor`
   must increase toward the foreground** — recurring bug class: critters placed
-  behind foliage (crabs/coral, unicorns/treeline, reindeer/drifts) vanish.
+  behind foliage (crabs/coral, reindeer/drifts) vanish. Mountain unicorns
+  are drawn by the `peaks` painter itself (`unicorns: true` on the layer)
+  so they stay glued to their summits.
 - **Generation** — `generateLevel()` rolls a fresh seed per attempt
   (mulberry32; seed kept on the level for repro). Fairness rules: min gaps
   derived from jump physics, pickup min-spacing + guaranteed early pickup,
