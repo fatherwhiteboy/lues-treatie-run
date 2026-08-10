@@ -139,8 +139,6 @@ replaces. Delivery is the same as always: save the PNG into
 1. Save PNGs into `C:\Drew\Runner\art\` with the exact names above.
 2. Tell Claude — a script reads the pixels and regenerates the game's
    palette + arrays exactly (no eyeballing).
-3. Also still needed: the victory photo — save the barking picture as
-   `C:\Drew\Runner\victory.jpg` and it gets inlined into the game.
 
 Checklist per file before handing off:
 - [ ] exact canvas size (e.g. 32×32), not scaled up
