@@ -1,6 +1,7 @@
 # PLAN.md — progress tracker
 
-Status as of **2026-08-10** (obstacle art pass, uncommitted on top of v1.5).
+Status as of **2026-08-10**, at tag **v1.6** (obstacle + flyer art pass,
+outline-bake fix, UFO cats, park/mountain background touches).
 Update this file at the end of every work session.
 
 ## Built (done and verified)
