@@ -103,9 +103,18 @@ new "Presentation & Flair" section (powerup outfits, living-world layers,
 celestial/weather/bubbles, phrase lists, victory photo), and the Phase 4
 paragraph now lists only the obstacle/flyer art pass as remaining.
 
+## Hosting (2026-09-28)
+
+Live on GitHub Pages: **https://fatherwhiteboy.github.io/lues-treatie-run/**
+— public repo `fatherwhiteboy/lues-treatie-run`, Pages serving the `master`
+branch root (`build_type: legacy`), https enforced. Every push to `master`
+redeploys automatically in ~1 minute; tags v1.0–v1.6 pushed. The runtime PWA
+manifest verified live — installable from the phone browser's
+"Add to Home Screen".
+
 ## What's next
 
-1. **Host over https** to make the PWA installable on the niece's device;
-   real-device playtest of the v1.5 difficulty curve.
+1. **Real-device playtest** of the difficulty curve on the niece's device
+   (game is now live at the Pages URL above — install from the browser menu).
 2. Optional/backlog: mute toggle, offline service worker (would add a second
    file — needs an explicit decision), further tuning from niece feedback.
